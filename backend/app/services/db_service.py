@@ -42,9 +42,11 @@ def get_mention(mention_id: str) -> dict | None:
 
 def get_all_mentions(limit: int = 50) -> list[dict]:
     table = _get_table("stardrop-mentions")
-    r = table.scan(Limit=limit)
+    r = table.scan(Limit=limit * 2)  # over-fetch to account for filtered items
     items = r.get("Items", [])
-    return sorted(items, key=lambda x: x.get("ts", ""), reverse=True)
+    # Filter out documents, improvements, and non-tweet items
+    mentions = [m for m in items if not m.get("type") and not m.get("mention_id", "").startswith(("doc_", "improve_"))]
+    return sorted(mentions, key=lambda x: x.get("ts", ""), reverse=True)[:limit]
 
 
 def update_mention_engagement(mention_id: str, engagement: dict):
