@@ -104,7 +104,7 @@ export default function Home() {
       <section className="relative overflow-hidden bg-gradient-to-b from-white via-white to-neutral-50/80">
         {/* Subtle radial glow behind hero */}
         <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 h-[600px] w-[800px] rounded-full bg-gradient-to-b from-neutral-100/60 to-transparent blur-3xl" />
-        <div className="relative mx-auto max-w-4xl px-6 pt-28 pb-20 text-center">
+        <div className="relative mx-auto max-w-4xl px-6 pt-20 pb-12 text-center">
           <div className="animate-fade-in mb-6 inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-white/80 backdrop-blur-sm px-4 py-1.5 text-sm text-neutral-500 shadow-sm">
             <span className="animate-pulse-dot inline-block h-2 w-2 rounded-full bg-green-500" />
             Agent is live — responding on X
@@ -147,7 +147,7 @@ export default function Home() {
       </section>
 
       {/* Live Demo */}
-      <section className="mx-auto max-w-3xl px-6 pb-24">
+      <section className="mx-auto max-w-3xl px-6 pb-14">
         <div className="animate-fade-in-scale animate-glow overflow-hidden rounded-2xl border border-neutral-200" style={{ background: "linear-gradient(135deg, rgba(250,250,250,0.5) 0%, rgba(255,255,255,1) 50%, rgba(250,250,250,0.5) 100%)", boxShadow: "0 0 0 1px rgba(0,0,0,0.03), 0 4px 24px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)" }}>
           <div className="flex items-center gap-2 border-b border-neutral-200 bg-neutral-50 px-4 py-3">
             <div className="flex gap-1.5">
@@ -209,14 +209,14 @@ export default function Home() {
 
       {/* How it works */}
       <section id="how-it-works" className="border-t border-neutral-200 bg-neutral-50">
-        <div className="mx-auto max-w-6xl px-6 py-24 md:py-32">
+        <div className="mx-auto max-w-6xl px-6 py-14 md:py-20">
           <p className="scroll-reveal text-xs font-medium uppercase tracking-[0.2em] text-neutral-400">
             Three steps
           </p>
           <h2 className="scroll-reveal mt-2 font-serif text-3xl italic tracking-tight sm:text-4xl">
             How it works
           </h2>
-          <div className="mt-14 grid gap-12 md:grid-cols-3 stagger-children">
+          <div className="mt-10 grid gap-8 md:grid-cols-3 stagger-children">
             {[
               {
                 num: "01",
@@ -258,8 +258,8 @@ export default function Home() {
 
       {/* Capabilities */}
       <section className="border-t border-neutral-200">
-        <div className="mx-auto max-w-6xl px-6 py-24 md:py-32">
-          <div className="grid gap-16 lg:grid-cols-[1fr_2fr]">
+        <div className="mx-auto max-w-6xl px-6 py-14 md:py-20">
+          <div className="grid gap-10 lg:grid-cols-[1fr_2fr]">
             <div className="scroll-reveal-left lg:sticky lg:top-28 lg:self-start">
               <p className="text-xs font-medium uppercase tracking-[0.2em] text-neutral-400">
                 Capabilities
@@ -340,19 +340,19 @@ export default function Home() {
 
       {/* Environments */}
       <section id="environments" className="border-t border-neutral-200 bg-neutral-50">
-        <div className="mx-auto max-w-6xl px-6 py-24 md:py-32">
+        <div className="mx-auto max-w-6xl px-6 py-14 md:py-20">
           <p className="scroll-reveal text-xs font-medium uppercase tracking-[0.2em] text-neutral-400">
             Environments
           </p>
           <h2 className="scroll-reveal mt-2 font-serif text-3xl italic tracking-tight sm:text-4xl">
             Systems configured
           </h2>
-          <p className="scroll-reveal mt-4 max-w-xl text-sm leading-relaxed text-neutral-500">
-            Every GTM system is an environment to connect. Each one gets its own authentication, data model, and integration interface. Here&apos;s what&apos;s live and what&apos;s coming.
+          <p className="scroll-reveal mt-3 max-w-xl text-sm leading-relaxed text-neutral-500">
+            Every GTM system is an environment to connect. Each one gets its own authentication, data model, and integration interface.
           </p>
 
           {/* Live */}
-          <div className="mt-14">
+          <div className="mt-8">
             <p className="mb-4 text-xs font-semibold uppercase tracking-[0.15em] text-green-600">
               Live
             </p>
@@ -376,8 +376,8 @@ export default function Home() {
           </div>
 
           {/* Coming Soon */}
-          <div className="mt-12">
-            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.15em] text-neutral-400">
+          <div className="mt-8">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.15em] text-neutral-400">
               Coming soon — {comingSoonEnvironments.length} environments
             </p>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 stagger-children">
@@ -407,17 +407,17 @@ export default function Home() {
 
       {/* Stats */}
       <section className="border-t border-neutral-200">
-        <div className="mx-auto max-w-6xl px-6 py-24 md:py-32">
+        <div className="mx-auto max-w-6xl px-6 py-14 md:py-20">
           <p className="scroll-reveal text-xs font-medium uppercase tracking-[0.2em] text-neutral-400">
             The problem
           </p>
           <h2 className="scroll-reveal mt-2 font-serif text-3xl italic tracking-tight sm:text-4xl">
             GTM is broken
           </h2>
-          <p className="scroll-reveal mt-4 max-w-xl text-sm leading-relaxed text-neutral-500">
-            The average B2B company uses 12-20 GTM tools, spends $1,800 per employee per year on SaaS, and watches CRM data rot at 30% annually. Stardrop gives you the intelligence layer that ties it all together.
+          <p className="scroll-reveal mt-3 max-w-xl text-sm leading-relaxed text-neutral-500">
+            The average B2B company uses 12-20 GTM tools, spends $1,800/employee/year on SaaS, and watches CRM data rot at 30% annually.
           </p>
-          <div className="mt-14 grid gap-px overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-200 sm:grid-cols-3 scroll-scale">
+          <div className="mt-8 grid gap-px overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-200 sm:grid-cols-3 scroll-scale">
             {[
               { stat: "12\u201320", label: "GTM tools per company", sub: "Each with its own data model and API" },
               { stat: "30%", label: "CRM data decays yearly", sub: "Job changes, bounces, stale records" },
@@ -428,7 +428,7 @@ export default function Home() {
             ].map((item) => (
               <div
                 key={item.label}
-                className="bg-white p-8 text-center"
+                className="bg-white p-5 text-center"
               >
                 <p className="font-serif text-4xl italic stat-gradient">
                   {item.stat}
@@ -443,17 +443,17 @@ export default function Home() {
 
       {/* Paper / Research */}
       <section className="border-t border-neutral-200 bg-neutral-50">
-        <div className="mx-auto max-w-4xl px-6 py-24 md:py-32 text-center">
+        <div className="mx-auto max-w-4xl px-6 py-14 md:py-20 text-center">
           <p className="scroll-reveal text-xs font-medium uppercase tracking-[0.2em] text-neutral-400">
             Research
           </p>
           <h2 className="scroll-reveal mt-2 font-serif text-3xl italic tracking-tight sm:text-4xl">
             Built on deep research
           </h2>
-          <p className="scroll-reveal mx-auto mt-4 max-w-lg text-sm leading-relaxed text-neutral-500">
-            Stardrop&apos;s knowledge base draws from 60+ curated research notes covering GTM motions, frameworks, tool landscapes, case studies, and data infrastructure — all indexed for retrieval-augmented generation.
+          <p className="scroll-reveal mx-auto mt-3 max-w-lg text-sm leading-relaxed text-neutral-500">
+            60+ curated notes covering GTM motions, frameworks, tool landscapes, case studies, and data infrastructure. All indexed for RAG.
           </p>
-          <div className="scroll-scale mt-10 grid gap-4 sm:grid-cols-3 text-left stagger-children">
+          <div className="scroll-scale mt-8 grid gap-3 sm:grid-cols-3 text-left stagger-children">
             {[
               { num: "60+", label: "Research notes", desc: "Interconnected Obsidian vault with wikilinks" },
               { num: "441", label: "Indexed chunks", desc: "Embedded with all-MiniLM-L6-v2 in ChromaDB" },
@@ -475,7 +475,7 @@ export default function Home() {
       {/* CTA */}
       <section className="relative border-t border-neutral-200 overflow-hidden">
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-neutral-50/50 to-neutral-100/30" />
-        <div className="relative mx-auto max-w-4xl px-6 py-28 md:py-36 text-center">
+        <div className="relative mx-auto max-w-4xl px-6 py-16 md:py-24 text-center">
           <h2 className="scroll-reveal font-serif text-4xl italic tracking-tight sm:text-6xl shimmer-text">
             Try it now
           </h2>
