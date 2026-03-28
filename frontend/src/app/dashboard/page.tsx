@@ -163,8 +163,18 @@ export default function DashboardOverview() {
           ) : (
             <div className="space-y-3">
               {recent_mentions.map((m, i) => (
-                <div key={i} className="rounded-xl border border-neutral-200 bg-white p-4">
-                  <p className="text-sm text-neutral-700">{m.author}</p>
+                <a
+                  key={i}
+                  href={m.mention_id ? `https://x.com/i/status/${m.mention_id}` : "#"}
+                  target="_blank"
+                  className="block rounded-xl border border-neutral-200 bg-white p-4 transition hover:border-neutral-300 hover:shadow-sm"
+                >
+                  <div className="flex items-start justify-between">
+                    <p className="text-sm text-neutral-700 flex-1">{m.author}</p>
+                    <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0 ml-2 text-neutral-300" fill="currentColor">
+                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                    </svg>
+                  </div>
                   {m.response_preview && (
                     <p className="mt-1 text-xs text-neutral-400 truncate">Reply: {m.response_preview}</p>
                   )}
@@ -175,7 +185,7 @@ export default function DashboardOverview() {
                     {m.replied && <span className="text-green-600 font-medium">replied</span>}
                     <span>{m.likes}L {m.replies}R {m.retweets}RT</span>
                   </div>
-                </div>
+                </a>
               ))}
             </div>
           )}
