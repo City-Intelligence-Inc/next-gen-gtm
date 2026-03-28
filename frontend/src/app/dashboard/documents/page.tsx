@@ -37,7 +37,7 @@ export default function DocumentsPage() {
     setDocs(loadDocuments());
   }, []);
 
-  function handleSave() {
+  async function handleSave() {
     if (!title.trim() || !content.trim()) return;
 
     const doc: Document = {
@@ -48,15 +48,32 @@ export default function DocumentsPage() {
       createdAt: Date.now(),
     };
 
-    console.log(`[Stardrop:Documents] Saved: "${doc.title}" (${doc.category})`);
-
+    // Save locally
     const updated = [doc, ...loadDocuments()];
     saveDocuments(updated);
     setDocs(updated);
+
+    // Save to backend (per-user knowledge base)
+    const username = typeof window !== "undefined" ? localStorage.getItem("stardrop_username") || "" : "";
+    if (username) {
+      try {
+        const r = await fetch(`/api/proxy/user/${username}/documents`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title: doc.title, content: `[${doc.category}] ${doc.content}` }),
+        });
+        const data = await r.json();
+        console.log(`[Stardrop:Documents] Uploaded to backend for @${username}:`, data);
+      } catch (e) {
+        console.error("[Stardrop:Documents] Backend upload failed:", e);
+      }
+    } else {
+      console.log("[Stardrop:Documents] No username set — saved locally only. Go to /onboard first.");
+    }
+
     setTitle("");
     setContent("");
     setCategory("Product");
-
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   }
@@ -108,8 +125,40 @@ export default function DocumentsPage() {
             Add Document
           </h2>
           <p className="text-[11px] text-neutral-400 mb-3">
-            Drag a file here or fill in the fields. Stardrop uses these to personalize responses.
+            Upload a file or paste content. Stardrop uses these to personalize YOUR responses.
           </p>
+
+          {/* File upload button */}
+          <div className="mb-3">
+            <input
+              type="file"
+              accept=".txt,.md,.csv,.json,.pdf"
+              className="hidden"
+              id="file-upload"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                  const text = ev.target?.result;
+                  if (typeof text === "string") {
+                    setContent(text);
+                    if (!title) setTitle(file.name.replace(/\.[^.]+$/, ""));
+                  }
+                };
+                reader.readAsText(file);
+              }}
+            />
+            <label
+              htmlFor="file-upload"
+              className="flex items-center justify-center gap-2 w-full border-2 border-dashed border-neutral-300 bg-white px-4 py-3 text-[11px] font-medium text-neutral-500 cursor-pointer hover:border-neutral-400 hover:text-neutral-700 transition rounded"
+            >
+              <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                <path d="M8 11V3M5 6l3-3 3 3M3 13h10" />
+              </svg>
+              Choose file or drag &amp; drop (.txt, .md, .csv, .json)
+            </label>
+          </div>
 
           <div className="space-y-2.5">
             {/* Title */}
