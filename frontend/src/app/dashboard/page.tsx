@@ -21,16 +21,13 @@ function toSlug(title: string): string {
 
 function SourceCitations({ sources }: { sources: RagSource[] }) {
   if (!sources || sources.length === 0) return null;
-  const maxShow = 3;
-  const visible = sources.slice(0, maxShow);
-  const remaining = sources.length - maxShow;
 
   return (
     <div className="flex flex-wrap items-center gap-1.5 mt-2">
       <span className="text-[9px] font-semibold uppercase tracking-widest text-neutral-300">
         Sources:
       </span>
-      {visible.map((src) => (
+      {sources.map((src) => (
         <Link
           key={src.title}
           href={`/research/${toSlug(src.title)}`}
@@ -42,9 +39,6 @@ function SourceCitations({ sources }: { sources: RagSource[] }) {
           </span>
         </Link>
       ))}
-      {remaining > 0 && (
-        <span className="text-[10px] text-neutral-300">+{remaining} more</span>
-      )}
     </div>
   );
 }

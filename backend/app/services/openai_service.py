@@ -79,6 +79,13 @@ def analyze_tweet(tweet_text: str, author_username: str) -> dict:
                 doc_context = "USER'S PRIVATE DOCUMENTS — ALWAYS prioritize these over general vault knowledge. If the question relates to any of these docs, answer from them FIRST:\n\n"
                 for doc in user_docs[:5]:
                     doc_context += f"### {doc.get('title', 'Document')}\n{doc.get('content', '')[:4000]}\n\n"
+                    # Add user docs as sources so they show in citations
+                    rag_sources.insert(0, {
+                        "title": f"📄 {doc.get('title', 'Document')}",
+                        "folder": "your documents",
+                        "file": doc.get("mention_id", ""),
+                        "relevance": 100,
+                    })
                 messages.append({"role": "system", "content": doc_context})
 
             # 3. User's past improvements as few-shot examples
