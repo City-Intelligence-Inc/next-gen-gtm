@@ -393,8 +393,9 @@ async def user_dashboard(username: str):
 
 @app.post("/api/user/{username}/documents")
 async def upload_document(username: str, request: dict = None):
-    """Upload a document to a user's personal knowledge base."""
+    """Upload a document to a user's personal knowledge base AND index into ChromaDB."""
     from app.services import db_service
+    from app.services.rag_service import get_collection, _chunk_text
     import hashlib
 
     if not request or not request.get("content"):
@@ -404,8 +405,34 @@ async def upload_document(username: str, request: dict = None):
     content = request["content"]
     doc_id = hashlib.md5(content.encode()).hexdigest()[:8]
 
+    # Save to DynamoDB
     db_service.save_user_document(username, doc_id, title, content)
-    return {"status": "saved", "doc_id": doc_id, "title": title, "chars": len(content)}
+
+    # Index into ChromaDB so RAG can retrieve it
+    try:
+        collection = get_collection()
+        if collection:
+            chunks = _chunk_text(content)
+            documents = []
+            metadatas = []
+            ids = []
+            for i, chunk in enumerate(chunks):
+                chunk_id = f"user_{username}_{doc_id}::{i}"
+                documents.append(chunk)
+                metadatas.append({
+                    "title": title,
+                    "folder": f"uploads/{username}",
+                    "file": f"uploads/{username}/{doc_id}.md",
+                    "chunk": i,
+                })
+                ids.append(chunk_id)
+            if documents:
+                collection.add(documents=documents, metadatas=metadatas, ids=ids)
+                logger.info(f"Indexed {len(documents)} chunks from user doc '{title}' by @{username}")
+    except Exception as e:
+        logger.error(f"Failed to index user doc into ChromaDB: {e}")
+
+    return {"status": "saved", "doc_id": doc_id, "title": title, "chars": len(content), "indexed": True}
 
 
 @app.get("/api/user/{username}/documents")

@@ -53,22 +53,20 @@ export default function DocumentsPage() {
     saveDocuments(updated);
     setDocs(updated);
 
-    // Save to backend (per-user knowledge base)
-    const username = typeof window !== "undefined" ? localStorage.getItem("stardrop_username") || "" : "";
-    if (username) {
-      try {
-        const r = await fetch(`/api/proxy/user/${username}/documents`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ title: doc.title, content: `[${doc.category}] ${doc.content}` }),
-        });
-        const data = await r.json();
-        console.log(`[Stardrop:Documents] Uploaded to backend for @${username}:`, data);
-      } catch (e) {
-        console.error("[Stardrop:Documents] Backend upload failed:", e);
-      }
-    } else {
-      console.log("[Stardrop:Documents] No username set — saved locally only. Go to /onboard first.");
+    // Index into backend RAG (ChromaDB) so Stardrop can cite it
+    const handle = typeof window !== "undefined"
+      ? (localStorage.getItem("stardrop_settings_twitter") || localStorage.getItem("stardrop_username") || "anonymous").replace(/^@/, "")
+      : "anonymous";
+    try {
+      const r = await fetch(`/api/proxy/user/${handle}/documents`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: doc.title, content: `[${doc.category}] ${doc.content}` }),
+      });
+      const data = await r.json();
+      console.log(`[Stardrop:Documents] Indexed into RAG for @${handle}:`, data);
+    } catch (e) {
+      console.warn("[Stardrop:Documents] Backend indexing failed (saved locally):", e);
     }
 
     setTitle("");
