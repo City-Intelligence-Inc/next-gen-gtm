@@ -53,7 +53,7 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html: `
-              (function(){
+              function initScrollReveal(){
                 var obs = new IntersectionObserver(function(entries){
                   entries.forEach(function(e){
                     if(e.isIntersecting) {
@@ -61,11 +61,16 @@ export default function RootLayout({
                       obs.unobserve(e.target);
                     }
                   });
-                }, {threshold: 0.1});
+                }, {threshold: 0.05, rootMargin: '0px 0px 50px 0px'});
                 document.querySelectorAll('.scroll-reveal,.scroll-reveal-left,.scroll-scale,.stagger-children').forEach(function(el){
                   obs.observe(el);
                 });
-              })();
+              }
+              if(document.readyState==='loading'){
+                document.addEventListener('DOMContentLoaded',initScrollReveal);
+              } else {
+                initScrollReveal();
+              }
             `,
           }}
         />
