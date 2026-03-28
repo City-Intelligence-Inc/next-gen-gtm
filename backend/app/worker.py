@@ -100,6 +100,7 @@ def run_once():
                 "mention_created_at": mention_data["created_at"],
                 "intent": result.intent,
                 "response_tweets": result.response_tweets,
+                "rag_sources": result.rag_sources,
                 "reply_ids": reply_ids,
                 "replied": len(reply_ids) > 0,
                 "engagement": None,

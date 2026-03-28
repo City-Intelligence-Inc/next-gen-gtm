@@ -1,6 +1,6 @@
 from openai import OpenAI
 from app.config import settings
-from app.services.rag_service import retrieve
+from app.services.rag_service import retrieve, retrieve_with_sources
 from app.services.feedback_service import get_learnings_context
 
 SYSTEM_PROMPT = """You are Stardrop, a GTM intelligence agent. You reply on X with actionable GTM advice.
@@ -34,9 +34,14 @@ FORMATTING:
 - End with one specific action, not a generic CTA"""
 
 
-def analyze_tweet(tweet_text: str, author_username: str) -> list[str]:
-    # RAG: retrieve relevant vault context
-    context = retrieve(tweet_text)
+def analyze_tweet(tweet_text: str, author_username: str) -> dict:
+    """Analyze a tweet and return response tweets + RAG sources.
+
+    Returns:
+        dict with keys "tweets" (list[str]) and "rag_sources" (list[dict])
+    """
+    # RAG: retrieve relevant vault context with source metadata
+    context, rag_sources = retrieve_with_sources(tweet_text)
 
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
@@ -124,12 +129,13 @@ def analyze_tweet(tweet_text: str, author_username: str) -> list[str]:
                 raw = raw[4:]
         tweets = json.loads(raw)
         if isinstance(tweets, list):
-            return [t for t in tweets if isinstance(t, str) and len(t) <= 280][:4]
+            tweet_list = [t for t in tweets if isinstance(t, str) and len(t) <= 280][:4]
+            return {"tweets": tweet_list, "rag_sources": rag_sources}
     except json.JSONDecodeError:
         pass
 
     if len(raw) <= 280:
-        return [raw]
+        return {"tweets": [raw], "rag_sources": rag_sources}
 
     chunks = []
     words = raw.split()
@@ -142,4 +148,4 @@ def analyze_tweet(tweet_text: str, author_username: str) -> list[str]:
             current = word
     if current:
         chunks.append(current)
-    return chunks[:4]
+    return {"tweets": chunks[:4], "rag_sources": rag_sources}

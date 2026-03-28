@@ -15,6 +15,7 @@ class GTMResult(BaseModel):
     mention: Mention
     intent: str
     response_tweets: list[str]
+    rag_sources: list[dict] = []
     replied: bool = False
     created_at: str = ""
 

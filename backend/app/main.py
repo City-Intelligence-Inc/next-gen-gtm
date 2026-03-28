@@ -116,9 +116,11 @@ async def health():
 @app.post("/api/gtm/analyze")
 async def analyze(text: str, author: str = "test_user"):
     """Manually trigger GTM analysis (for testing without Twitter)."""
-    tweets = analyze_tweet(text, author)
+    result = analyze_tweet(text, author)
+    tweets = result["tweets"]
+    rag_sources = result.get("rag_sources", [])
     intent = detect_intent(text)
-    return {"intent": intent, "response_tweets": tweets}
+    return {"intent": intent, "response_tweets": tweets, "rag_sources": rag_sources}
 
 
 @app.get("/api/gtm/intents")
@@ -238,6 +240,7 @@ async def dashboard_overview():
             "replies": int(eng.get("replies", 0) or 0),
             "retweets": int(eng.get("retweets", 0) or 0),
             "replied": e.get("replied", False),
+            "rag_sources": e.get("rag_sources", []),
         })
 
     worker_state = db_service.get_state("worker") or {}

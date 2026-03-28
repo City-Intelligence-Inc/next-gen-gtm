@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useMemo } from "react";
+import Link from "next/link";
 
 // -- Types --
 
@@ -101,6 +102,13 @@ const DEFAULT_NOTES = [
 ];
 
 const RELEVANCE_SCORES = [94, 87, 82, 76, 71];
+
+function toSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
 
 const PATTERNS_APPLIED = [
   "Specific tool recommendations (Clay, Apollo, Instantly)",
@@ -232,7 +240,12 @@ function ThinkingPanel({
         <div className="space-y-1">
           {vaultNotes.map((note) => (
             <div key={note.title} className="flex items-center gap-2">
-              <span className="text-[10px] text-neutral-600 w-32 shrink-0 truncate">{note.title}</span>
+              <Link
+                href={`/research/${toSlug(note.title)}`}
+                className="text-[10px] text-neutral-600 w-32 shrink-0 truncate hover:text-neutral-900 hover:underline transition"
+              >
+                {note.title}
+              </Link>
               <div className="flex-1 h-1 rounded-full bg-neutral-100 overflow-hidden">
                 <div
                   className="h-full rounded-full bg-neutral-400 transition-all duration-500"
@@ -280,6 +293,32 @@ function ThinkingPanel({
             </li>
           ))}
         </ul>
+      </div>
+
+      {/* Research Paper */}
+      <div className="border-t border-neutral-100 pt-4">
+        <p className="text-[9px] font-semibold uppercase tracking-[0.2em] text-neutral-300 mb-2">
+          Research Paper
+        </p>
+        <Link
+          href="/research/paper-outline"
+          className="block rounded-lg border border-neutral-200 bg-neutral-50 p-3 transition hover:border-neutral-300 hover:shadow-sm"
+        >
+          <p className="text-[11px] font-semibold text-neutral-800 leading-snug">
+            Environmental Engineering for Go-To-Market Systems
+          </p>
+          <p className="mt-1 text-[10px] text-neutral-400">
+            Arihant Choudhary, Bo Mohazzabi, Josh Payne
+          </p>
+          <p className="mt-0.5 text-[9px] font-semibold uppercase tracking-wider text-neutral-300">
+            Target: NeurIPS 2026
+          </p>
+          <p className="mt-2 text-[10px] text-neutral-500 leading-relaxed">
+            Modern B2B Go-To-Market operations require orchestrating 12-20 disconnected software
+            environments. We introduce the concept of Environmental Engineering for GTM, drawing
+            an analogy from physical environmental engineering to software systems engineering.
+          </p>
+        </Link>
       </div>
     </div>
   );

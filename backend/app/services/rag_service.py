@@ -143,3 +143,44 @@ def retrieve(query: str, n_results: int = 8) -> str:
             context_parts.append(doc)
 
     return "\n\n---\n\n".join(context_parts)
+
+
+def retrieve_with_sources(query: str, n_results: int = 8) -> tuple[str, list[dict]]:
+    """Retrieve relevant vault context AND source metadata."""
+    collection = get_collection()
+    if collection is None or collection.count() == 0:
+        return "", []
+
+    results = collection.query(query_texts=[query], n_results=n_results)
+
+    if not results or not results["documents"] or not results["documents"][0]:
+        return "", []
+
+    context_parts = []
+    sources = []
+    seen_titles = set()
+
+    distances = results.get("distances", [[]])[0] if results.get("distances") else [0] * len(results["documents"][0])
+
+    for doc, meta, distance in zip(
+        results["documents"][0],
+        results["metadatas"][0],
+        distances,
+    ):
+        title = meta["title"]
+        folder = meta["folder"]
+        relevance = round(max(0, 1 - distance) * 100)
+
+        if title not in seen_titles:
+            context_parts.append(f"## {title} ({folder})\n{doc}")
+            sources.append({
+                "title": title,
+                "folder": folder,
+                "file": meta.get("file", ""),
+                "relevance": relevance,
+            })
+            seen_titles.add(title)
+        else:
+            context_parts.append(doc)
+
+    return "\n\n---\n\n".join(context_parts), sources

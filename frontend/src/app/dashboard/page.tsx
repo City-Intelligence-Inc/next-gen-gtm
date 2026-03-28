@@ -1,8 +1,53 @@
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
+import Link from "next/link";
 
 type FilterMode = "all" | "mine";
+
+interface RagSource {
+  title: string;
+  folder: string;
+  file: string;
+  relevance: number;
+}
+
+function toSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
+function SourceCitations({ sources }: { sources: RagSource[] }) {
+  if (!sources || sources.length === 0) return null;
+  const maxShow = 3;
+  const visible = sources.slice(0, maxShow);
+  const remaining = sources.length - maxShow;
+
+  return (
+    <div className="flex flex-wrap items-center gap-1.5 mt-2">
+      <span className="text-[9px] font-semibold uppercase tracking-widest text-neutral-300">
+        Sources:
+      </span>
+      {visible.map((src) => (
+        <Link
+          key={src.title}
+          href={`/research/${toSlug(src.title)}`}
+          className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-neutral-50 px-2 py-0.5 text-[10px] text-neutral-500 transition hover:border-neutral-300 hover:text-neutral-700"
+        >
+          {src.title}
+          <span className="rounded-sm bg-neutral-200 px-1 py-px text-[8px] font-semibold text-neutral-400 tabular-nums">
+            {src.relevance}%
+          </span>
+        </Link>
+      ))}
+      {remaining > 0 && (
+        <span className="text-[10px] text-neutral-300">+{remaining} more</span>
+      )}
+    </div>
+  );
+}
 
 export default function DashboardOverview() {
   const [mentions, setMentions] = useState<any[]>([]);
@@ -237,6 +282,7 @@ export default function DashboardOverview() {
                     <p className="text-[13px] text-neutral-700 leading-relaxed">
                       {unrated[rateIndex].response_preview}
                     </p>
+                    <SourceCitations sources={unrated[rateIndex].rag_sources || []} />
                   </div>
                 )}
 
@@ -346,6 +392,7 @@ export default function DashboardOverview() {
                           <span className="rounded bg-neutral-100 px-1 py-0.5 text-[8px] font-semibold text-neutral-400 uppercase">{m.intent || "general"}</span>
                         </div>
                         <p className="text-[12px] text-neutral-600 leading-snug">{m.response_preview}</p>
+                        <SourceCitations sources={m.rag_sources || []} />
                       </div>
                     )}
 

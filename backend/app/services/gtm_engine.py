@@ -60,10 +60,13 @@ def process_mention(mention_data: dict) -> GTMResult:
     intent = detect_intent(clean_text)
     logger.info(f"Detected intent: {intent} for tweet: {clean_text[:60]}...")
 
-    response_tweets = analyze_tweet(clean_text, mention.author_username)
+    result = analyze_tweet(clean_text, mention.author_username)
+    response_tweets = result["tweets"]
+    rag_sources = result.get("rag_sources", [])
 
     return GTMResult(
         mention=mention,
         intent=intent,
         response_tweets=response_tweets,
+        rag_sources=rag_sources,
     )
