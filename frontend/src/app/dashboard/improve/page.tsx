@@ -1232,6 +1232,272 @@ export default function ImprovePage() {
         )}
 
         {/* ----------------------------------------------------------------- */}
+        {/* Tab: Review (Tinder-style card rating) */}
+        {/* ----------------------------------------------------------------- */}
+        {tab === "review" && (
+          <div className="px-6 py-8 md:px-10 max-w-xl mx-auto">
+            {!reviewDone && reviewIndex < REVIEW_CARDS.length && (
+              <p className="text-center text-xs text-neutral-400 mb-6">
+                Card {reviewIndex + 1} of {REVIEW_CARDS.length}
+              </p>
+            )}
+
+            {reviewDone ? (
+              /* Summary screen */
+              <div className="rounded-2xl border border-neutral-200 bg-white p-10 text-center shadow-sm">
+                <p className="font-serif text-3xl italic text-neutral-900">
+                  All reviewed
+                </p>
+                <div className="mt-6 flex justify-center gap-8">
+                  <div>
+                    <p className="text-2xl font-semibold text-green-600">
+                      {reviewResults.filter((r) => r.rating === "good").length}
+                    </p>
+                    <p className="text-xs text-neutral-400 mt-1">Good</p>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-semibold text-red-500">
+                      {reviewResults.filter((r) => r.rating === "bad").length}
+                    </p>
+                    <p className="text-xs text-neutral-400 mt-1">Bad</p>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-semibold text-neutral-400">
+                      {reviewResults.filter((r) => r.rating === "skip").length}
+                    </p>
+                    <p className="text-xs text-neutral-400 mt-1">Skipped</p>
+                  </div>
+                </div>
+                <p className="mt-4 text-xs text-neutral-400">
+                  {reviewResults.filter((r) => r.rating === "good").length > 0
+                    ? `${Math.round(
+                        (reviewResults.filter((r) => r.rating === "good").length /
+                          reviewResults.filter((r) => r.rating !== "skip").length) *
+                          100
+                      )}% approval rate`
+                    : ""}
+                </p>
+                <button
+                  onClick={resetReview}
+                  className="mt-6 rounded-lg bg-neutral-900 px-6 py-3 text-sm font-medium text-white hover:bg-neutral-800 transition-colors"
+                >
+                  Review again
+                </button>
+              </div>
+            ) : reviewIndex < REVIEW_CARDS.length ? (
+              <>
+                {/* Card */}
+                <div
+                  className="transition-all duration-300 ease-out"
+                  style={{
+                    transform:
+                      reviewExiting === "left"
+                        ? "translateX(-120%) rotate(-8deg)"
+                        : reviewExiting === "right"
+                          ? "translateX(120%) rotate(8deg)"
+                          : reviewExiting === null && reviewIndex > 0
+                            ? "translateX(0)"
+                            : "translateX(0)",
+                    opacity: reviewExiting ? 0 : 1,
+                  }}
+                >
+                  <div className="rounded-2xl border border-neutral-200 bg-white shadow-lg overflow-hidden">
+                    {/* Question */}
+                    <div className="border-b border-neutral-100 bg-neutral-50 px-6 py-4">
+                      <p className="text-xs uppercase tracking-widest text-neutral-400 mb-1">
+                        Question
+                      </p>
+                      <p className="text-sm text-neutral-500 leading-relaxed">
+                        {REVIEW_CARDS[reviewIndex].question}
+                      </p>
+                    </div>
+                    {/* Answer */}
+                    <div className="px-6 py-5">
+                      <p className="text-xs uppercase tracking-widest text-neutral-400 mb-2">
+                        Stardrop&apos;s response
+                      </p>
+                      <p className="text-sm text-neutral-800 leading-relaxed">
+                        {REVIEW_CARDS[reviewIndex].answer}
+                      </p>
+                    </div>
+                    {/* Source tags */}
+                    <div className="border-t border-neutral-100 px-6 py-3 flex flex-wrap gap-1.5">
+                      <span className="rounded-full bg-neutral-100 px-2.5 py-0.5 text-[10px] text-neutral-500">
+                        vault/gtm-knowledge
+                      </span>
+                      <span className="rounded-full bg-neutral-100 px-2.5 py-0.5 text-[10px] text-neutral-500">
+                        vault/frameworks
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Buttons */}
+                <div className="mt-6 flex items-center justify-center gap-5">
+                  <button
+                    onClick={() => rateCard("bad")}
+                    className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-red-200 text-red-400 transition-all hover:bg-red-50 hover:border-red-400 hover:scale-110 active:scale-95"
+                    title="Bad (Left arrow)"
+                  >
+                    <span className="text-xl">&#x2717;</span>
+                  </button>
+                  <button
+                    onClick={() => rateCard("skip")}
+                    className="flex h-11 w-11 items-center justify-center rounded-full border-2 border-neutral-200 text-neutral-400 transition-all hover:bg-neutral-50 hover:border-neutral-400 hover:scale-110 active:scale-95"
+                    title="Skip (Space)"
+                  >
+                    <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M5 3l6 5-6 5" />
+                      <path d="M11 3v10" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={() => rateCard("good")}
+                    className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-green-200 text-green-500 transition-all hover:bg-green-50 hover:border-green-400 hover:scale-110 active:scale-95"
+                    title="Good (Right arrow)"
+                  >
+                    <span className="text-xl">&#x2713;</span>
+                  </button>
+                </div>
+
+                {/* Keyboard hint */}
+                <p className="mt-4 text-center text-[11px] text-neutral-300">
+                  &#8592; Bad &middot; Space Skip &middot; Good &#8594;
+                </p>
+              </>
+            ) : null}
+          </div>
+        )}
+
+        {/* ----------------------------------------------------------------- */}
+        {/* Tab: Documents */}
+        {/* ----------------------------------------------------------------- */}
+        {tab === "documents" && (
+          <div className="px-6 py-8 md:px-10 max-w-3xl">
+            <p className="text-sm text-neutral-500 mb-2">
+              Upload documents to teach Stardrop about your product, market, and playbooks.
+            </p>
+            <p className="text-xs text-neutral-400 mb-8 rounded-lg bg-amber-50 border border-amber-200 px-4 py-2.5">
+              Documents saved here will be indexed into Stardrop&apos;s knowledge base in a future update.
+            </p>
+
+            {/* New document form */}
+            <div className="rounded-xl border border-neutral-200 bg-white p-5 space-y-4">
+              <div className="flex gap-3">
+                <div className="flex-1">
+                  <label className="text-xs font-medium text-neutral-500 mb-1 block">
+                    Title
+                  </label>
+                  <input
+                    type="text"
+                    value={docTitle}
+                    onChange={(e) => setDocTitle(e.target.value)}
+                    placeholder="e.g. Our ICP definition"
+                    className="w-full rounded-lg border border-neutral-200 px-4 py-2.5 text-sm outline-none transition focus:border-neutral-400"
+                  />
+                </div>
+                <div className="w-44">
+                  <label className="text-xs font-medium text-neutral-500 mb-1 block">
+                    Category
+                  </label>
+                  <select
+                    value={docCategory}
+                    onChange={(e) => setDocCategory(e.target.value as DocumentCategory)}
+                    className="w-full rounded-lg border border-neutral-200 px-3 py-2.5 text-sm outline-none transition focus:border-neutral-400 bg-white"
+                  >
+                    {DOCUMENT_CATEGORIES.map((cat) => (
+                      <option key={cat} value={cat}>
+                        {cat}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-medium text-neutral-500 mb-1 block">
+                  Content
+                </label>
+                <textarea
+                  value={docContent}
+                  onChange={(e) => setDocContent(e.target.value)}
+                  placeholder="Paste your document content here — product descriptions, case studies, battle cards, ICP documents, playbooks..."
+                  rows={6}
+                  className="w-full rounded-lg border border-neutral-200 px-4 py-3 text-sm outline-none transition focus:border-neutral-400 resize-none"
+                />
+              </div>
+
+              <div className="flex justify-end">
+                <button
+                  onClick={saveDocument}
+                  disabled={!docTitle.trim() || !docContent.trim()}
+                  className="rounded-lg bg-neutral-900 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-neutral-800 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  Save document
+                </button>
+              </div>
+            </div>
+
+            {/* Saved documents */}
+            {documents.length > 0 && (
+              <div className="mt-8">
+                <h2 className="text-xs font-semibold uppercase tracking-widest text-neutral-400 mb-4">
+                  Saved documents ({documents.length})
+                </h2>
+                <div className="space-y-3">
+                  {documents.map((doc) => (
+                    <div
+                      key={doc.id}
+                      className="rounded-xl border border-neutral-200 bg-white p-5"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h3 className="text-sm font-semibold text-neutral-800">
+                              {doc.title}
+                            </h3>
+                            <span className="inline-block rounded-full bg-neutral-100 px-2.5 py-0.5 text-[11px] font-medium text-neutral-600">
+                              {doc.category}
+                            </span>
+                          </div>
+                          <p className="mt-1 text-[11px] text-neutral-400">
+                            {new Date(doc.createdAt).toLocaleDateString("en-US", {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                            })}
+                          </p>
+                          <p className="mt-2 text-xs text-neutral-500 line-clamp-2 leading-relaxed">
+                            {doc.content}
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => deleteDocument(doc.id)}
+                          className="shrink-0 rounded-md border border-neutral-200 px-2 py-1 text-[11px] text-neutral-400 hover:text-red-500 hover:border-red-200 transition-colors"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {documents.length === 0 && (
+              <div className="mt-8 flex flex-col items-center justify-center rounded-xl border border-dashed border-neutral-200 bg-neutral-50/50 px-6 py-12 text-center">
+                <p className="text-sm font-semibold text-neutral-700">
+                  No documents yet
+                </p>
+                <p className="mt-1.5 max-w-sm text-xs text-neutral-400 leading-relaxed">
+                  Add product info, case studies, battle cards, or ICP documents above. They will personalize Stardrop&apos;s responses for your company.
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ----------------------------------------------------------------- */}
         {/* Tab 1: Your GTM Score */}
         {/* ----------------------------------------------------------------- */}
         {tab === "score" && (

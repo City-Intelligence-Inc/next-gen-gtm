@@ -138,6 +138,31 @@ def get_mentions_for_user(username: str) -> list[dict]:
             and (m.get("author_username", "").lower() == clean)]
 
 
+def save_user_document(username: str, doc_id: str, title: str, content: str):
+    """Save a user-uploaded document."""
+    table = _get_table("stardrop-mentions")
+    from datetime import datetime
+    table.put_item(Item={
+        "mention_id": f"doc_{username}_{doc_id}",
+        "type": "document",
+        "username": username.lower().strip().lstrip("@"),
+        "title": title,
+        "content": content,
+        "ts": datetime.utcnow().isoformat(),
+    })
+
+
+def get_user_documents(username: str) -> list[dict]:
+    clean = username.lower().strip().lstrip("@")
+    table = _get_table("stardrop-mentions")
+    r = table.scan(
+        FilterExpression="#t = :t AND #u = :u",
+        ExpressionAttributeNames={"#t": "type", "#u": "username"},
+        ExpressionAttributeValues={":t": "document", ":u": clean},
+    )
+    return sorted(r.get("Items", []), key=lambda x: x.get("ts", ""), reverse=True)
+
+
 def update_user(username: str, updates: dict):
     table = _get_table("stardrop-users")
     expressions = []
