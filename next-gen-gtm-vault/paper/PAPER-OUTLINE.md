@@ -1,8 +1,9 @@
 # Environmental Engineering for Go-To-Market Systems: A Framework for Configuring, Orchestrating, and Self-Improving Multi-Environment AI Agents
 
-**Authors:** Arihant Choudhary (City Intelligence), Bo Mohazzabi (Coframe), Josh Payne (Coframe)
+**Authors:** Arihant Choudhary (City Intelligence / Stanford), Bo Mohazzabi (VP GTM, Coframe), Josh Payne (Coframe)
 **Target:** NeurIPS 2026 (main conference or workshop), arXiv cs.AI
 **Format:** LaTeX, 8-10 pages + appendices, NeurIPS style
+**Status:** Outline complete. System deployed. Dashboard + self-improvement loop live. Data collection phase beginning (Issue #31).
 
 ---
 
@@ -175,9 +176,11 @@ State Store (deduplication)
 ### 4.2 Knowledge Base Construction
 
 - 60+ markdown notes curated from web research across 10 categories: concepts, motions, frameworks, tools, case studies, architecture, data infrastructure, roles, signals, resources
+- Includes practitioner profiles (Bo Mohazzabi — VP GTM @ Coframe, $36K→$2.4M, KarmaCheck 50x scale) that encode domain voice and philosophy into the RAG context
 - Chunked into 441 segments (800 chars, 100 overlap)
 - Indexed in ChromaDB with all-MiniLM-L6-v2 embeddings
 - Retrieved at query time: top-8 chunks by cosine similarity, deduplicated by source note title
+- 6 case studies: Ramp ($32B), Figma ($10B), Datadog (120% NRR), Notion ($10B), Clay ($5B), Coframe (multi-agent A/B testing)
 
 ### 4.3 Intent Detection
 
@@ -193,7 +196,50 @@ Six automation categories with regex-based primary detection and LLM fallback:
 | outbound_generator | "turn this into outbound" | Cold email generation |
 | general_gtm | (fallback) | General GTM advice |
 
-### 4.4 Environment Configuration in Practice
+### 4.4 Self-Improvement Architecture (Implemented)
+
+The deployed system includes three self-improvement mechanisms:
+
+**4.4.1 Engagement-Based Feedback Loop**
+1. Every response is logged (mention, intent, generated tweets, reply IDs) to `.feedback_log.jsonl`
+2. After 1 hour, the worker collects engagement metrics (likes, replies, retweets) via Twitter API
+3. Responses are scored: `likes×3 + replies×5 + retweets×2`
+4. Top-performing patterns and worst-performing anti-patterns are extracted
+5. Learnings are injected into the system prompt for future responses
+6. Tracked via `improvement_tracker.py` — 1% daily compound improvement target
+
+**4.4.2 HyDE (Hypothetical Document Embedding)**
+When users submit responses or resources they like, those are embedded as "gold standard" documents. For new queries, the system:
+1. Generates a hypothetical ideal response
+2. Embeds the hypothetical response
+3. Retrieves similar gold-standard docs by cosine similarity
+4. Uses retrieved gold-standard docs to guide the actual response generation
+
+This is the primary self-improvement mechanism going forward — it enables the system to learn what "good" looks like from practitioner feedback without retraining.
+
+**4.4.3 Compound Improvement Tracking**
+The improvement tracker (`/api/improvements/status`) maintains:
+- Daily response quality scores
+- Running compound improvement rate
+- Visualization at `/improve` showing the 1% daily compound curve
+- Target: 37x improvement over 1 year (1.01^365)
+
+### 4.5 Dashboard & Observability (Implemented)
+
+The system includes a 7-page dashboard ([next-gen-gtm.vercel.app/dashboard](https://next-gen-gtm.vercel.app/dashboard)) that pulls real-time data from the API:
+
+| Page | Data Source | What It Shows |
+|------|-----------|--------------|
+| Overview | `/api/dashboard/data` | Response count, avg engagement, active intents, environment health |
+| History | `/api/gtm/history` | Full response log with intent, score, engagement metrics |
+| Insights | `/api/improvements/status` | Performance trends, top patterns, compound improvement curve |
+| Knowledge | `/api/rag/stats` | Vault stats, chunk distribution, most-retrieved notes |
+| Environments | `/api/environments/status` | Per-environment health, latency, error rates |
+| Settings | `/api/config` | Bot configuration, poll interval, model parameters |
+
+This dashboard is the basis for the planned Townhall-style product (#19) where users customize Stardrop for their own ICP, knowledge, and response style.
+
+### 4.6 Environment Configuration in Practice
 
 We detail the actual configuration process for each live environment:
 
@@ -207,7 +253,7 @@ We detail the actual configuration process for each live environment:
 | GitHub | GitHub App | App ID + private key | App installation |
 | Luma | API key | `LUMA_API_KEY` | Single env var |
 
-We enumerate 17 additional environments with their integration specifications (see Appendix A).
+We enumerate 18 additional environments with their integration specifications (see Appendix A).
 
 ---
 
@@ -229,13 +275,21 @@ We enumerate 17 additional environments with their integration specifications (s
 
 ### 5.3 Results
 
-[To be filled with actual measurements]
+[To be filled with actual measurements — data collection plan: Issue #31]
 
-Expected findings:
+**Data being collected (starting March 2026):**
+- Every response logged with: intent category, RAG chunks retrieved, generated text, reply tweet IDs
+- Engagement metrics collected 1 hour post-reply: likes, replies, retweets, quote tweets
+- Environment health: uptime, latency, error rates per environment (App Runner health checks)
+- Improvement tracker: daily compound score, pattern extraction, learnings applied
+
+**Expected findings:**
 - RAG + domain knowledge significantly increases specificity (naming Clay, Apollo, Instantly vs. generic "use a CRM")
 - Actionability improves when responses reference specific frameworks (MEDDIC, Bow-Tie, signal taxonomy)
 - Intent detection via regex achieves >90% accuracy on clear queries; LLM fallback handles ambiguous cases
 - Environment reliability: Twitter API rate limits are the primary constraint; OpenAI latency is the primary bottleneck
+- HyDE mechanism improves response quality over time as gold-standard documents accumulate
+- Practitioner voice (Bo Mohazzabi style: zero fluff, numbers always, intent first) correlates with higher engagement scores
 
 ### 5.4 Qualitative Analysis
 
@@ -262,18 +316,21 @@ Expected findings:
 
 ### 6.3 Limitations
 
-- Single-agent system (no multi-agent collaboration yet)
-- Twitter as the only user-facing channel (no Slack, email, or web interface)
-- No outcome tracking yet (can't measure if advice was followed or effective)
-- Knowledge base is static (no continuous learning from interactions)
-- Evaluation is small-scale (50 test queries, 3 annotators)
+- Single-agent system (no multi-agent collaboration yet) — planned: multi-agent pipeline with HaystacksAI + Coframe
+- Twitter as the only user-facing channel (no Slack, email, or web interface yet) — planned: multi-channel activation (#30)
+- No outcome tracking yet (can't measure if advice was followed or effective) — planned: #26
+- Knowledge base is curated but manually maintained — planned: automated knowledge refresh via agent-driven research
+- HyDE mechanism is implemented but gold-standard corpus is still small — grows with user feedback
+- Evaluation is small-scale (50 test queries, 3 annotators) — will grow with live deployment data
 
 ### 6.4 The Self-Improving Trajectory
 
-- Current system: Level 2 (bi-directional with some environments)
-- Path to Level 4: outcome tracking → scoring model retraining → experiment engine → strategic insight surfacing
+- Current system: Level 2-3 (bi-directional with some environments, event-driven feedback loop live)
+- **Already implemented:** engagement-based feedback loop, HyDE gold-standard embedding, compound improvement tracker (1% daily target), learnings injection into system prompt
+- Path to Level 4: outcome tracking (#26) → scoring model retraining → experiment engine (#27) → strategic insight surfacing
 - The flywheel effect: each new environment adds data, each interaction trains better models
-- Estimated timeline: 6-12 months to achieve measurable compound improvement
+- Compound improvement target: 1.01^365 = 37x over 1 year — being tracked live at `/improve`
+- The Coframe pipeline (HaystacksAI → Stardrop → Coframe) creates a cross-system flywheel: better signals → better intelligence → better conversion → more data → better signals
 
 ---
 
@@ -284,9 +341,10 @@ We introduced the Environmental Engineering Framework for reasoning about multi-
 1. Treating each SaaS tool as a formal "environment" with defined interfaces enables systematic agent integration
 2. RAG over curated domain knowledge produces measurably more specific and actionable agent responses
 3. A progressive integration model (Level 0-4) provides a practical roadmap for enterprise AI agent deployment
-4. The self-improving loop (OODA + flywheel + antifragility) provides a theoretical foundation for agents that compound in capability over time
+4. The self-improving loop (OODA + flywheel + antifragility) is not just theoretical — we implement it via engagement-based feedback, HyDE gold-standard embedding, and compound improvement tracking
+5. The Coframe + HaystacksAI pipeline validates that practitioners independently converge on environmental engineering patterns, even without a formal framework
 
-Stardrop is deployed and operational at https://xitwxb23yn.us-east-1.awsapprunner.com with code available at https://github.com/City-Intelligence-Inc/next-gen-gtm.
+Stardrop is deployed and operational at https://xitwxb23yn.us-east-1.awsapprunner.com with dashboard at https://next-gen-gtm.vercel.app/dashboard and code at https://github.com/City-Intelligence-Inc/next-gen-gtm.
 
 ---
 

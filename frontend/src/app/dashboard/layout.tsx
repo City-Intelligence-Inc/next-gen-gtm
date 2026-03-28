@@ -10,6 +10,7 @@ const navItems = [
   { label: "Insights", href: "/dashboard/insights", icon: InsightsIcon },
   { label: "Environments", href: "/dashboard/environments", icon: EnvironmentsIcon },
   { label: "Knowledge", href: "/dashboard/knowledge", icon: KnowledgeIcon },
+  { label: "Improve", href: "/dashboard/improve", icon: ImproveIcon },
   { label: "Settings", href: "/dashboard/settings", icon: SettingsIcon },
 ];
 
@@ -57,6 +58,15 @@ function KnowledgeIcon({ className }: { className?: string }) {
     <svg className={className} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
       <path d="M2 2.5h4.5a2 2 0 0 1 2 2v9.5a1.5 1.5 0 0 0-1.5-1.5H2z" />
       <path d="M14 2.5H9.5a2 2 0 0 0-2 2v9.5a1.5 1.5 0 0 1 1.5-1.5H14z" />
+    </svg>
+  );
+}
+
+function ImproveIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="1.5 12 5 6 8.5 9 14.5 2" />
+      <circle cx="14.5" cy="2" r="1" fill="currentColor" />
     </svg>
   );
 }
