@@ -76,6 +76,83 @@ export default function DashboardLayout({
 }) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [onboarded, setOnboarded] = useState(true); // assume true until checked
+  const [onboardName, setOnboardName] = useState("");
+  const [onboardProduct, setOnboardProduct] = useState("");
+  const [onboardAudience, setOnboardAudience] = useState("");
+  const [mounted, setMounted] = useState(false);
+
+  // Check onboarding status
+  useState(() => {
+    if (typeof window === "undefined") return;
+    setMounted(true);
+    const done = localStorage.getItem("stardrop_onboarded");
+    if (!done) setOnboarded(false);
+  });
+
+  // Show onboarding gate
+  if (mounted && !onboarded) {
+    const canSubmit = onboardName.trim() && onboardProduct.trim();
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-neutral-50 px-4">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-8">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-neutral-900">
+              <span className="text-lg font-bold text-white italic">S</span>
+            </div>
+            <h1 className="mt-4 text-2xl font-semibold text-neutral-900">Welcome to Stardrop</h1>
+            <p className="mt-2 text-sm text-neutral-500">Tell us about your product so Stardrop can give you personalized GTM advice.</p>
+          </div>
+          <div className="space-y-4 rounded-xl border border-neutral-200 bg-white p-6">
+            <div>
+              <label className="block text-xs font-medium text-neutral-600 mb-1">Your name</label>
+              <input
+                value={onboardName}
+                onChange={(e) => setOnboardName(e.target.value)}
+                placeholder="e.g. Ari"
+                className="w-full rounded-lg border border-neutral-200 px-3 py-2.5 text-sm outline-none focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-neutral-600 mb-1">What do you sell?</label>
+              <input
+                value={onboardProduct}
+                onChange={(e) => setOnboardProduct(e.target.value)}
+                placeholder="e.g. AI code review tool for engineering teams"
+                className="w-full rounded-lg border border-neutral-200 px-3 py-2.5 text-sm outline-none focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-neutral-600 mb-1">Who do you sell to? <span className="text-neutral-400">(optional)</span></label>
+              <input
+                value={onboardAudience}
+                onChange={(e) => setOnboardAudience(e.target.value)}
+                placeholder="e.g. VP Engineering at B2B SaaS, 50-500 employees"
+                className="w-full rounded-lg border border-neutral-200 px-3 py-2.5 text-sm outline-none focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900"
+              />
+            </div>
+            <button
+              onClick={() => {
+                if (!canSubmit) return;
+                localStorage.setItem("stardrop_onboarded", "true");
+                localStorage.setItem("stardrop_settings_name", onboardName);
+                localStorage.setItem("stardrop_settings_product", onboardProduct);
+                if (onboardAudience) localStorage.setItem("stardrop_settings_audience", onboardAudience);
+                console.log("[Stardrop:Onboarding] Completed:", { name: onboardName, product: onboardProduct, audience: onboardAudience });
+                setOnboarded(true);
+              }}
+              disabled={!canSubmit}
+              className={`w-full rounded-lg px-4 py-3 text-sm font-medium text-white transition ${
+                canSubmit ? "bg-neutral-900 hover:bg-neutral-800" : "bg-neutral-300 cursor-not-allowed"
+              }`}
+            >
+              Get started
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen overflow-hidden bg-white">
