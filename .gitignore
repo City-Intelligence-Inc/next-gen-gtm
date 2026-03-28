@@ -11,3 +11,4 @@ __pycache__/
 .next/
 .chroma_db/
 .worker_state.json
+.gstack/

@@ -11,6 +11,7 @@ import json
 from pathlib import Path
 from app.config import settings
 from app.services.twitter_service import fetch_mentions, post_reply_thread, has_already_replied
+from app.services.feedback_service import log_response, collect_feedback
 from app.services.gtm_engine import process_mention
 
 logging.basicConfig(
@@ -89,6 +90,7 @@ def run_once():
                         mention_data["author_username"],
                     )
                     logger.info(f"Posted {len(posted_ids)} reply tweets")
+                    log_response(tweet_id, mention_data["text"], result.intent, result.response_tweets, posted_ids)
                 else:
                     logger.warning("No Twitter write credentials — logging response only:")
                     for i, tweet in enumerate(result.response_tweets):
@@ -108,8 +110,17 @@ def run_loop():
         f"for @{settings.stardrop_username} mentions."
     )
 
+    feedback_counter = 0
     while True:
         run_once()
+        # Collect feedback every 10 poll cycles (~10 min)
+        feedback_counter += 1
+        if feedback_counter >= 10:
+            try:
+                collect_feedback()
+            except Exception as e:
+                logger.warning(f"Feedback collection failed: {e}")
+            feedback_counter = 0
         time.sleep(settings.poll_interval_seconds)
 
 

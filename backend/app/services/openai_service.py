@@ -1,6 +1,7 @@
 from openai import OpenAI
 from app.config import settings
 from app.services.rag_service import retrieve
+from app.services.feedback_service import get_learnings_context
 
 SYSTEM_PROMPT = """You are Stardrop, a GTM (Go-To-Market) intelligence agent built by City Intelligence (@CityIntelHQ / @arichoudhary).
 
@@ -34,6 +35,13 @@ def analyze_tweet(tweet_text: str, author_username: str) -> list[str]:
         messages.append({
             "role": "system",
             "content": f"RELEVANT GTM KNOWLEDGE (from research vault):\n\n{context}",
+        })
+
+    learnings = get_learnings_context()
+    if learnings:
+        messages.append({
+            "role": "system",
+            "content": learnings,
         })
 
     messages.append({
