@@ -1,0 +1,13 @@
+.env
+__pycache__/
+*.pyc
+.venv/
+node_modules/
+.next/
+.vercel
+*.egg-info/
+dist/
+__pycache__/
+.next/
+.chroma_db/
+.worker_state.json

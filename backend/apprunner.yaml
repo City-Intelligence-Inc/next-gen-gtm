@@ -1,0 +1,27 @@
+version: 1.0
+runtime: python312
+build:
+  commands:
+    build:
+      - pip install -r requirements.txt
+run:
+  command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+  network:
+    port: 8000
+  env:
+    - name: OPENAI_API_KEY
+      value: ""
+    - name: TWITTER_CONSUMER_KEY
+      value: ""
+    - name: TWITTER_CONSUMER_SECRET
+      value: ""
+    - name: TWITTER_BEARER_TOKEN
+      value: ""
+    - name: TWITTER_ACCESS_TOKEN
+      value: ""
+    - name: TWITTER_ACCESS_SECRET
+      value: ""
+    - name: STARDROP_USERNAME
+      value: "stardroplin"
+    - name: POLL_INTERVAL_SECONDS
+      value: "60"
