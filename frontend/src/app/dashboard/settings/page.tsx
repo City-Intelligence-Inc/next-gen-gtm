@@ -23,99 +23,19 @@ export default function SettingsPage() {
           <p className="text-xs text-neutral-400 mb-5">
             Credentials for connected environments. Keys are encrypted at rest.
           </p>
-          <div className="space-y-4">
-            {[
-              {
-                label: "OpenAI API Key",
-                placeholder: "sk-...",
-                connected: true,
-                hint: "Used for GPT-4o inference. Required.",
-              },
-              {
-                label: "X / Twitter Bearer Token",
-                placeholder: "AAAA...",
-                connected: true,
-                hint: "OAuth 1.0a for mention detection and replies.",
-              },
-              {
-                label: "X / Twitter API Key",
-                placeholder: "API key...",
-                connected: true,
-                hint: "Consumer key for the Twitter API v2.",
-              },
-              {
-                label: "X / Twitter API Secret",
-                placeholder: "API secret...",
-                connected: true,
-                hint: "Consumer secret for the Twitter API v2.",
-              },
-              {
-                label: "X / Twitter Access Token",
-                placeholder: "Access token...",
-                connected: true,
-                hint: "User-level access for posting replies.",
-              },
-              {
-                label: "X / Twitter Access Token Secret",
-                placeholder: "Access token secret...",
-                connected: true,
-                hint: "User-level secret for posting replies.",
-              },
-              {
-                label: "GitHub App Private Key",
-                placeholder: "-----BEGIN RSA PRIVATE KEY-----",
-                connected: true,
-                hint: "For repo creation and CI/CD triggers.",
-              },
-              {
-                label: "Luma API Key",
-                placeholder: "luma_...",
-                connected: true,
-                hint: "Event creation and attendee management.",
-              },
-              {
-                label: "HubSpot API Key",
-                placeholder: "pat-...",
-                connected: false,
-                hint: "For CRM contact and deal sync. Coming soon.",
-              },
-              {
-                label: "Clay API Key",
-                placeholder: "clay_...",
-                connected: false,
-                hint: "For waterfall enrichment. Coming soon.",
-              },
-            ].map((key) => (
-              <div key={key.label}>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-sm font-medium text-neutral-700">
-                    {key.label}
-                  </label>
-                  {key.connected ? (
-                    <span className="flex items-center gap-1.5 text-[10px] font-medium text-green-600">
-                      <span className="inline-block h-1.5 w-1.5 rounded-full bg-green-500" />
-                      Connected
-                    </span>
-                  ) : (
-                    <span className="text-[10px] font-medium text-neutral-400">
-                      Not configured
-                    </span>
-                  )}
-                </div>
-                <div className="flex gap-2">
-                  <input
-                    type="password"
-                    placeholder={key.placeholder}
-                    defaultValue={key.connected ? "configured-key-hidden" : ""}
-                    className="flex-1 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-700 placeholder:text-neutral-300 focus:border-neutral-400 focus:outline-none transition"
-                  />
-                  <button className="shrink-0 rounded-md bg-neutral-900 px-4 py-2 text-xs font-medium text-white transition hover:bg-neutral-800">
-                    Save
-                  </button>
-                </div>
-                <p className="mt-1 text-[10px] text-neutral-400">{key.hint}</p>
-              </div>
-            ))}
+          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-neutral-200 bg-neutral-50/50 px-6 py-12 text-center">
+            <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-neutral-100">
+              <div className="h-4 w-4 rounded-sm bg-neutral-300" />
+            </div>
+            <h3 className="text-sm font-semibold text-neutral-700">
+              No API keys configured
+            </h3>
+            <p className="mt-1.5 max-w-sm text-xs text-neutral-400 leading-relaxed">
+              Connect the settings API to manage API keys for OpenAI, X/Twitter, GitHub, and other integrations.
+            </p>
+            <p className="mt-3 rounded-md bg-neutral-100 px-3 py-1.5 font-mono text-[10px] text-neutral-400">
+              GET /api/dashboard/settings
+            </p>
           </div>
         </section>
 
@@ -127,90 +47,13 @@ export default function SettingsPage() {
           <p className="text-xs text-neutral-400 mb-5">
             Define your Ideal Customer Profile so Stardrop tailors responses to your market.
           </p>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-neutral-700">
-                Target persona
-              </label>
-              <input
-                type="text"
-                defaultValue="VP Engineering, Engineering Manager"
-                className="w-full rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-700 focus:border-neutral-400 focus:outline-none transition"
-              />
-              <p className="mt-1 text-[10px] text-neutral-400">
-                Job titles to target in ICP analysis
-              </p>
-            </div>
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-neutral-700">
-                Company size
-              </label>
-              <input
-                type="text"
-                defaultValue="50-500 employees"
-                className="w-full rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-700 focus:border-neutral-400 focus:outline-none transition"
-              />
-              <p className="mt-1 text-[10px] text-neutral-400">
-                Employee count range for target companies
-              </p>
-            </div>
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-neutral-700">
-                Industries
-              </label>
-              <input
-                type="text"
-                defaultValue="B2B SaaS, Developer Tools, DevOps"
-                className="w-full rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-700 focus:border-neutral-400 focus:outline-none transition"
-              />
-              <p className="mt-1 text-[10px] text-neutral-400">
-                Comma-separated target industries
-              </p>
-            </div>
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-neutral-700">
-                Funding stage
-              </label>
-              <input
-                type="text"
-                defaultValue="Series A to Series C"
-                className="w-full rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-700 focus:border-neutral-400 focus:outline-none transition"
-              />
-              <p className="mt-1 text-[10px] text-neutral-400">
-                Target company funding stage
-              </p>
-            </div>
-            <div className="sm:col-span-2">
-              <label className="mb-1.5 block text-sm font-medium text-neutral-700">
-                Pain points
-              </label>
-              <textarea
-                rows={3}
-                defaultValue="Alert fatigue from too many monitoring tools. Slow MTTR. Manual incident response. No unified observability across microservices."
-                className="w-full rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-700 focus:border-neutral-400 focus:outline-none transition resize-none"
-              />
-              <p className="mt-1 text-[10px] text-neutral-400">
-                Key customer pain points to reference in responses
-              </p>
-            </div>
-            <div className="sm:col-span-2">
-              <label className="mb-1.5 block text-sm font-medium text-neutral-700">
-                Buying signals
-              </label>
-              <textarea
-                rows={3}
-                defaultValue="Hiring SRE or DevOps engineers. Posting about observability challenges. Recently raised funding. Migrating to Kubernetes. Expanding engineering team."
-                className="w-full rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-700 focus:border-neutral-400 focus:outline-none transition resize-none"
-              />
-              <p className="mt-1 text-[10px] text-neutral-400">
-                Signals that indicate a company is ready to buy
-              </p>
-            </div>
-          </div>
-          <div className="mt-5 flex justify-end">
-            <button className="rounded-md bg-neutral-900 px-6 py-2 text-sm font-medium text-white transition hover:bg-neutral-800">
-              Save ICP
-            </button>
+          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-neutral-200 bg-neutral-50/50 px-6 py-12 text-center">
+            <h3 className="text-sm font-semibold text-neutral-700">
+              No ICP defined
+            </h3>
+            <p className="mt-1.5 max-w-sm text-xs text-neutral-400 leading-relaxed">
+              ICP settings will be configurable once the settings API is connected.
+            </p>
           </div>
         </section>
 
@@ -222,101 +65,13 @@ export default function SettingsPage() {
           <p className="text-xs text-neutral-400 mb-5">
             Control how Stardrop writes its replies on X.
           </p>
-          <div className="space-y-4">
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-neutral-700">
-                Tone
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {[
-                  { label: "Direct", active: true },
-                  { label: "Friendly", active: false },
-                  { label: "Academic", active: false },
-                  { label: "Provocative", active: false },
-                  { label: "Casual", active: false },
-                ].map((tone) => (
-                  <button
-                    key={tone.label}
-                    className={`rounded-md px-3 py-1.5 text-xs font-medium transition ${
-                      tone.active
-                        ? "bg-neutral-900 text-white"
-                        : "border border-neutral-200 text-neutral-500 hover:border-neutral-300 hover:text-neutral-700"
-                    }`}
-                  >
-                    {tone.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-neutral-700">
-                Response length
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {[
-                  { label: "Concise (1 tweet)", active: false },
-                  { label: "Standard (2-3 tweets)", active: true },
-                  { label: "Detailed (thread)", active: false },
-                ].map((length) => (
-                  <button
-                    key={length.label}
-                    className={`rounded-md px-3 py-1.5 text-xs font-medium transition ${
-                      length.active
-                        ? "bg-neutral-900 text-white"
-                        : "border border-neutral-200 text-neutral-500 hover:border-neutral-300 hover:text-neutral-700"
-                    }`}
-                  >
-                    {length.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-neutral-700">
-                Always include
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {[
-                  { label: "Specific tools", active: true },
-                  { label: "Dollar amounts", active: true },
-                  { label: "This-week action", active: true },
-                  { label: "Case study reference", active: false },
-                  { label: "Competitor mention", active: false },
-                ].map((inc) => (
-                  <button
-                    key={inc.label}
-                    className={`rounded-md px-3 py-1.5 text-xs font-medium transition ${
-                      inc.active
-                        ? "bg-neutral-900 text-white"
-                        : "border border-neutral-200 text-neutral-500 hover:border-neutral-300 hover:text-neutral-700"
-                    }`}
-                  >
-                    {inc.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-neutral-700">
-                Custom system prompt addition
-              </label>
-              <textarea
-                rows={4}
-                defaultValue="Always name specific tools (Clay, Apollo, Instantly, Attio). Include quantified recommendations with real numbers. End every response with a concrete this-week action the founder can execute immediately. Reference relevant case studies when available."
-                className="w-full rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-700 font-mono leading-relaxed focus:border-neutral-400 focus:outline-none transition resize-none"
-              />
-              <p className="mt-1 text-[10px] text-neutral-400">
-                Appended to the system prompt for every response generation.
-              </p>
-            </div>
-          </div>
-          <div className="mt-5 flex justify-end">
-            <button className="rounded-md bg-neutral-900 px-6 py-2 text-sm font-medium text-white transition hover:bg-neutral-800">
-              Save preferences
-            </button>
+          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-neutral-200 bg-neutral-50/50 px-6 py-12 text-center">
+            <h3 className="text-sm font-semibold text-neutral-700">
+              No preferences set
+            </h3>
+            <p className="mt-1.5 max-w-sm text-xs text-neutral-400 leading-relaxed">
+              Response tone, length, and style preferences will be configurable once the settings API is connected.
+            </p>
           </div>
         </section>
 

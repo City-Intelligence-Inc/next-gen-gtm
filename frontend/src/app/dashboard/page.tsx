@@ -48,6 +48,33 @@ const INTENT_LABELS: Record<string, string> = {
   general_gtm: "General GTM",
 };
 
+function EmptyState({
+  title,
+  subtitle,
+  apiHint,
+}: {
+  title: string;
+  subtitle: string;
+  apiHint?: string;
+}) {
+  return (
+    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-neutral-200 bg-neutral-50/50 px-6 py-16 text-center">
+      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-neutral-100">
+        <div className="h-5 w-5 rounded-sm bg-neutral-300" />
+      </div>
+      <h3 className="text-sm font-semibold text-neutral-700">{title}</h3>
+      <p className="mt-1.5 max-w-sm text-xs text-neutral-400 leading-relaxed">
+        {subtitle}
+      </p>
+      {apiHint && (
+        <p className="mt-3 rounded-md bg-neutral-100 px-3 py-1.5 font-mono text-[10px] text-neutral-400">
+          {apiHint}
+        </p>
+      )}
+    </div>
+  );
+}
+
 export default function DashboardOverview() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -67,27 +94,34 @@ export default function DashboardOverview() {
   if (loading) {
     return (
       <div className="flex items-center justify-center px-6 py-20">
-        <p className="text-sm text-neutral-400">Loading real data...</p>
+        <p className="text-sm text-neutral-400">Loading...</p>
       </div>
     );
   }
 
-  if (error) {
+  if (error || !data) {
     return (
       <div className="px-6 py-8 md:px-10 md:py-10 max-w-6xl">
-        <div className="rounded-xl border border-red-200 bg-red-50 p-4">
-          <p className="text-sm text-red-600">
-            Could not fetch dashboard data: {error}
+        <div className="mb-8">
+          <p className="text-xs font-medium uppercase tracking-[0.15em] text-neutral-400">
+            Dashboard
           </p>
-          <p className="mt-1 text-xs text-red-400">
-            API: {API}/api/dashboard/overview
+          <h1 className="mt-1 font-serif text-3xl italic tracking-tight text-neutral-900">
+            Overview
+          </h1>
+          <p className="mt-2 text-sm text-neutral-500">
+            Live data from Stardrop&apos;s GTM agent.
           </p>
         </div>
+
+        <EmptyState
+          title="Waiting for data"
+          subtitle="Connect the API to see live metrics. The dashboard will populate once the agent starts processing mentions."
+          apiHint={`${API}/api/dashboard/overview`}
+        />
       </div>
     );
   }
-
-  if (!data) return null;
 
   const { stats, intent_distribution, recent_mentions, learnings, worker, environments } = data;
 
@@ -136,9 +170,10 @@ export default function DashboardOverview() {
           </h2>
           <div className="space-y-3">
             {recent_mentions.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-neutral-200 p-8 text-center">
-                <p className="text-sm text-neutral-400">No mentions yet. Tag @stardroplin on X to get started.</p>
-              </div>
+              <EmptyState
+                title="No mentions yet"
+                subtitle="Tag @stardroplin on X to get started. Mentions and responses will appear here."
+              />
             ) : (
               recent_mentions.map((m, i) => (
                 <div
@@ -187,20 +222,24 @@ export default function DashboardOverview() {
               Environments
             </h2>
             <div className="space-y-2">
-              {Object.entries(environments).map(([name, status]) => (
-                <div
-                  key={name}
-                  className="flex items-center justify-between rounded-lg border border-neutral-200 bg-white px-4 py-2.5"
-                >
-                  <span className="text-sm font-medium capitalize">
-                    {name.replace("_", " ")}
-                  </span>
-                  <span className="flex items-center gap-1.5 text-xs text-green-600">
-                    <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
-                    {status}
-                  </span>
-                </div>
-              ))}
+              {Object.keys(environments).length === 0 ? (
+                <p className="text-xs text-neutral-400">No environments connected yet.</p>
+              ) : (
+                Object.entries(environments).map(([name, status]) => (
+                  <div
+                    key={name}
+                    className="flex items-center justify-between rounded-lg border border-neutral-200 bg-white px-4 py-2.5"
+                  >
+                    <span className="text-sm font-medium capitalize">
+                      {name.replace("_", " ")}
+                    </span>
+                    <span className="flex items-center gap-1.5 text-xs text-green-600">
+                      <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
+                      {status}
+                    </span>
+                  </div>
+                ))
+              )}
             </div>
           </div>
 
