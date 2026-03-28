@@ -1,18 +1,14 @@
 """
-Stardrop GTM Agent Worker
-
-Polls Twitter for @stardroplin mentions, processes them with GPT-4o,
-and replies with actionable GTM intelligence.
+Stardrop GTM Agent Worker — DynamoDB-backed.
 """
 
 import time
 import logging
-import json
-from pathlib import Path
 from app.config import settings
 from app.services.twitter_service import fetch_mentions, post_reply_thread, has_already_replied
-from app.services.feedback_service import log_response, collect_feedback
 from app.services.gtm_engine import process_mention
+from app.services.feedback_service import log_response, collect_feedback
+from app.services import db_service
 
 logging.basicConfig(
     level=logging.INFO,
@@ -20,29 +16,17 @@ logging.basicConfig(
 )
 logger = logging.getLogger("gtm-worker")
 
-# Simple file-based state for tracking processed mentions
-STATE_FILE = Path(__file__).parent.parent / ".worker_state.json"
-
-
-def load_state() -> dict:
-    if STATE_FILE.exists():
-        return json.loads(STATE_FILE.read_text())
-    return {"last_tweet_id": None, "processed_ids": []}
-
-
-def save_state(state: dict):
-    # Keep only last 500 processed IDs to prevent unbounded growth
-    state["processed_ids"] = state["processed_ids"][-500:]
-    STATE_FILE.write_text(json.dumps(state, indent=2))
-
 
 def run_once():
-    state = load_state()
-
     logger.info(f"Polling mentions for @{settings.stardrop_username}...")
 
+    # Get state from DynamoDB
+    processed_ids = db_service.get_processed_ids()
+    state = db_service.get_state("worker") or {}
+    since_id = state.get("last_tweet_id")
+
     try:
-        mentions = fetch_mentions(since_id=state.get("last_tweet_id"))
+        mentions = fetch_mentions(since_id=since_id)
     except Exception as e:
         logger.error(f"Failed to fetch mentions: {e}")
         return
@@ -52,56 +36,75 @@ def run_once():
         return
 
     logger.info(f"Found {len(mentions)} new mentions.")
+    new_last_id = since_id
 
     for mention_data in mentions:
         tweet_id = mention_data["tweet_id"]
 
-        if tweet_id in state.get("processed_ids", []):
-            logger.info(f"Skipping already processed tweet {tweet_id}")
+        if tweet_id in processed_ids:
             continue
 
         # Skip our own tweets
         if mention_data["author_username"].lower() == settings.stardrop_username.lower():
+            processed_ids.add(tweet_id)
             continue
 
-        # Skip if we already replied
-        if has_already_replied(mention_data["conversation_id"]):
-            logger.info(f"Already replied to conversation {mention_data['conversation_id']}, skipping")
-            state["processed_ids"].append(tweet_id)
-            save_state(state)
-            continue
+        # Skip if already replied
+        try:
+            if has_already_replied(mention_data["conversation_id"]):
+                logger.info(f"Already replied to conversation {mention_data['conversation_id']}, skipping")
+                processed_ids.add(tweet_id)
+                continue
+        except Exception:
+            pass
 
-        logger.info(
-            f"Processing tweet {tweet_id} from @{mention_data['author_username']}: "
-            f"{mention_data['text'][:60]}..."
-        )
+        logger.info(f"Processing tweet {tweet_id} from @{mention_data['author_username']}: {mention_data['text'][:60]}...")
 
         try:
             result = process_mention(mention_data)
+            reply_ids = []
 
             if result.response_tweets:
                 logger.info(f"Generated {len(result.response_tweets)} tweets for reply")
 
-                # Post reply if we have Twitter write credentials
                 if settings.twitter_access_token and settings.twitter_access_secret:
-                    posted_ids = post_reply_thread(
+                    reply_ids = post_reply_thread(
                         result.response_tweets,
                         tweet_id,
                         mention_data["author_username"],
                     )
-                    logger.info(f"Posted {len(posted_ids)} reply tweets")
-                    log_response(tweet_id, mention_data["text"], result.intent, result.response_tweets, posted_ids)
+                    logger.info(f"Posted {len(reply_ids)} reply tweets")
                 else:
-                    logger.warning("No Twitter write credentials — logging response only:")
+                    logger.warning("No Twitter write credentials — logging only")
                     for i, tweet in enumerate(result.response_tweets):
                         logger.info(f"  [{i+1}] {tweet}")
 
-            state["processed_ids"].append(tweet_id)
-            state["last_tweet_id"] = tweet_id
-            save_state(state)
+            # Save to DynamoDB
+            db_service.save_mention(tweet_id, {
+                "author_username": mention_data["author_username"],
+                "author_id": mention_data["author_id"],
+                "text": mention_data["text"],
+                "conversation_id": mention_data["conversation_id"],
+                "mention_created_at": mention_data["created_at"],
+                "intent": result.intent,
+                "response_tweets": result.response_tweets,
+                "reply_ids": reply_ids,
+                "replied": len(reply_ids) > 0,
+                "engagement": None,
+            })
+
+            # Also log for feedback service
+            if reply_ids:
+                log_response(tweet_id, mention_data["text"], result.intent, result.response_tweets, reply_ids)
+
+            processed_ids.add(tweet_id)
+            new_last_id = tweet_id
 
         except Exception as e:
             logger.error(f"Failed to process tweet {tweet_id}: {e}", exc_info=True)
+
+    # Save state to DynamoDB
+    db_service.save_worker_state(new_last_id or since_id or "", list(processed_ids))
 
 
 def run_loop():
@@ -112,8 +115,11 @@ def run_loop():
 
     feedback_counter = 0
     while True:
-        run_once()
-        # Collect feedback every 10 poll cycles (~10 min)
+        try:
+            run_once()
+        except Exception as e:
+            logger.error(f"Worker cycle failed: {e}", exc_info=True)
+
         feedback_counter += 1
         if feedback_counter >= 10:
             try:
@@ -121,6 +127,7 @@ def run_loop():
             except Exception as e:
                 logger.warning(f"Feedback collection failed: {e}")
             feedback_counter = 0
+
         time.sleep(settings.poll_interval_seconds)
 
 

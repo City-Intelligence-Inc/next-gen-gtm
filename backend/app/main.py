@@ -139,93 +139,70 @@ async def list_intents():
 
 @app.get("/api/dashboard/overview")
 async def dashboard_overview():
-    """Real dashboard data from feedback log + worker state."""
-    import json
-    from pathlib import Path
-    from datetime import datetime, timedelta
+    """Dashboard data from DynamoDB."""
+    from datetime import datetime
     from collections import Counter
+    from app.services import db_service
 
-    feedback_file = Path(__file__).parent.parent / ".feedback_log.jsonl"
-    worker_state_file = Path(__file__).parent.parent / ".worker_state.json"
-    learnings_file = Path(__file__).parent.parent / ".learnings.json"
+    mentions = db_service.get_all_mentions(limit=100)
+    # Filter out improvements
+    entries = [m for m in mentions if m.get("type") != "improvement"]
 
-    entries = []
-    if feedback_file.exists():
-        for line in feedback_file.read_text().strip().split("\n"):
-            try:
-                entries.append(json.loads(line))
-            except json.JSONDecodeError:
-                continue
-
-    # Stats
     now = datetime.utcnow()
     today = now.date().isoformat()
     today_entries = [e for e in entries if e.get("ts", "").startswith(today)]
-    week_entries = [e for e in entries if (now - datetime.fromisoformat(e.get("ts", now.isoformat()))).days < 7]
+    week_entries = []
+    for e in entries:
+        try:
+            ts = datetime.fromisoformat(e.get("ts", ""))
+            if (now - ts).days < 7:
+                week_entries.append(e)
+        except (ValueError, TypeError):
+            pass
 
-    # Intent distribution
     intent_counts = Counter(e.get("intent", "general_gtm") for e in entries)
-    total = max(sum(intent_counts.values()), 1)
-    intent_dist = {k: round(v / total * 100) for k, v in intent_counts.most_common()}
+    total_intents = max(sum(intent_counts.values()), 1)
+    intent_dist = {k: round(v / total_intents * 100) for k, v in intent_counts.most_common()}
 
-    # Engagement stats
     engagement_scores = []
     for e in entries:
         eng = e.get("engagement")
-        if eng:
-            score = eng.get("likes", 0) * 3 + eng.get("replies", 0) * 5 + eng.get("retweets", 0) * 2
+        if eng and isinstance(eng, dict):
+            score = int(eng.get("likes", 0) or 0) * 3 + int(eng.get("replies", 0) or 0) * 5 + int(eng.get("retweets", 0) or 0) * 2
             engagement_scores.append(score)
     avg_engagement = round(sum(engagement_scores) / max(len(engagement_scores), 1), 1)
 
-    # Recent mentions (last 10)
     recent = []
-    for e in sorted(entries, key=lambda x: x.get("ts", ""), reverse=True)[:10]:
+    for e in entries[:20]:
         eng = e.get("engagement") or {}
+        response_tweets = e.get("response_tweets", [])
         recent.append({
             "ts": e.get("ts"),
-            "author": e.get("mention_text", "")[:100],
+            "author": f"@{e.get('author_username', 'unknown')}: {(e.get('text', '') or '')[:80]}",
             "mention_id": e.get("mention_id"),
             "intent": e.get("intent"),
-            "response_preview": e.get("response_tweets", [""])[0][:120] if e.get("response_tweets") else "",
-            "likes": eng.get("likes", 0),
-            "replies": eng.get("replies", 0),
-            "retweets": eng.get("retweets", 0),
-            "replied": len(e.get("reply_ids", [])) > 0,
+            "response_preview": response_tweets[0][:120] if response_tweets else "",
+            "likes": int(eng.get("likes", 0) or 0),
+            "replies": int(eng.get("replies", 0) or 0),
+            "retweets": int(eng.get("retweets", 0) or 0),
+            "replied": e.get("replied", False),
         })
 
-    # Learnings
-    learnings = {}
-    if learnings_file.exists():
-        try:
-            learnings = json.loads(learnings_file.read_text())
-        except json.JSONDecodeError:
-            pass
-
-    # Worker state
-    worker_state = {}
-    if worker_state_file.exists():
-        try:
-            worker_state = json.loads(worker_state_file.read_text())
-        except json.JSONDecodeError:
-            pass
-
-    processed_count = len(worker_state.get("processed_ids", []))
-    total_mentions = max(len(entries), processed_count)
-    replies_sent = sum(1 for e in entries if e.get("reply_ids")) or processed_count
+    worker_state = db_service.get_state("worker") or {}
 
     return {
         "stats": {
-            "total_mentions": total_mentions,
+            "total_mentions": len(entries),
             "mentions_today": len(today_entries),
             "mentions_this_week": len(week_entries),
-            "replies_sent": replies_sent,
+            "replies_sent": sum(1 for e in entries if e.get("replied")),
             "avg_engagement_score": avg_engagement,
-            "total_learnings": len(learnings.get("top_patterns", [])),
-            "note": "Mentions before feedback logging was added are counted from worker state" if len(entries) == 0 and processed_count > 0 else None,
+            "total_learnings": 0,
+            "note": None,
         },
         "intent_distribution": intent_dist,
         "recent_mentions": recent,
-        "learnings": learnings.get("top_patterns", [])[:5],
+        "learnings": [],
         "worker": {
             "last_tweet_id": worker_state.get("last_tweet_id"),
             "processed_count": len(worker_state.get("processed_ids", [])),
@@ -233,7 +210,7 @@ async def dashboard_overview():
         "environments": {
             "twitter": "live",
             "openai": "live",
-            "chromadb": "live (441 chunks)",
+            "chromadb": "live",
             "app_runner": "live",
             "github": "live",
             "luma": "live",
@@ -250,45 +227,25 @@ async def dashboard_improvement():
 
 @app.post("/api/improve")
 async def save_improvement(request: dict = None):
-    """Save a user-provided improvement for HyDE learning."""
-    import json
-    from pathlib import Path
-    from datetime import datetime
+    """Save a user-provided improvement to DynamoDB."""
+    from app.services import db_service
 
     if not request:
         return {"error": "No data"}
 
-    improvements_file = Path(__file__).parent.parent / ".improvements.jsonl"
-
-    entry = {
-        "ts": datetime.utcnow().isoformat(),
+    db_service.save_improvement({
         "question": request.get("question", ""),
         "original_response": request.get("original_response", []),
         "improved_response": request.get("improved_response", ""),
-    }
+        "rating": request.get("rating", ""),
+    })
 
-    with open(improvements_file, "a") as f:
-        f.write(json.dumps(entry) + "\n")
-
-    return {"status": "saved", "total": sum(1 for _ in open(improvements_file))}
+    return {"status": "saved"}
 
 
 @app.get("/api/improvements")
 async def list_improvements():
-    """List all saved improvements."""
-    import json
-    from pathlib import Path
-
-    improvements_file = Path(__file__).parent.parent / ".improvements.jsonl"
-    if not improvements_file.exists():
-        return {"improvements": [], "total": 0}
-
-    entries = []
-    for line in improvements_file.read_text().strip().split("\n"):
-        if line.strip():
-            try:
-                entries.append(json.loads(line))
-            except json.JSONDecodeError:
-                continue
-
-    return {"improvements": entries, "total": len(entries)}
+    """List all saved improvements from DynamoDB."""
+    from app.services import db_service
+    items = db_service.get_improvements()
+    return {"improvements": items, "total": len(items)}

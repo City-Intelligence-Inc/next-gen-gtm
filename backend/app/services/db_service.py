@@ -1,0 +1,107 @@
+"""
+DynamoDB persistence for Stardrop.
+Replaces all file-based storage (.worker_state.json, .feedback_log.jsonl, .improvements.jsonl).
+"""
+
+import boto3
+import logging
+from datetime import datetime
+from app.config import settings
+
+logger = logging.getLogger(__name__)
+
+_dynamodb = None
+
+
+def _get_table(name: str):
+    global _dynamodb
+    if _dynamodb is None:
+        _dynamodb = boto3.resource("dynamodb", region_name=settings.aws_region)
+    return _dynamodb.Table(name)
+
+
+# ─── MENTIONS TABLE ───
+
+def save_mention(mention_id: str, data: dict):
+    """Save a processed mention with response + metadata."""
+    table = _get_table("stardrop-mentions")
+    item = {
+        "mention_id": mention_id,
+        "ts": datetime.utcnow().isoformat(),
+        **data,
+    }
+    table.put_item(Item=item)
+    logger.info(f"Saved mention {mention_id} to DynamoDB")
+
+
+def get_mention(mention_id: str) -> dict | None:
+    table = _get_table("stardrop-mentions")
+    r = table.get_item(Key={"mention_id": mention_id})
+    return r.get("Item")
+
+
+def get_all_mentions(limit: int = 50) -> list[dict]:
+    table = _get_table("stardrop-mentions")
+    r = table.scan(Limit=limit)
+    items = r.get("Items", [])
+    return sorted(items, key=lambda x: x.get("ts", ""), reverse=True)
+
+
+def update_mention_engagement(mention_id: str, engagement: dict):
+    table = _get_table("stardrop-mentions")
+    table.update_item(
+        Key={"mention_id": mention_id},
+        UpdateExpression="SET engagement = :e",
+        ExpressionAttributeValues={":e": engagement},
+    )
+
+
+# ─── STATE TABLE ───
+
+def get_state(key: str) -> dict | None:
+    table = _get_table("stardrop-state")
+    r = table.get_item(Key={"key": key})
+    return r.get("Item")
+
+
+def set_state(key: str, value: dict):
+    table = _get_table("stardrop-state")
+    table.put_item(Item={"key": key, **value})
+
+
+def get_processed_ids() -> set:
+    state = get_state("worker")
+    if not state:
+        return set()
+    return set(state.get("processed_ids", []))
+
+
+def save_worker_state(last_tweet_id: str, processed_ids: list):
+    """Keep only last 200 IDs to stay under DynamoDB item size limit."""
+    set_state("worker", {
+        "last_tweet_id": last_tweet_id,
+        "processed_ids": processed_ids[-200:],
+        "updated_at": datetime.utcnow().isoformat(),
+    })
+
+
+def save_improvement(data: dict):
+    """Save a user-submitted improvement."""
+    table = _get_table("stardrop-mentions")
+    item = {
+        "mention_id": f"improve_{datetime.utcnow().isoformat()}",
+        "type": "improvement",
+        "ts": datetime.utcnow().isoformat(),
+        **data,
+    }
+    table.put_item(Item=item)
+
+
+def get_improvements() -> list[dict]:
+    table = _get_table("stardrop-mentions")
+    r = table.scan(
+        FilterExpression="attribute_exists(#t) AND #t = :v",
+        ExpressionAttributeNames={"#t": "type"},
+        ExpressionAttributeValues={":v": "improvement"},
+    )
+    return sorted(r.get("Items", []), key=lambda x: x.get("ts", ""), reverse=True)
