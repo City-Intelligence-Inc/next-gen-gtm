@@ -35,16 +35,28 @@ export default function RatePage() {
   useEffect(() => {
     async function loadCards() {
       const shuffled = [...SAMPLE_QUESTIONS].sort(() => Math.random() - 0.5).slice(0, 5);
+      console.log("[rate] Loading 5 cards:", shuffled.map(q => q.slice(0, 40)));
       const generated: Card[] = [];
-      for (const q of shuffled) {
+      for (let idx = 0; idx < shuffled.length; idx++) {
+        const q = shuffled[idx];
+        const url = `/api/proxy/gtm/analyze?text=${encodeURIComponent(q)}&author=rate_session`;
+        console.log(`[rate] ${idx + 1}/5 Fetching:`, q.slice(0, 50));
         try {
-          const r = await fetch(`/api/proxy/gtm/analyze?text=${encodeURIComponent(q)}&author=rate_session`, { method: "POST" });
-          const data = await r.json();
+          const r = await fetch(url, { method: "POST" });
+          console.log(`[rate] ${idx + 1}/5 Status: ${r.status}`);
+          const text = await r.text();
+          if (!r.ok) {
+            console.error(`[rate] ${idx + 1}/5 Error:`, text.slice(0, 100));
+            continue;
+          }
+          const data = JSON.parse(text);
+          console.log(`[rate] ${idx + 1}/5 Got ${data.response_tweets?.length || 0} tweets, intent: ${data.intent}`);
           generated.push({ question: q, response: data.response_tweets || [], intent: data.intent });
-        } catch {
-          // skip failed ones
+        } catch (e) {
+          console.error(`[rate] ${idx + 1}/5 Failed:`, e);
         }
       }
+      console.log(`[rate] Done. ${generated.length} cards ready.`);
       setCards(generated);
       setLoading(false);
     }
@@ -57,6 +69,7 @@ export default function RatePage() {
 
     const card = cards[currentIndex];
     const rating = direction === "right" ? "good" : "bad";
+    console.log(`[rate] Swiped ${direction} on: "${card.question.slice(0, 40)}" → ${rating}`);
 
     // Save rating
     fetch(`/api/proxy/improve`, {
