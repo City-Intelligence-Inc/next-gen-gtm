@@ -64,17 +64,31 @@ def fetch_mentions(since_id: str | None = None) -> list[dict]:
     return mentions
 
 
-def has_already_replied(tweet_id: str) -> bool:
-    """Check if @stardroplin already replied to this tweet."""
+def has_already_replied(conversation_id: str, tweet_id: str) -> bool:
+    """Check if @stardroplin already replied to this specific tweet.
+
+    Uses conversation_id for the search query (Twitter API requires it),
+    then filters results to check if any reply is specifically to tweet_id.
+    This handles threaded replies correctly — a reply to tweet A in a thread
+    won't block replying to tweet C in the same thread.
+    """
     client = _get_client()
     try:
-        # Search for replies from stardroplin to this conversation
         response = client.search_recent_tweets(
-            query=f"from:stardroplin conversation_id:{tweet_id}",
-            max_results=10,
+            query=f"from:stardroplin conversation_id:{conversation_id}",
+            max_results=20,
+            tweet_fields=["in_reply_to_user_id", "referenced_tweets"],
             user_auth=True,
         )
-        return response.data is not None and len(response.data) > 0
+        if not response.data:
+            return False
+        # Check if any of our replies are specifically to this tweet
+        for reply in response.data:
+            refs = reply.referenced_tweets or []
+            for ref in refs:
+                if ref.type == "replied_to" and str(ref.id) == tweet_id:
+                    return True
+        return False
     except Exception as e:
         logger.warning(f"Could not check existing replies: {e}")
         return False

@@ -49,10 +49,10 @@ def run_once():
             processed_ids.add(tweet_id)
             continue
 
-        # Skip if already replied
+        # Skip if already replied to this specific tweet
         try:
-            if has_already_replied(mention_data["conversation_id"]):
-                logger.info(f"Already replied to conversation {mention_data['conversation_id']}, skipping")
+            if has_already_replied(mention_data["conversation_id"], tweet_id):
+                logger.info(f"Already replied to tweet {tweet_id} in conversation {mention_data['conversation_id']}, skipping")
                 processed_ids.add(tweet_id)
                 continue
         except Exception:
