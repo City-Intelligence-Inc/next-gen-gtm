@@ -67,29 +67,34 @@ export default function DashboardOverview() {
     if (fetched.current) return;
     fetched.current = true;
 
-    console.log("[Stardrop:Dashboard] 1. Mounting dashboard overview...");
-    console.log("[Stardrop:Dashboard] 2. Fetching overview data from API...", `/api/proxy/dashboard/overview`);
-    fetch(`/api/proxy/dashboard/overview`)
-      .then((r) => {
-        console.log(`[Stardrop:Dashboard] 3. API responded: ${r.status} (${r.ok ? "ok" : "error"})`);
-        if (!r.ok) throw new Error(`API returned ${r.status}`);
-        return r.json();
-      })
-      .then((d) => {
-        console.log(`[Stardrop:Dashboard] 4. Data received: ${d.recent_mentions?.length ?? 0} mentions, ${d.stats?.total_mentions ?? 0} total mentions, ${d.stats?.replies_sent ?? 0} replies sent`);
-        console.log(`[Stardrop:Dashboard] 5. Intent distribution keys: [${Object.keys(d.intent_distribution || {}).join(", ")}]`);
-        console.log(`[Stardrop:Dashboard] 6. Learnings count: ${d.learnings?.length ?? 0}, Environments: [${Object.keys(d.environments || {}).join(", ")}]`);
-        console.log(`[Stardrop:Dashboard] 7. Worker state: processed_count=${d.worker?.processed_count ?? 0}, last_tweet_id=${d.worker?.last_tweet_id ?? "null"}`);
-        setData(d);
-      })
-      .catch((e) => {
-        console.log(`[Stardrop:Dashboard] 3. API error: ${e.message}`);
-        setError(e.message);
-      })
-      .finally(() => {
-        console.log("[Stardrop:Dashboard] 8. Loading complete, rendering dashboard.");
-        setLoading(false);
-      });
+    async function fetchWithRetry(attempts = 3) {
+      for (let i = 0; i < attempts; i++) {
+        try {
+          const r = await fetch(`/api/proxy/dashboard/overview`);
+          if (r.status === 503 && i < attempts - 1) {
+            console.log(`[dashboard] 503, retrying in ${(i + 1) * 3}s... (${i + 1}/${attempts})`);
+            await new Promise(res => setTimeout(res, (i + 1) * 3000));
+            continue;
+          }
+          if (!r.ok) throw new Error(`API returned ${r.status}`);
+          const d = await r.json();
+          if (d.stats) {
+            setData(d);
+            return;
+          }
+          throw new Error("Invalid response");
+        } catch (e) {
+          if (i === attempts - 1) {
+            setError(e instanceof Error ? e.message : "Failed to fetch");
+          } else {
+            console.log(`[dashboard] Error, retrying in ${(i + 1) * 3}s...`);
+            await new Promise(res => setTimeout(res, (i + 1) * 3000));
+          }
+        }
+      }
+    }
+
+    fetchWithRetry().finally(() => setLoading(false));
   }, []);
 
   if (loading) {
@@ -124,7 +129,6 @@ export default function DashboardOverview() {
 
   const { stats, intent_distribution, recent_mentions, learnings, worker, environments } = data;
 
-  console.log(`[Stardrop:Dashboard] 9. Rendering full dashboard: ${recent_mentions.length} mentions, ${Object.keys(intent_distribution).length} intents, ${learnings.length} learnings, ${Object.keys(environments).length} environments`);
 
   return (
     <div className="px-6 py-8 md:px-10 md:py-10 max-w-6xl">
