@@ -206,14 +206,19 @@ async def dashboard_overview():
         except json.JSONDecodeError:
             pass
 
+    processed_count = len(worker_state.get("processed_ids", []))
+    total_mentions = max(len(entries), processed_count)
+    replies_sent = sum(1 for e in entries if e.get("reply_ids")) or processed_count
+
     return {
         "stats": {
-            "total_mentions": len(entries),
+            "total_mentions": total_mentions,
             "mentions_today": len(today_entries),
             "mentions_this_week": len(week_entries),
-            "replies_sent": sum(1 for e in entries if e.get("reply_ids")),
+            "replies_sent": replies_sent,
             "avg_engagement_score": avg_engagement,
             "total_learnings": len(learnings.get("top_patterns", [])),
+            "note": "Mentions before feedback logging was added are counted from worker state" if len(entries) == 0 and processed_count > 0 else None,
         },
         "intent_distribution": intent_dist,
         "recent_mentions": recent,
@@ -238,3 +243,49 @@ async def dashboard_improvement():
     """1% better every day — compound improvement tracker."""
     compute_daily_snapshot()
     return get_improvement_data()
+
+
+@app.post("/api/improve")
+async def save_improvement(request: dict = None):
+    """Save a user-provided improvement for HyDE learning."""
+    import json
+    from pathlib import Path
+    from datetime import datetime
+
+    if not request:
+        return {"error": "No data"}
+
+    improvements_file = Path(__file__).parent.parent / ".improvements.jsonl"
+
+    entry = {
+        "ts": datetime.utcnow().isoformat(),
+        "question": request.get("question", ""),
+        "original_response": request.get("original_response", []),
+        "improved_response": request.get("improved_response", ""),
+    }
+
+    with open(improvements_file, "a") as f:
+        f.write(json.dumps(entry) + "\n")
+
+    return {"status": "saved", "total": sum(1 for _ in open(improvements_file))}
+
+
+@app.get("/api/improvements")
+async def list_improvements():
+    """List all saved improvements."""
+    import json
+    from pathlib import Path
+
+    improvements_file = Path(__file__).parent.parent / ".improvements.jsonl"
+    if not improvements_file.exists():
+        return {"improvements": [], "total": 0}
+
+    entries = []
+    for line in improvements_file.read_text().strip().split("\n"):
+        if line.strip():
+            try:
+                entries.append(json.loads(line))
+            except json.JSONDecodeError:
+                continue
+
+    return {"improvements": entries, "total": len(entries)}
