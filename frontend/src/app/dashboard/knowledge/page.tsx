@@ -145,12 +145,17 @@ const TOTAL_EDGES = 103;
 type Tab = "graph" | "notes";
 
 export default function KnowledgePage() {
+  console.log("[Stardrop:Knowledge] 1. Mounting knowledge page...");
+  console.log(`[Stardrop:Knowledge] 2. Vault stats: ${TOTAL_NOTES} notes, ${TOTAL_CHUNKS} chunks, ${TOTAL_EDGES} edges, model=${EMBEDDING_MODEL}`);
+  console.log(`[Stardrop:Knowledge] 3. Categories loaded: ${CATEGORIES.length} (${CATEGORIES.map((c) => c.label).join(", ")})`);
+
   const [tab, setTab] = useState<Tab>("graph");
   const [expandedCats, setExpandedCats] = useState<Set<string>>(
     new Set(CATEGORIES.map((c) => c.key))
   );
 
   const toggleCat = (key: string) => {
+    console.log(`[Stardrop:Knowledge] Toggling category: ${key}`);
     setExpandedCats((prev) => {
       const next = new Set(prev);
       if (next.has(key)) next.delete(key);
@@ -193,7 +198,7 @@ export default function KnowledgePage() {
         {/* Tabs */}
         <div className="mt-4 flex gap-0">
           <button
-            onClick={() => setTab("graph")}
+            onClick={() => { console.log(`[Stardrop:Knowledge] Switched to tab: graph`); setTab("graph"); }}
             className={`relative px-4 py-2.5 text-[13px] font-medium transition-colors ${
               tab === "graph"
                 ? "text-neutral-900"
@@ -206,7 +211,7 @@ export default function KnowledgePage() {
             )}
           </button>
           <button
-            onClick={() => setTab("notes")}
+            onClick={() => { console.log(`[Stardrop:Knowledge] Switched to tab: notes`); setTab("notes"); }}
             className={`relative px-4 py-2.5 text-[13px] font-medium transition-colors ${
               tab === "notes"
                 ? "text-neutral-900"
@@ -225,6 +230,7 @@ export default function KnowledgePage() {
       <div className="flex-1 overflow-hidden">
         {tab === "graph" && (
           <div className="h-full w-full">
+            {(() => { console.log(`[Stardrop:Knowledge] 4. Rendering graph view: ${TOTAL_NOTES} nodes, ${TOTAL_EDGES} edges`); return null; })()}
             <VaultGraph />
           </div>
         )}

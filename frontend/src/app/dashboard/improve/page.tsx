@@ -247,20 +247,31 @@ export default function ImprovePage() {
 
   // Load from localStorage on mount
   useEffect(() => {
+    console.log("[Stardrop:Improve] 1. Mounting improve page...");
+    console.log("[Stardrop:Improve] 2. Loading skill scores from localStorage...");
     const savedSkills = loadJSON<SkillScore[] | null>("skills", null);
     if (savedSkills) {
+      console.log(`[Stardrop:Improve] 3. Found saved skills: ${savedSkills.map((s) => `${s.label}=${s.score}%`).join(", ")}`);
       setSkills(savedSkills);
     } else {
+      console.log("[Stardrop:Improve] 3. No saved skills found — initializing defaults (all 0%)");
       setSkills(SKILL_DEFS.map((d) => ({ ...d, score: 0 })));
     }
 
+    console.log("[Stardrop:Improve] 4. Loading explored categories from localStorage...");
     const savedExplored = loadJSON<string[]>("explored_categories", []);
+    console.log(`[Stardrop:Improve] 5. Found ${savedExplored.length} explored categories: [${savedExplored.join(", ")}]`);
     setExploredCategories(new Set(savedExplored));
 
+    console.log("[Stardrop:Improve] 6. Loading learning levels from localStorage...");
     const savedLevels = loadJSON<Level[] | null>("levels", null);
     if (savedLevels) {
+      const completedCount = savedLevels.reduce((sum, l) => sum + l.challenges.filter((c) => c.completed).length, 0);
+      const totalCount = savedLevels.reduce((sum, l) => sum + l.challenges.length, 0);
+      console.log(`[Stardrop:Improve] 7. Found ${completedCount}/${totalCount} completed challenges across ${savedLevels.length} levels`);
       setLevels(savedLevels);
     } else {
+      console.log("[Stardrop:Improve] 7. No saved levels — initializing fresh learning path");
       setLevels(
         LEARNING_LEVELS.map((l) => ({
           ...l,
@@ -272,28 +283,43 @@ export default function ImprovePage() {
       );
     }
 
-    setDailyLog(loadJSON<DailyLog[]>("daily_log", []));
+    const savedDailyLog = loadJSON<DailyLog[]>("daily_log", []);
+    console.log(`[Stardrop:Improve] 8. Daily log: ${savedDailyLog.length} entries loaded`);
+    setDailyLog(savedDailyLog);
+    console.log("[Stardrop:Improve] 9. Mount complete, rendering improve page.");
     setMounted(true);
   }, []);
 
   // Persist skills
   useEffect(() => {
-    if (mounted && skills.length > 0) saveJSON("skills", skills);
+    if (mounted && skills.length > 0) {
+      console.log("[Stardrop:Improve] Persisting skills to localStorage...");
+      saveJSON("skills", skills);
+    }
   }, [skills, mounted]);
 
   // Persist explored categories
   useEffect(() => {
-    if (mounted) saveJSON("explored_categories", Array.from(exploredCategories));
+    if (mounted) {
+      console.log(`[Stardrop:Improve] Persisting ${exploredCategories.size} explored categories to localStorage...`);
+      saveJSON("explored_categories", Array.from(exploredCategories));
+    }
   }, [exploredCategories, mounted]);
 
   // Persist levels
   useEffect(() => {
-    if (mounted && levels.length > 0) saveJSON("levels", levels);
+    if (mounted && levels.length > 0) {
+      console.log("[Stardrop:Improve] Persisting levels to localStorage...");
+      saveJSON("levels", levels);
+    }
   }, [levels, mounted]);
 
   // Persist daily log
   useEffect(() => {
-    if (mounted && dailyLog.length > 0) saveJSON("daily_log", dailyLog);
+    if (mounted && dailyLog.length > 0) {
+      console.log(`[Stardrop:Improve] Persisting daily log (${dailyLog.length} entries) to localStorage...`);
+      saveJSON("daily_log", dailyLog);
+    }
   }, [dailyLog, mounted]);
 
   // Computed overall score
@@ -309,6 +335,7 @@ export default function ImprovePage() {
   // Toggle challenge completion
   const toggleChallenge = useCallback(
     (levelId: number, challengeId: string) => {
+      console.log(`[Stardrop:Improve] Toggling challenge: level=${levelId}, challenge=${challengeId}`);
       setLevels((prev) =>
         prev.map((l) => {
           if (l.id !== levelId) return l;
@@ -333,6 +360,7 @@ export default function ImprovePage() {
 
   // Explore a category
   const exploreCategory = useCallback((key: string) => {
+    console.log(`[Stardrop:Improve] Exploring category: ${key}`);
     setExploredCategories((prev) => {
       const next = new Set(prev);
       next.add(key);
@@ -349,18 +377,22 @@ export default function ImprovePage() {
   // Trace a question — calls real Stardrop API
   const runTrace = useCallback(async () => {
     if (!traceQuery.trim()) return;
+    console.log(`[Stardrop:Improve] Running trace for: "${traceQuery}"`);
     setTracing(true);
     setTraceResult(null);
 
     try {
+      console.log(`[Stardrop:Improve] Calling API: POST ${API_BASE}/api/gtm/analyze`);
       const res = await fetch(
         `${API_BASE}/api/gtm/analyze?text=${encodeURIComponent(traceQuery)}&author=dashboard_user`,
         { method: "POST" }
       );
 
+      console.log(`[Stardrop:Improve] Trace API responded: ${res.status} (${res.ok ? "ok" : "error"})`);
       if (!res.ok) throw new Error(`API returned ${res.status}`);
 
       const data = await res.json();
+      console.log(`[Stardrop:Improve] Trace result: intent=${data.intent}, tweets=${data.response_tweets?.length ?? 0}, rag_sources=${data.rag_sources?.length ?? 0}`);
 
       // Build trace result from real API response
       const intent = data.intent || "general_gtm";
@@ -391,6 +423,7 @@ export default function ImprovePage() {
         tweets[0] ? `Response: "${tweets[0].slice(0, 80)}..."` : "Response: (none)",
       ];
 
+      console.log(`[Stardrop:Improve] Trace complete: intent=${intent}, ${vaultNotes.length} vault notes, ${chain.length} chain steps`);
       setTraceResult({ intent, confidence: 88, vaultNotes, patterns, chain });
 
       // Boost skills based on which intent was detected
@@ -408,6 +441,7 @@ export default function ImprovePage() {
         );
       }
     } catch {
+      console.log(`[Stardrop:Improve] Trace API error — showing unavailable state`);
       // API down — show error state
       setTraceResult({
         intent: "api_unavailable",
@@ -430,6 +464,7 @@ export default function ImprovePage() {
 
   // Practice now button
   const openPractice = useCallback(() => {
+    console.log(`[Stardrop:Improve] Practice now clicked — weakest skill: ${weakest?.label ?? "none"} (${weakest?.score ?? 0}%)`);
     const prompt = weakest?.suggestion || "@stardroplin help me level up my GTM";
     window.open(
       `https://x.com/intent/tweet?text=${encodeURIComponent(prompt)}`,
@@ -485,7 +520,7 @@ export default function ImprovePage() {
           {TABS.map((t) => (
             <button
               key={t.key}
-              onClick={() => setTab(t.key)}
+              onClick={() => { console.log(`[Stardrop:Improve] Switched to tab: ${t.key}`); setTab(t.key); }}
               className={`relative whitespace-nowrap px-4 py-2.5 text-[13px] font-medium transition-colors ${
                 tab === t.key
                   ? "text-neutral-900"

@@ -1,4 +1,7 @@
 export default function SettingsPage() {
+  console.log("[Stardrop:Settings] 1. Rendering settings page (server component)");
+  console.log("[Stardrop:Settings] 2. Displaying static agent config: @stardroplin, GPT-4o, 60s poll, 60+ notes / 441 chunks");
+  console.log("[Stardrop:Settings] 3. Links: GitHub repo, API endpoint, X bot profile");
   return (
     <div className="px-6 py-8 md:px-10 md:py-10 max-w-4xl">
       {/* Header */}

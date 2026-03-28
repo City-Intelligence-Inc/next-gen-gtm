@@ -102,6 +102,9 @@ const comingSoonEnvironments: ComingSoonEnvironment[] = [
 ];
 
 export default function EnvironmentsPage() {
+  console.log("[Stardrop:Environments] 1. Rendering environments page (server component)");
+  console.log(`[Stardrop:Environments] 2. Rendering ${liveEnvironments.length} live + ${comingSoonEnvironments.length} coming soon environments`);
+  console.log(`[Stardrop:Environments] 3. Live environments: ${liveEnvironments.map((e) => e.name).join(", ")}`);
   return (
     <div className="px-6 py-8 md:px-10 md:py-10 max-w-6xl">
       {/* Header */}
