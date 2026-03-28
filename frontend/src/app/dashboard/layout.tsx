@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 
 const navItems = [
   { label: "Overview", href: "/dashboard", icon: OverviewIcon },
+  { label: "X-Ray", href: "/dashboard/insights", icon: InsightsIcon },
   { label: "Test", href: "/dashboard/test", icon: TestIcon },
   { label: "Documents", href: "/dashboard/documents", icon: DocumentsIcon },
   { label: "Settings", href: "/dashboard/settings", icon: SettingsIcon },
@@ -18,6 +19,14 @@ function OverviewIcon({ className }: { className?: string }) {
       <rect x="9.5" y="1.5" width="5" height="5" rx="1" />
       <rect x="1.5" y="9.5" width="5" height="5" rx="1" />
       <rect x="9.5" y="9.5" width="5" height="5" rx="1" />
+    </svg>
+  );
+}
+
+function InsightsIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 13V8M7 13V5M11 13V2" />
     </svg>
   );
 }
