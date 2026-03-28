@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 
-const API = process.env.NEXT_PUBLIC_API_URL || "https://xitwxb23yn.us-east-1.awsapprunner.com";
+const API = "https://xitwxb23yn.us-east-1.awsapprunner.com";
 
 const SAMPLE_QUESTIONS = [
   "who should I sell to? we built an AI code review tool",

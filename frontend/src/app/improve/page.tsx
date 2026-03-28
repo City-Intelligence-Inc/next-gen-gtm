@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-const API = process.env.NEXT_PUBLIC_API_URL || "https://xitwxb23yn.us-east-1.awsapprunner.com";
+const API = "https://xitwxb23yn.us-east-1.awsapprunner.com";
 
 export default function ImprovePage() {
   const [question, setQuestion] = useState("");
@@ -10,6 +10,7 @@ export default function ImprovePage() {
   const [loading, setLoading] = useState(false);
   const [betterResponse, setBetterResponse] = useState("");
   const [saved, setSaved] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [history, setHistory] = useState<Array<{q: string; original: string[]; improved: string}>>([]);
 
   async function generate() {
@@ -18,12 +19,35 @@ export default function ImprovePage() {
     setSaved(false);
     setResponse(null);
     setBetterResponse("");
+    setErrorMsg(null);
+
+    const url = `${API}/api/gtm/analyze?text=${encodeURIComponent(question)}&author=improve_session`;
+    console.log("[improve] Fetching:", url);
+
     try {
-      const r = await fetch(`${API}/api/gtm/analyze?text=${encodeURIComponent(question)}&author=improve_session`, { method: "POST" });
-      const data = await r.json();
-      setResponse(data.response_tweets || []);
-    } catch {
-      setResponse(["Error generating response"]);
+      const r = await fetch(url, { method: "POST" });
+      console.log("[improve] Status:", r.status);
+      const text = await r.text();
+      console.log("[improve] Raw response:", text);
+
+      if (!r.ok) {
+        setErrorMsg(`API returned ${r.status}: ${text.slice(0, 200)}`);
+        setLoading(false);
+        return;
+      }
+
+      const data = JSON.parse(text);
+      console.log("[improve] Parsed:", data);
+
+      if (data.response_tweets && data.response_tweets.length > 0) {
+        setResponse(data.response_tweets);
+      } else {
+        setErrorMsg("API returned empty response_tweets");
+      }
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      console.error("[improve] Error:", msg);
+      setErrorMsg(`Fetch failed: ${msg}`);
     }
     setLoading(false);
   }
@@ -90,6 +114,13 @@ export default function ImprovePage() {
             </button>
           </div>
         </div>
+
+        {/* Error */}
+        {errorMsg && (
+          <div className="mt-6 rounded-lg border border-red-200 bg-red-50 p-4">
+            <p className="text-sm text-red-600">{errorMsg}</p>
+          </div>
+        )}
 
         {/* Response */}
         {response && (
