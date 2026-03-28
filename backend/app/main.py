@@ -172,7 +172,7 @@ async def dashboard_insights():
         eng = m.get("engagement") or {}
         score = int(eng.get("likes", 0) or 0) * 3 + int(eng.get("replies", 0) or 0) * 5 + int(eng.get("retweets", 0) or 0) * 2
         tweets = m.get("response_tweets", [])
-        scored.append({"score": score, "intent": m.get("intent"), "question": (m.get("text", "") or "")[:100], "response": tweets[0][:150] if tweets else "", "author": m.get("author_username", ""), "likes": int(eng.get("likes", 0) or 0), "replies": int(eng.get("replies", 0) or 0), "retweets": int(eng.get("retweets", 0) or 0)})
+        scored.append({"score": score, "mention_id": m.get("mention_id", ""), "intent": m.get("intent"), "question": (m.get("text", "") or "")[:100], "response": tweets[0][:150] if tweets else "", "author": m.get("author_username", ""), "likes": int(eng.get("likes", 0) or 0), "replies": int(eng.get("replies", 0) or 0), "retweets": int(eng.get("retweets", 0) or 0)})
     scored.sort(key=lambda x: x["score"], reverse=True)
 
     total_score = sum(s["score"] for s in scored)

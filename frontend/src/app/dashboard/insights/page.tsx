@@ -173,25 +173,66 @@ export default function InsightsPage() {
         </h2>
         {(top_responses || []).length > 0 ? (
           <div className="space-y-2">
-            {top_responses.slice(0, 5).map((r: any, i: number) => (
-              <div key={i} className="flex items-start gap-3 rounded-lg bg-neutral-50 p-3">
-                <div className="shrink-0 flex items-center justify-center h-8 w-8 rounded-full bg-neutral-900 text-white text-xs font-bold">
-                  {r.score}
+            {top_responses.slice(0, 10).map((r: any, i: number) => (
+              <a
+                key={i}
+                href={r.mention_id ? `https://x.com/i/status/${r.mention_id}` : "#"}
+                target="_blank"
+                className="group flex items-start gap-3 rounded-lg bg-neutral-50 p-3 transition hover:bg-neutral-100"
+              >
+                {/* Rank */}
+                <div className="shrink-0 w-5 text-center">
+                  <span className={`text-sm font-bold ${i === 0 ? "text-amber-500" : i === 1 ? "text-neutral-400" : i === 2 ? "text-amber-700" : "text-neutral-300"}`}>
+                    {i + 1}
+                  </span>
                 </div>
+
+                {/* Score with breakdown on hover */}
+                <div className="shrink-0 relative group/score">
+                  <div className="flex items-center justify-center h-10 w-10 rounded-full bg-neutral-900 text-white text-sm font-bold">
+                    {r.score}
+                  </div>
+                  {/* Tooltip */}
+                  <div className="absolute left-12 top-0 z-10 hidden group-hover/score:block w-48 rounded-lg bg-neutral-900 p-3 shadow-xl">
+                    <p className="text-[10px] font-semibold text-white mb-2">Score breakdown</p>
+                    <div className="space-y-1.5">
+                      <div className="flex justify-between text-[11px]">
+                        <span className="text-neutral-400">Replies ({r.replies}) × 5</span>
+                        <span className="font-bold text-white">{r.replies * 5}</span>
+                      </div>
+                      <div className="flex justify-between text-[11px]">
+                        <span className="text-neutral-400">Likes ({r.likes}) × 3</span>
+                        <span className="font-bold text-white">{r.likes * 3}</span>
+                      </div>
+                      <div className="flex justify-between text-[11px]">
+                        <span className="text-neutral-400">Retweets ({r.retweets}) × 2</span>
+                        <span className="font-bold text-white">{r.retweets * 2}</span>
+                      </div>
+                      <div className="border-t border-neutral-700 pt-1 flex justify-between text-[11px]">
+                        <span className="text-neutral-300 font-semibold">Total</span>
+                        <span className="font-bold text-white">{r.score} pts</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Content */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-medium text-neutral-500">@{r.author}</span>
-                    <span className="rounded bg-neutral-200 px-1 py-0.5 text-[9px] font-medium text-neutral-600 uppercase">
+                    <span className="text-[11px] font-semibold text-neutral-900">@{r.author}</span>
+                    <span className="rounded bg-neutral-200 px-1.5 py-0.5 text-[9px] font-medium text-neutral-600 uppercase">
                       {INTENT_LABELS[r.intent] || r.intent}
                     </span>
-                    <span className="text-[9px] text-neutral-400">{r.likes}L {r.replies}R {r.retweets}RT</span>
+                    <svg viewBox="0 0 24 24" className="h-3 w-3 text-neutral-300 group-hover:text-neutral-500 ml-auto shrink-0" fill="currentColor">
+                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                    </svg>
                   </div>
                   <p className="mt-1 text-xs text-neutral-700 leading-snug">{r.question}</p>
                   {r.response && (
-                    <p className="mt-1 text-[11px] text-neutral-400 line-clamp-1">{r.response}</p>
+                    <p className="mt-1 text-[11px] text-neutral-400 line-clamp-2">{r.response}</p>
                   )}
                 </div>
-              </div>
+              </a>
             ))}
           </div>
         ) : (
