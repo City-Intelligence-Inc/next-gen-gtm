@@ -55,28 +55,50 @@ def analyze_tweet(tweet_text: str, author_username: str) -> list[str]:
             "content": learnings,
         })
 
-    # Per-user customization: load their improvements + custom prompt
+    # Per-user customization: docs, improvements, custom prompt
     try:
         from app.services import db_service
         user = db_service.get_user(author_username)
         if user:
+            # 1. User's custom prompt
             custom = user.get("custom_prompt", "")
             if custom:
                 messages.append({
                     "role": "system",
                     "content": f"USER-SPECIFIC INSTRUCTIONS for @{author_username}:\n{custom}",
                 })
-            # Load their past improvements as few-shot examples
-            user_mentions = db_service.get_mentions_for_user(author_username)
-            improvements = [m for m in user_mentions if m.get("type") == "improvement" and m.get("improved_response")]
-            if improvements:
-                examples = improvements[:3]
+
+            # 2. User's uploaded documents — search for relevant chunks
+            user_docs = db_service.get_user_documents(author_username)
+            if user_docs:
+                # Simple keyword match against user docs
+                query_lower = tweet_text.lower()
+                relevant_docs = []
+                for doc in user_docs:
+                    doc_content = doc.get("content", "")
+                    # Score by keyword overlap
+                    words = set(query_lower.split())
+                    doc_words = set(doc_content.lower().split())
+                    overlap = len(words & doc_words)
+                    if overlap > 1 or len(user_docs) <= 3:  # always include if few docs
+                        relevant_docs.append(doc)
+                if relevant_docs:
+                    doc_context = f"USER'S PRIVATE DOCUMENTS (prioritize these over general knowledge):\n\n"
+                    for doc in relevant_docs[:3]:
+                        doc_context += f"### {doc.get('title', 'Document')}\n{doc.get('content', '')[:1500]}\n\n"
+                    messages.append({"role": "system", "content": doc_context})
+
+            # 3. User's past improvements as few-shot examples
+            user_improvements = db_service.get_improvements()
+            user_improvements = [m for m in user_improvements if m.get("username", "").lower() == author_username.lower() and m.get("improved_response")]
+            if user_improvements:
+                examples = user_improvements[:3]
                 example_text = "EXAMPLES OF RESPONSES THIS USER PREFERS:\n"
                 for ex in examples:
                     example_text += f"Q: {ex.get('question','')[:100]}\nIdeal: {ex.get('improved_response','')[:200]}\n\n"
                 messages.append({"role": "system", "content": example_text})
     except Exception:
-        pass  # Don't break if user lookup fails
+        pass
 
     messages.append({
         "role": "user",

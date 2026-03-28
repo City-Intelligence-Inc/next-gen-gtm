@@ -323,3 +323,28 @@ async def user_dashboard(username: str):
         "intent_distribution": {k: round(v / total_intents * 100) for k, v in intent_counts.most_common()},
         "recent_mentions": recent,
     }
+
+
+@app.post("/api/user/{username}/documents")
+async def upload_document(username: str, request: dict = None):
+    """Upload a document to a user's personal knowledge base."""
+    from app.services import db_service
+    import hashlib
+
+    if not request or not request.get("content"):
+        return {"error": "content required"}
+
+    title = request.get("title", "Untitled")
+    content = request["content"]
+    doc_id = hashlib.md5(content.encode()).hexdigest()[:8]
+
+    db_service.save_user_document(username, doc_id, title, content)
+    return {"status": "saved", "doc_id": doc_id, "title": title, "chars": len(content)}
+
+
+@app.get("/api/user/{username}/documents")
+async def list_documents(username: str):
+    """List a user's uploaded documents."""
+    from app.services import db_service
+    docs = db_service.get_user_documents(username)
+    return {"documents": [{"doc_id": d["mention_id"], "title": d.get("title", ""), "chars": len(d.get("content", "")), "ts": d.get("ts")} for d in docs], "total": len(docs)}
