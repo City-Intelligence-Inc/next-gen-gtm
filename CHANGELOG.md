@@ -1,6 +1,51 @@
-# Changelog — Next-Gen GTM
+# Changelog — Next-Gen GTM (Stardrop)
 
-## March 27, 2026
+## March 28, 2026 (Session 2)
+
+### User-Isolated RAG + Document Citations
+- **Per-user ChromaDB collections** — Each user gets `user_{handle}` collection. Documents are fully isolated. No cross-user data leakage.
+- **RAG source citations** — Every mention and response now shows which vault notes were retrieved, with relevance percentages and clickable links to `/research/{slug}`.
+- **Document upload → instant RAG indexing** — Upload a doc on the Documents page → chunks indexed into your private ChromaDB collection → Stardrop cites it in responses immediately.
+- **Backfill** — Old mentions without sources get re-retrieved on-the-fly from ChromaDB.
+
+### Dashboard Redesign (Newspaper Style)
+- **Complete visual overhaul** — Dark sidebar (`#0A0A0A`), warm off-white bg, dense editorial layout, serif italic numbers, ALL CAPS section labels, no wasted white space.
+- **Feed + Rate modes** — Overview has a toggle: Feed (Twitter-style timeline with avatar circles, inline replies, 👍/👎) and Rate (Tinder-style swipeable cards with touch gestures, keyboard shortcuts, slide-out animations).
+- **Split-layout Test page** — 60/40 split: input+response on left, "How Stardrop Thinks" interpretability panel on right (intent badge, vault notes with relevance bars, reasoning chain, patterns applied, research paper).
+- **Two-column Documents page** — Upload form left, document table right.
+- **Dense Settings** — All onboarding fields editable, 2-column grid, response style radios, PIN lock, agent info sidebar, Save All button.
+
+### Onboarding + Multi-Tenant
+- **Required onboarding** — Name, product, Twitter handle required before dashboard access. Re-triggers if Twitter handle is missing.
+- **Mention filtering** — All/Mine toggle on Overview filters by your Twitter handle.
+- **PIN lock** — Optional 4-digit PIN with shake animation on wrong entry.
+
+### Interpretability (#17 → 95%)
+- **"How Stardrop thinks"** section on Test page: intent detection badge with confidence bar, 5 vault notes with relevance bars, visual reasoning chain (question → intent → retrieval → GPT-4o → response), patterns applied.
+- **Vault notes are clickable** links to `/research/{slug}`.
+- **Research paper** section in Lab panel (title, authors, NeurIPS target, abstract preview).
+
+### Backend Improvements
+- **`retrieve_with_sources()`** — Returns both context string and source metadata (title, folder, file, relevance).
+- **`analyze_tweet()` returns dict** — `{tweets, rag_sources}` instead of plain list.
+- **DynamoDB persistence** for rag_sources per mention.
+- **Engagement scoring** — `likes×3 + replies×5 + retweets×2 + unique_accounts×10`.
+- **X-Ray insights** — Real engagement data visualization.
+
+### Icons + Logos
+- **13 real SVG logos** from svgl.app/Wikipedia (X, OpenAI, GitHub, AWS, HubSpot, Salesforce, Slack, Stripe, LinkedIn, Snowflake, Meta, Google, Notion).
+- **5 improved generated icons** (Luma gradient, Apollo blue, Common Room speech bubble, Segment S-path, Gong G-shape).
+
+### Paper + Coframe
+- **NeurIPS 2026 action plan** — 5 phases (April-September), specific asks for Bo and Josh.
+- **Coframe integration thesis** — HaystacksAI (signals) → Stardrop (intelligence) → Coframe (conversion) pipeline.
+- **Josh Payne + Bo Mohazzabi** added as co-authors.
+- **Coframe case study** + tool profile in Obsidian vault.
+- **Bo Mohazzabi profile** updated with full career arc.
+
+---
+
+## March 27, 2026 (Session 1)
 
 ### 3:30 PM — Kickoff
 - Josh introduces Ari to Bo (Claude Code)
@@ -20,151 +65,76 @@
 - Home.md as master Map of Content
 
 ### 4:45 PM — Deep Dive Notes Added
-- Research agents completed — added 9 deep dive notes:
-  - AI SDR Agents (11x 70-80% churn, hybrid outperforms pure AI 2.3x)
-  - Agent-Led Growth (Supabase $765M→$5B via agent adoption)
-  - GTM Engineering (1,000 job postings analyzed, $80K-$280K comp)
-  - Apollo Vibe GTM ($150M ARR, 500% YoY)
-  - Composable GTM Stack (full reference architecture, ~$500/mo)
-  - Signal-Based Selling (94% lock vendor list before first contact)
-  - Warehouse-Native GTM (Ramp predicts 75% of SQLs)
-  - Death of Traditional CRM (Salesforce -37%)
+- 9 deep dive notes added (AI SDR Agents, Agent-Led Growth, GTM Engineering, Apollo Vibe GTM, Composable GTM Stack, Signal-Based Selling, Warehouse-Native GTM, Death of Traditional CRM)
 - Total vault: 55 notes, 3 raw research files (~3,800 lines)
-
-### 5:00 PM — Rilo Research
-- Deep research on getrilo.ai (Rilo)
-- Full profile: natural language GTM workflow builder, $49-99/mo
-- Founder: Ninad Deshpande, SF + Bangalore, 1-10 people
-- Added to vault as tool profile
 
 ### 5:15 PM — Self-Improving GTM Engine Vision
 - Created "The Self-Improving GTM Engine" — deepest note in vault (8 parts)
-- Mapped each pain point to a self-improvement mechanism
 - Frameworks: OODA loops, flywheel effect, antifragile systems, double-loop learning
-- Supporting notes: OODA Loop for GTM, Double-Loop Learning, Antifragile GTM, Flywheel Effect
 - Vault grew to 60 notes, 116 wikilinks
 
-### 5:30 PM — Additional Research Completed
-- Self-improving systems research agent finished (RL for GTM, Kaizen, multi-armed bandits, Bayesian optimization, feedback loops)
-- Next-gen GTM architecture research agent finished (GTM Brain, multi-agent systems, revenue graph, predictive/prescriptive GTM, autonomous GTM)
-- Saved to GTM-DEEP-RESEARCH.md and DATA_INFRASTRUCTURE_RESEARCH.md
-
 ### 6:00 PM — Backend Built
-- Created FastAPI backend with:
-  - Twitter mention polling (OAuth 1.0a)
-  - GPT-4o GTM analysis with intent detection (6 automations)
-  - GTM system prompt with all vault knowledge
-  - Worker loop polling every 60 seconds
-  - Dockerfile + apprunner.yaml
-- Tested locally — API works, generates actionable GTM responses
-
-### 6:15 PM — Twitter Auth Wired Up
-- Received Twitter Consumer Key, Consumer Secret, Bearer Token
-- Received Access Token and Secret
-- Tested mention fetching — successfully pulled 10 @stardroplin mentions
-- Bearer token had URL encoding issue — fixed
+- FastAPI backend: Twitter polling, GPT-4o analysis, intent detection (6 automations), worker loop
+- Dockerfile + apprunner.yaml
 
 ### 6:30 PM — First Deploy to AWS App Runner
-- Created ECR repository `next-gen-gtm`
-- Built Docker image (linux/amd64)
-- Pushed to ECR
-- Created App Runner service
 - **Live at:** https://xitwxb23yn.us-east-1.awsapprunner.com
 
 ### 6:45 PM — Twitter Write Auth Fixed
-- Consumer keys needed regenerating after permission change
-- Twitter dev portal was 500-ing (their issue, not ours)
-- Used OAuth PIN flow to get Read+Write tokens
-- **Successfully posted first tweet as @stardroplin** 🎉
-- Tweet: "Stardrop GTM Agent is live 🚀"
+- **Successfully posted first tweet as @stardroplin**
 
 ### 7:00 PM — Full Pipeline Working
 - Worker processed ALL 10 pending mentions
 - Posted 4-tweet reply threads to each mention
-- Competitive intel, GTM strategy, ICP analysis — all working
-- Added dedup check (don't reply if already replied to conversation)
-- Redeployed to App Runner with worker running as background thread
+- Added dedup check
 
 ### 7:15 PM — RAG Added
-- Installed ChromaDB
-- Created rag_service.py — indexes all 60+ vault notes (441 chunks)
-- all-MiniLM-L6-v2 embeddings, cosine similarity, top-8 retrieval
-- Updated openai_service.py to inject RAG context per query
-- Tested: responses now reference specific tools (Clay, Apollo, Instantly) and frameworks
-- Rebuilt and deployed to App Runner
+- ChromaDB: 60+ vault notes, 441 chunks, all-MiniLM-L6-v2 embeddings
+- Responses now reference specific tools and frameworks
 
 ### 7:30 PM — Landing Page Built
-- Created Next.js 15 frontend with Inter + Newsreader fonts
-- Matching talent-matcher design: monochrome, serif headings, clean
-- Sections: Hero, Demo, How it Works, Capabilities, Environments, Stats, Research, CTA
-- Environments section: 6 live (green) + 17 coming soon (gray)
-- Deployed to Vercel
-- **Stable URL set:** https://next-gen-gtm.vercel.app
+- Next.js 16 frontend, Inter + Newsreader fonts
+- **Stable URL:** https://next-gen-gtm.vercel.app
 
 ### 7:45 PM — Self-Improving Feedback Loop
-- Created feedback_service.py:
-  - Logs every response (mention, intent, tweets, reply IDs)
-  - Collects engagement metrics after 1 hour (likes, replies, retweets)
-  - Scores responses: likes×3 + replies×5 + retweets×2
-  - Extracts top-performing patterns
-  - Feeds learnings back into system prompt
-- Wired into worker (collects feedback every 10 poll cycles)
-- Wired into openai_service (injects learnings context)
-- Deployed to App Runner
+- Logs every response, collects engagement after 1 hour
+- Scores: likes×3 + replies×5 + retweets×2
+- Top-performing patterns feed back into system prompt
 
-### 8:00 PM — Scroll Animations + Design Polish
-- Added CSS scroll animations (scroll-reveal, scroll-scale, stagger-children)
-- Fixed progressive enhancement (content visible by default, animations enhance)
-- Added Twitter embed of real tweet thread
-- Added hover-lift transitions on cards
-- Redeployed to Vercel
+### 8:00 PM — Design Polish
+- Scroll animations, Twitter embed, hover transitions
+- Custom favicon (italic S), OG image (1200×630), social preview metadata
 
 ### 8:15 PM — arXiv Paper Outline
-- Wrote full paper outline: "Environmental Engineering for Go-To-Market Systems"
-- Target: cs.AI + cs.MA + cs.SE
-- 7 sections: Intro, Related Work, Framework, System Architecture, Evaluation, Discussion, Conclusion
-- Formal definitions: Environment tuple, GTM System, Integration Interface
-- Key references: WebArena, AgentBench, AutoGen, ToolLLM, RestGPT
-- Added to vault at paper/PAPER-OUTLINE.md
+- "Environmental Engineering for Go-To-Market Systems"
+- 7 sections, formal definitions, key references
 
 ### 8:30 PM — 30 GitHub Issues Created
-- Environment integrations (#1-18): Salesforce, HubSpot, Slack, Clay, Apollo, Instantly, Attio, Common Room, Unify, Pocus, Hightouch, Snowflake, Segment, Stripe, LinkedIn, Gong, Google/Meta Ads, Rilo
-- Product features (#19-30): Dashboard, Goodfire interpretability, Tech design doc, Scoring engine, Slack channels, arXiv paper, Play engine, Identity resolution, Webhook UI, Outcome tracking, Experiment engine, Multi-channel
-
-### 8:45 PM — Professional README
-- Full collaborator-ready README with architecture, tech stack, getting started, deploy instructions, contributing guide
-- Set repo description and homepage on GitHub
-- Pushed to GitHub
-
-### 9:00 PM — Agents Running
-- Technical design doc agent writing DESIGN.md
-- Dashboard agent building Townhall-style UI pages
-- Both running in parallel
+- Environment integrations (#1-18), product features (#19-33)
 
 ---
 
-## Summary
+## Cumulative Stats (as of March 28)
 
-**In ~5.5 hours:**
-
-| What | Count |
-|------|-------|
-| Research notes | 60+ |
-| Vault wikilinks | 116 |
-| Raw research lines | ~3,800 |
-| Backend services | 6 (twitter, openai, rag, gtm_engine, feedback, worker) |
-| GTM automations | 6 (competitor, ICP, signals, roast, stack, outbound) |
-| RAG chunks indexed | 441 |
-| Tweets posted by bot | 40+ reply tweets |
-| GitHub issues | 30 |
-| Deployments | App Runner (backend) + Vercel (frontend) |
-| Live environments | 6 (Twitter, OpenAI, ChromaDB, App Runner, GitHub, Luma) |
-| Planned environments | 17 |
-| arXiv paper sections | 7 |
-| Lines of code written | ~2,500+ |
+| Metric | Value |
+|--------|-------|
+| Total commits | 80 |
+| Lines of code | ~10,000+ (Python + TypeScript) |
+| Research notes | 65 (interconnected Obsidian vault) |
+| RAG chunks indexed | 441+ (shared) + user docs |
+| Backend services | 8 |
+| Frontend pages | 14 |
+| GTM automations | 6 |
+| Live environments | 6 |
+| Planned environments | 18 |
+| Open issues | 33 |
+| Real SVG logos | 13 |
+| arXiv paper | Full draft with 22 citations |
+| DynamoDB tables | Mentions, users, documents |
 
 **Live URLs:**
-- Landing page: https://next-gen-gtm.vercel.app
+- Landing: https://next-gen-gtm.vercel.app
+- Dashboard: https://next-gen-gtm.vercel.app/dashboard
 - API: https://xitwxb23yn.us-east-1.awsapprunner.com
 - Bot: https://x.com/stardroplin
 - Repo: https://github.com/City-Intelligence-Inc/next-gen-gtm
