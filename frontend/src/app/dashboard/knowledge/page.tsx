@@ -48,6 +48,7 @@ const CATEGORIES: { key: string; label: string; color: string; notes: string[] }
       "JTBD for GTM",
       "OODA Loop for GTM",
       "Double-Loop Learning",
+      "MEDDIC Deal - Stardrop to Coframe",
     ],
   },
   {

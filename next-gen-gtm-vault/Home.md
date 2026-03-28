@@ -53,6 +53,7 @@ How companies bring products to market:
 | Framework | What It Does |
 |-----------|-------------|
 | [[MEDDIC-MEDDPICC]] | Enterprise deal qualification |
+| [[MEDDIC Deal - Stardrop to Coframe]] | **Live deal** — full MEDDPICC applied to selling Stardrop into Coframe's GTM stack |
 | [[Bow-Tie Funnel]] | Full lifecycle: pre-sale + post-sale |
 | [[GTM Fit]] | Can you sell repeatably? (PMF's cousin) |
 | [[GTM Metrics That Matter]] | What to measure (and what NOT to) |
@@ -200,7 +201,7 @@ vault/
 ├── Home.md                          ← You are here
 ├── concepts/          (10 notes)    ← Core ideas and thesis
 ├── motions/           (6 notes)     ← GTM motions (SLG, PLG, CLG, PLS, ALG)
-├── frameworks/        (7 notes)     ← Mental models and measurement
+├── frameworks/        (8 notes)     ← Mental models, measurement, and live deals
 ├── tools/             (14 notes)    ← Tool and platform profiles
 ├── case-studies/      (6 notes)     ← Company deep dives
 ├── architecture/      (3 notes)     ← System design and GTM OS
@@ -213,4 +214,4 @@ vault/
 
 ---
 
-*65 interconnected notes, 116 wikilinks, 10 categories + paper section. Indexed into 441 chunks via ChromaDB (all-MiniLM-L6-v2) for RAG retrieval. Research as of March 2026.*
+*66 interconnected notes, 116 wikilinks, 10 categories + paper section. Indexed into 441 chunks via ChromaDB (all-MiniLM-L6-v2) for RAG retrieval. Research as of March 2026.*

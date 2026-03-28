@@ -69,6 +69,7 @@ const NODES_BY_CATEGORY: Record<string, string[]> = {
     "JTBD for GTM",
     "OODA Loop for GTM",
     "Double-Loop Learning",
+    "MEDDIC Deal - Stardrop to Coframe",
   ],
   tools: [
     "Clay",
@@ -237,6 +238,15 @@ const EDGES: [string, string][] = [
   // Resources cross-links
   ["Sources and Reading List", "GTM Overview"],
   ["Sources and Reading List", "Next-Gen GTM Thesis"],
+
+  // MEDDIC Deal cross-links
+  ["MEDDIC Deal - Stardrop to Coframe", "MEDDIC-MEDDPICC"],
+  ["MEDDIC Deal - Stardrop to Coframe", "Bo Mohazzabi"],
+  ["MEDDIC Deal - Stardrop to Coframe", "Case Study - Coframe"],
+  ["MEDDIC Deal - Stardrop to Coframe", "Signal-Based Selling Deep Dive"],
+  ["MEDDIC Deal - Stardrop to Coframe", "AI SDR Agents Deep Dive"],
+  ["MEDDIC Deal - Stardrop to Coframe", "Coframe"],
+  ["MEDDIC Deal - Stardrop to Coframe", "The Self-Improving GTM Engine"],
 ];
 
 // ---------------------------------------------------------------------------
