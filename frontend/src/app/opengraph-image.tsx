@@ -15,79 +15,96 @@ export default async function Image() {
           height: "100%",
           display: "flex",
           flexDirection: "column",
-          justifyContent: "center",
           padding: "80px",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+        <div style={{ display: "flex", alignItems: "center" }}>
           <div
             style={{
               width: "12px",
               height: "12px",
               borderRadius: "50%",
               background: "#22c55e",
-              boxShadow: "0 0 12px rgba(34,197,94,0.5)",
+              marginRight: "12px",
             }}
           />
-          <span
+          <div
             style={{
               color: "#a3a3a3",
               fontSize: "20px",
-              fontFamily: "sans-serif",
               letterSpacing: "0.15em",
-              textTransform: "uppercase",
             }}
           >
-            Live on X
-          </span>
+            LIVE ON X
+          </div>
         </div>
         <div
           style={{
-            marginTop: "32px",
-            fontFamily: "Georgia, serif",
-            fontStyle: "italic",
-            fontSize: "72px",
-            color: "white",
-            lineHeight: 1.15,
+            display: "flex",
+            flexDirection: "column",
+            marginTop: "40px",
           }}
         >
-          Your GTM team
-          <br />
-          just got smarter
+          <div
+            style={{
+              fontSize: "72px",
+              color: "white",
+              lineHeight: 1.2,
+            }}
+          >
+            Your GTM team
+          </div>
+          <div
+            style={{
+              fontSize: "72px",
+              color: "white",
+              lineHeight: 1.2,
+              fontStyle: "italic",
+            }}
+          >
+            just got smarter
+          </div>
         </div>
         <div
           style={{
+            display: "flex",
             marginTop: "32px",
             fontSize: "24px",
             color: "#737373",
             lineHeight: 1.6,
-            maxWidth: "700px",
           }}
         >
           Tag @stardroplin on X — get competitive intel, ICP analysis, and
-          outbound copy in 60 seconds. Powered by AI + 60 pages of GTM research.
+          outbound copy in 60 seconds.
         </div>
         <div
           style={{
-            marginTop: "auto",
             display: "flex",
+            marginTop: "auto",
             alignItems: "center",
             justifyContent: "space-between",
+            width: "100%",
           }}
         >
-          <span
+          <div
             style={{
-              fontFamily: "Georgia, serif",
+              display: "flex",
               fontStyle: "italic",
               fontSize: "28px",
               color: "#525252",
             }}
           >
             Stardrop
-          </span>
-          <span style={{ fontSize: "18px", color: "#525252" }}>
+          </div>
+          <div
+            style={{
+              display: "flex",
+              fontSize: "18px",
+              color: "#525252",
+            }}
+          >
             next-gen-gtm.vercel.app
-          </span>
+          </div>
         </div>
       </div>
     ),
