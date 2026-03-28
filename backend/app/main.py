@@ -233,14 +233,16 @@ async def save_improvement(request: dict = None):
     if not request:
         return {"error": "No data"}
 
+    username = request.get("username", "")
     db_service.save_improvement({
         "question": request.get("question", ""),
         "original_response": request.get("original_response", []),
         "improved_response": request.get("improved_response", ""),
         "rating": request.get("rating", ""),
+        "username": username,
     })
 
-    return {"status": "saved"}
+    return {"status": "saved", "username": username or "global"}
 
 
 @app.get("/api/improvements")

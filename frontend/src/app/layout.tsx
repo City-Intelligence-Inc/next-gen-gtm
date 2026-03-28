@@ -53,6 +53,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `
               function initScrollReveal(){
+                document.documentElement.classList.add('scroll-animated');
                 var obs = new IntersectionObserver(function(entries){
                   entries.forEach(function(e){
                     if(e.isIntersecting) {
@@ -60,7 +61,7 @@ export default function RootLayout({
                       obs.unobserve(e.target);
                     }
                   });
-                }, {threshold: 0.05, rootMargin: '0px 0px 50px 0px'});
+                }, {threshold: 0.08, rootMargin: '0px 0px 80px 0px'});
                 document.querySelectorAll('.scroll-reveal,.scroll-reveal-left,.scroll-scale,.stagger-children').forEach(function(el){
                   obs.observe(el);
                 });

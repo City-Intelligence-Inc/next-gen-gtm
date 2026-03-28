@@ -58,7 +58,19 @@ def run_once():
         except Exception:
             pass
 
-        logger.info(f"Processing tweet {tweet_id} from @{mention_data['author_username']}: {mention_data['text'][:60]}...")
+        author = mention_data["author_username"]
+        logger.info(f"Processing tweet {tweet_id} from @{author}: {mention_data['text'][:60]}...")
+
+        # Check if user exists, auto-create if not
+        try:
+            user = db_service.get_user(author)
+            if user:
+                logger.info(f"  User @{author} found — applying personal agent config")
+            else:
+                db_service.save_user(author)
+                logger.info(f"  New user @{author} — created profile")
+        except Exception:
+            pass
 
         try:
             result = process_mention(mention_data)

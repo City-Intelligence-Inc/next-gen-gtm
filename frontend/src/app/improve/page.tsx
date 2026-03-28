@@ -58,7 +58,8 @@ export default function ImprovePage() {
     setHistory(prev => [...prev, { q: question, original: response, improved: betterResponse }]);
     setSaved(true);
 
-    // Also POST to backend if available
+    // Save to backend with username
+    const username = typeof window !== "undefined" ? localStorage.getItem("stardrop_username") || "" : "";
     fetch(`/api/proxy/improve`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -66,9 +67,10 @@ export default function ImprovePage() {
         question,
         original_response: response,
         improved_response: betterResponse,
+        username,
         ts: new Date().toISOString(),
       }),
-    }).catch(() => {}); // fire and forget
+    }).catch(() => {});
   }
 
   return (

@@ -6,7 +6,7 @@ import { useState, useEffect, useCallback } from "react";
 // Types & Constants
 // ---------------------------------------------------------------------------
 
-type Tab = "automate" | "score" | "knowledge" | "learn" | "trace" | "compound";
+type Tab = "automate" | "review" | "documents" | "score" | "knowledge" | "learn" | "trace" | "compound";
 
 interface SkillScore {
   key: string;
@@ -137,6 +137,96 @@ const LEVEL_CHALLENGES: Record<number, { id: string; prompt: string }[]> = {
     { id: "l5c3", prompt: "@stardroplin what is warehouse-native GTM and how do I implement it?" },
   ],
 };
+
+// ---------------------------------------------------------------------------
+// Review card data (pre-loaded Q&A pairs)
+// ---------------------------------------------------------------------------
+
+interface ReviewCard {
+  question: string;
+  answer: string;
+}
+
+const REVIEW_CARDS: ReviewCard[] = [
+  {
+    question: "who should I sell to? we built an AI code review tool",
+    answer:
+      "Target: Engineering Managers at B2B SaaS (50-500 employees). They run 15+ PRs/day and struggle with review bottlenecks. Signal: Companies posting 'hiring senior engineers' = growing team, more PRs. This week: Use Clay to find 50 Engineering Managers at Series A-B SaaS.",
+  },
+  {
+    question: "roast my GTM strategy. We're doing PLG but conversion is 0.5%",
+    answer:
+      "0.5% conversion means you have a monetization problem, not a growth problem. Three issues: (1) Your activation metric is probably wrong (2) No PQL scoring (3) No sales-assist layer. Fix: Add Pocus for PQL scoring, trigger Slack alerts when usage spikes, have AE reach out within 5 min.",
+  },
+  {
+    question: "analyze competitor @lattice",
+    answer:
+      "Lattice: $150M+ ARR, 5000+ customers. Weakness: enterprise pricing ($11/seat/mo), slow on async/remote. Your wedge: remote-first performance management. Counter-move: Offer async 360 reviews with timezone-aware nudges. Differentiate on price ($5/seat).",
+  },
+  {
+    question: "what GTM stack should I use? Early stage, $0 budget",
+    answer:
+      "At $0 with 3 people: Attio free tier (CRM), Clay free tier (100 credits/mo), Instantly trial + personal Gmail for outreach, Google Alerts for signals, PostHog free for analytics. Skip Apollo until $5K MRR. This stack costs $0 and handles your first 100 customers.",
+  },
+  {
+    question: "find buying signals for AI code review tools",
+    answer:
+      '5 signals: (1) Hiring "Senior Engineer" = growing team, more PRs. (2) GitHub Copilot in job descriptions = AI-forward. (3) Tweets about PR review bottlenecks. (4) Series A-B in last 6 months. (5) GitHub Enterprise + CI/CD tools. Set up Clay table with these 5 signals, score 1-5.',
+  },
+  {
+    question:
+      "turn this into outbound: We reduce e-commerce return rates by 40% using AI sizing",
+    answer:
+      "Subject: 'Your return rate is costing you $2M/year'. Body: 'Hi [Name], [Company] processed ~$X in returns last quarter. Our AI sizing tool cut return rates 40% for [brand]. Worth 15 min?' Follow-up Day 3: case study. Day 7: 'No pressure \u2014 the $2M/year number speaks for itself.'",
+  },
+  {
+    question: "who are the best AI SDR tools right now?",
+    answer:
+      "The market is shaking out. 11x and Artisan raised big but churn is 70-80%. The winners are hybrid: AI generates leads + copy, humans close. Best stack: Clay for enrichment, Apollo for data, Instantly for sending. Skip pure AI SDRs \u2014 the 2.3x engagement gap vs hybrid is real.",
+  },
+  {
+    question: "how do I set up a signal-based selling motion?",
+    answer:
+      "Signal-based selling in 4 steps: (1) Define 5 buying signals (hiring, funding, tech changes, complaints, research). (2) Set up monitoring (Google Alerts, LinkedIn saved searches, Clay). (3) Score signals 1-5 for intent strength. (4) Route 4-5s to immediate outreach, nurture 2-3s. 94% of buyers lock vendor list before first contact \u2014 you need to be there first.",
+  },
+];
+
+type ReviewRating = "good" | "bad" | "skip";
+
+interface ReviewResult {
+  index: number;
+  rating: ReviewRating;
+  question: string;
+}
+
+// ---------------------------------------------------------------------------
+// Document types
+// ---------------------------------------------------------------------------
+
+type DocumentCategory =
+  | "Product Info"
+  | "Case Study"
+  | "Battle Card"
+  | "ICP"
+  | "Playbook"
+  | "Other";
+
+const DOCUMENT_CATEGORIES: DocumentCategory[] = [
+  "Product Info",
+  "Case Study",
+  "Battle Card",
+  "ICP",
+  "Playbook",
+  "Other",
+];
+
+interface SavedDocument {
+  id: string;
+  title: string;
+  category: DocumentCategory;
+  content: string;
+  createdAt: string;
+}
 
 const API_BASE = "https://xitwxb23yn.us-east-1.awsapprunner.com";
 
@@ -510,6 +600,18 @@ export default function ImprovePage() {
   const [expandedPlaybook, setExpandedPlaybook] = useState<string | null>(null);
   const [playbookProgress, setPlaybookProgress] = useState<Record<string, boolean[]>>({});
 
+  // Review tab state
+  const [reviewIndex, setReviewIndex] = useState(0);
+  const [reviewResults, setReviewResults] = useState<ReviewResult[]>([]);
+  const [reviewExiting, setReviewExiting] = useState<"left" | "right" | null>(null);
+  const [reviewDone, setReviewDone] = useState(false);
+
+  // Documents tab state
+  const [documents, setDocuments] = useState<SavedDocument[]>([]);
+  const [docTitle, setDocTitle] = useState("");
+  const [docCategory, setDocCategory] = useState<DocumentCategory>("Product Info");
+  const [docContent, setDocContent] = useState("");
+
   // Load from localStorage on mount
   useEffect(() => {
     const savedSkills = loadJSON<SkillScore[] | null>("skills", null);
@@ -550,6 +652,26 @@ export default function ImprovePage() {
     }
     setPlaybookProgress(savedProgress);
 
+    // Load review results
+    const savedReviews = loadJSON<ReviewResult[]>("reviews", []);
+    if (savedReviews.length > 0) {
+      setReviewResults(savedReviews);
+      // If all cards were already reviewed, show done state
+      if (savedReviews.length >= REVIEW_CARDS.length) {
+        setReviewIndex(REVIEW_CARDS.length);
+        setReviewDone(true);
+      } else {
+        setReviewIndex(savedReviews.length);
+      }
+    }
+
+    // Load documents
+    const savedDocs = loadJSON<SavedDocument[]>("documents", []);
+    setDocuments(savedDocs);
+    if (savedDocs.length > 0) {
+      console.log(`[Stardrop:Improve] Documents: Loaded ${savedDocs.length} documents from localStorage`);
+    }
+
     setMounted(true);
   }, []);
 
@@ -589,6 +711,110 @@ export default function ImprovePage() {
       }
     }
   }, [playbookProgress, mounted]);
+
+  // Persist review results
+  useEffect(() => {
+    if (mounted && reviewResults.length > 0) {
+      saveJSON("reviews", reviewResults);
+    }
+  }, [reviewResults, mounted]);
+
+  // Persist documents
+  useEffect(() => {
+    if (mounted) {
+      saveJSON("documents", documents);
+    }
+  }, [documents, mounted]);
+
+  // Review: rate a card
+  const rateCard = useCallback(
+    (rating: ReviewRating) => {
+      if (reviewIndex >= REVIEW_CARDS.length || reviewExiting) return;
+
+      const card = REVIEW_CARDS[reviewIndex];
+      console.log(
+        `[Stardrop:Improve] Review: Card ${reviewIndex + 1}/${REVIEW_CARDS.length} — "${card.question.slice(0, 40)}..."`
+      );
+      console.log(
+        `[Stardrop:Improve] Review: Rated ${rating} on card ${reviewIndex + 1}`
+      );
+
+      const direction = rating === "bad" ? "left" : rating === "good" ? "right" : null;
+      setReviewExiting(direction);
+
+      const result: ReviewResult = {
+        index: reviewIndex,
+        rating,
+        question: card.question,
+      };
+
+      setTimeout(() => {
+        setReviewResults((prev) => [...prev, result]);
+        setReviewExiting(null);
+
+        const nextIndex = reviewIndex + 1;
+        if (nextIndex >= REVIEW_CARDS.length) {
+          setReviewDone(true);
+        }
+        setReviewIndex(nextIndex);
+      }, 300);
+    },
+    [reviewIndex, reviewExiting]
+  );
+
+  // Review: keyboard shortcuts
+  useEffect(() => {
+    if (tab !== "review" || reviewDone) return;
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        rateCard("bad");
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        rateCard("good");
+      } else if (e.key === " ") {
+        e.preventDefault();
+        rateCard("skip");
+      }
+    }
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [tab, rateCard, reviewDone]);
+
+  // Review: reset
+  const resetReview = useCallback(() => {
+    setReviewIndex(0);
+    setReviewResults([]);
+    setReviewDone(false);
+    setReviewExiting(null);
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(STORAGE_PREFIX + "reviews");
+    }
+  }, []);
+
+  // Documents: save
+  const saveDocument = useCallback(() => {
+    if (!docTitle.trim() || !docContent.trim()) return;
+    const doc: SavedDocument = {
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+      title: docTitle.trim(),
+      category: docCategory,
+      content: docContent.trim(),
+      createdAt: new Date().toISOString(),
+    };
+    console.log(
+      `[Stardrop:Improve] Documents: Saved "${doc.title}" (${doc.category})`
+    );
+    setDocuments((prev) => [doc, ...prev]);
+    setDocTitle("");
+    setDocContent("");
+    setDocCategory("Product Info");
+  }, [docTitle, docCategory, docContent]);
+
+  // Documents: delete
+  const deleteDocument = useCallback((id: string) => {
+    setDocuments((prev) => prev.filter((d) => d.id !== id));
+  }, []);
 
   // Toggle a playbook step
   const togglePlaybookStep = useCallback(
@@ -761,10 +987,12 @@ export default function ImprovePage() {
 
   const TABS: { key: Tab; label: string }[] = [
     { key: "automate", label: "Automate" },
-    { key: "score", label: "Your GTM Score" },
+    { key: "review", label: "Review" },
+    { key: "documents", label: "Documents" },
+    { key: "score", label: "Score" },
     { key: "knowledge", label: "Knowledge Map" },
     { key: "learn", label: "Learn" },
-    { key: "trace", label: "Why This Answer" },
+    { key: "trace", label: "Trace" },
     { key: "compound", label: "Compound Curve" },
   ];
 

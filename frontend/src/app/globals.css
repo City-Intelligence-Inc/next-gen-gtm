@@ -13,193 +13,182 @@ button:focus-visible {
   border-radius: 2px;
 }
 
-/* Hero animations */
+/* ─── Hero load animations ─── */
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes fadeInScale {
-  from {
-    opacity: 0;
-    transform: scale(0.97) translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-@keyframes slideInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+  from { opacity: 0; transform: scale(0.96) translateY(16px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 @keyframes pulse-dot {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+  50%      { opacity: 0.3; }
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.6s ease-out both;
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
 
-.animate-fade-in-delay-1 {
-  animation: fadeIn 0.6s ease-out 0.15s both;
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
 }
 
-.animate-fade-in-delay-2 {
-  animation: fadeIn 0.6s ease-out 0.3s both;
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(0, 0, 0, 0.04); }
+  50%      { box-shadow: 0 0 40px rgba(0, 0, 0, 0.08); }
 }
 
-.animate-fade-in-delay-3 {
-  animation: fadeIn 0.6s ease-out 0.45s both;
+.animate-fade-in       { animation: fadeIn 0.7s ease-out both; }
+.animate-fade-in-delay-1 { animation: fadeIn 0.7s ease-out 0.1s both; }
+.animate-fade-in-delay-2 { animation: fadeIn 0.7s ease-out 0.2s both; }
+.animate-fade-in-delay-3 { animation: fadeIn 0.7s ease-out 0.35s both; }
+.animate-fade-in-delay-4 { animation: fadeIn 0.7s ease-out 0.5s both; }
+.animate-fade-in-scale   { animation: fadeInScale 0.8s ease-out 0.4s both; }
+.animate-pulse-dot       { animation: pulse-dot 2s ease-in-out infinite; }
+.animate-float           { animation: float 4s ease-in-out infinite; }
+.animate-glow            { animation: glow-pulse 3s ease-in-out infinite; }
+
+/* Shimmer text effect */
+.shimmer-text {
+  background: linear-gradient(
+    90deg,
+    #171717 0%,
+    #171717 40%,
+    #737373 50%,
+    #171717 60%,
+    #171717 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 4s ease-in-out infinite;
 }
 
-.animate-fade-in-delay-4 {
-  animation: fadeIn 0.6s ease-out 0.6s both;
+/* Gradient border glow */
+.gradient-border {
+  position: relative;
+}
+.gradient-border::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, #e5e5e5, #d4d4d4, #e5e5e5);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
 }
 
-.animate-fade-in-scale {
-  animation: fadeInScale 0.7s ease-out 0.5s both;
-}
-
-.animate-pulse-dot {
-  animation: pulse-dot 2s ease-in-out infinite;
-}
-
-/* Scroll-triggered animations (native CSS) */
-@keyframes scrollReveal {
-  from {
-    opacity: 0;
-    transform: translateY(24px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes scrollRevealLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-24px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes scrollScale {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-/* Default: content visible. Animations are progressive enhancement. */
+/* ─── Scroll-triggered animations ─── */
+/*
+ * Elements start visible by default (progressive enhancement).
+ * JS adds .scroll-animated to <html> once observer is running,
+ * which activates the hidden→reveal pattern.
+ */
 .scroll-reveal,
 .scroll-reveal-left,
-.scroll-scale {
-  opacity: 1;
-  transform: none;
-}
-
+.scroll-scale,
 .stagger-children > * {
   opacity: 1;
   transform: none;
 }
 
-/* Scroll-triggered: start hidden, JS adds .in-view to reveal */
-.scroll-reveal,
-.scroll-reveal-left,
-.scroll-scale {
+/* Only hide elements when JS scroll observer is confirmed running */
+html.scroll-animated .scroll-reveal,
+html.scroll-animated .scroll-reveal-left,
+html.scroll-animated .scroll-scale {
   opacity: 0;
-  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.scroll-reveal {
-  transform: translateY(24px);
-}
+html.scroll-animated .scroll-reveal     { transform: translateY(30px); }
+html.scroll-animated .scroll-reveal-left { transform: translateX(-30px); }
+html.scroll-animated .scroll-scale       { transform: scale(0.94); }
 
-.scroll-reveal-left {
-  transform: translateX(-24px);
-}
-
-.scroll-scale {
-  transform: scale(0.95);
-}
-
-.scroll-reveal.in-view,
-.scroll-reveal-left.in-view,
-.scroll-scale.in-view {
+html.scroll-animated .scroll-reveal.in-view,
+html.scroll-animated .scroll-reveal-left.in-view,
+html.scroll-animated .scroll-scale.in-view {
   opacity: 1;
   transform: none;
 }
 
-.stagger-children > * {
+html.scroll-animated .stagger-children > * {
   opacity: 0;
   transform: translateY(24px);
-  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.stagger-children > *:nth-child(1) { transition-delay: 0ms; }
-.stagger-children > *:nth-child(2) { transition-delay: 60ms; }
-.stagger-children > *:nth-child(3) { transition-delay: 120ms; }
-.stagger-children > *:nth-child(4) { transition-delay: 180ms; }
-.stagger-children > *:nth-child(5) { transition-delay: 240ms; }
-.stagger-children > *:nth-child(6) { transition-delay: 300ms; }
-.stagger-children > *:nth-child(7) { transition-delay: 360ms; }
-.stagger-children > *:nth-child(8) { transition-delay: 420ms; }
-.stagger-children > *:nth-child(9) { transition-delay: 480ms; }
-.stagger-children > *:nth-child(10) { transition-delay: 540ms; }
-.stagger-children > *:nth-child(11) { transition-delay: 600ms; }
-.stagger-children > *:nth-child(12) { transition-delay: 660ms; }
-.stagger-children > *:nth-child(n+13) { transition-delay: 700ms; }
+html.scroll-animated .stagger-children > *:nth-child(1)  { transition-delay: 0ms; }
+html.scroll-animated .stagger-children > *:nth-child(2)  { transition-delay: 70ms; }
+html.scroll-animated .stagger-children > *:nth-child(3)  { transition-delay: 140ms; }
+html.scroll-animated .stagger-children > *:nth-child(4)  { transition-delay: 210ms; }
+html.scroll-animated .stagger-children > *:nth-child(5)  { transition-delay: 280ms; }
+html.scroll-animated .stagger-children > *:nth-child(6)  { transition-delay: 350ms; }
+html.scroll-animated .stagger-children > *:nth-child(7)  { transition-delay: 420ms; }
+html.scroll-animated .stagger-children > *:nth-child(8)  { transition-delay: 490ms; }
+html.scroll-animated .stagger-children > *:nth-child(9)  { transition-delay: 560ms; }
+html.scroll-animated .stagger-children > *:nth-child(10) { transition-delay: 630ms; }
+html.scroll-animated .stagger-children > *:nth-child(11) { transition-delay: 700ms; }
+html.scroll-animated .stagger-children > *:nth-child(12) { transition-delay: 770ms; }
+html.scroll-animated .stagger-children > *:nth-child(n+13) { transition-delay: 800ms; }
 
-.stagger-children.in-view > * {
+html.scroll-animated .stagger-children.in-view > * {
   opacity: 1;
   transform: none;
 }
 
-/* Hover transitions */
+/* ─── Hover effects ─── */
 .hover-lift {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
 }
 
 .hover-lift:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
 }
 
-/* Smooth section transitions */
+/* Subtle glow on hover for cards */
+.hover-glow {
+  transition: box-shadow 0.3s ease;
+}
+.hover-glow:hover {
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05), 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+/* ─── Section transitions ─── */
 section {
   transition: opacity 0.3s ease;
 }
 
-/* Counter animation (for stats) */
-@keyframes countUp {
-  from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: translateY(0); }
+/* ─── Stat number gradient ─── */
+.stat-gradient {
+  background: linear-gradient(180deg, #171717 0%, #525252 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
+/* ─── Noise texture overlay (subtle grain) ─── */
+.noise-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ─── Accessible motion preferences ─── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

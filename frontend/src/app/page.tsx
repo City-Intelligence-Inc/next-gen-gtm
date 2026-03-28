@@ -101,13 +101,15 @@ export default function Home() {
       </nav>
 
       {/* Hero */}
-      <section className="bg-gradient-to-b from-white via-white to-neutral-50/80">
-        <div className="mx-auto max-w-4xl px-6 pt-28 pb-20 text-center">
-          <div className="animate-fade-in mb-6 inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-neutral-50 px-4 py-1.5 text-sm text-neutral-500">
+      <section className="relative overflow-hidden bg-gradient-to-b from-white via-white to-neutral-50/80">
+        {/* Subtle radial glow behind hero */}
+        <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 h-[600px] w-[800px] rounded-full bg-gradient-to-b from-neutral-100/60 to-transparent blur-3xl" />
+        <div className="relative mx-auto max-w-4xl px-6 pt-28 pb-20 text-center">
+          <div className="animate-fade-in mb-6 inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-white/80 backdrop-blur-sm px-4 py-1.5 text-sm text-neutral-500 shadow-sm">
             <span className="animate-pulse-dot inline-block h-2 w-2 rounded-full bg-green-500" />
             Agent is live — responding on X
           </div>
-          <h1 className="animate-fade-in-delay-1 font-serif text-5xl italic leading-[1.1] tracking-tight text-neutral-900 sm:text-7xl">
+          <h1 className="animate-fade-in-delay-1 font-serif text-5xl italic leading-[1.08] tracking-tight sm:text-7xl shimmer-text">
             Your GTM team
             <br />
             just got smarter
@@ -129,13 +131,14 @@ export default function Home() {
             <a
               href="https://x.com/intent/tweet?text=@stardroplin%20who%20should%20I%20sell%20to%3F%20we%20built%20"
               target="_blank"
-              className="rounded-lg bg-neutral-900 px-6 py-3 text-sm font-medium text-white transition hover:bg-neutral-800 active:bg-black hover:shadow-lg"
+              className="group relative rounded-lg bg-neutral-900 px-6 py-3 text-sm font-medium text-white transition-all hover:bg-neutral-800 active:bg-black hover:shadow-xl hover:scale-[1.02]"
             >
               Tag @stardroplin on X
+              <span className="absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             </a>
             <a
               href="#how-it-works"
-              className="rounded-lg border border-neutral-200 px-6 py-3 text-sm font-medium text-neutral-600 transition hover:border-neutral-300 hover:text-neutral-900"
+              className="rounded-lg border border-neutral-200 px-6 py-3 text-sm font-medium text-neutral-600 transition-all hover:border-neutral-300 hover:text-neutral-900 hover:shadow-md"
             >
               How it works
             </a>
@@ -145,7 +148,7 @@ export default function Home() {
 
       {/* Live Demo */}
       <section className="mx-auto max-w-3xl px-6 pb-24">
-        <div className="animate-fade-in-scale overflow-hidden rounded-2xl border border-neutral-200 shadow-lg shadow-neutral-200/50" style={{ background: "linear-gradient(135deg, rgba(250,250,250,0.5) 0%, rgba(255,255,255,1) 50%, rgba(250,250,250,0.5) 100%)", boxShadow: "0 0 0 1px rgba(0,0,0,0.03), 0 4px 24px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)" }}>
+        <div className="animate-fade-in-scale animate-glow overflow-hidden rounded-2xl border border-neutral-200" style={{ background: "linear-gradient(135deg, rgba(250,250,250,0.5) 0%, rgba(255,255,255,1) 50%, rgba(250,250,250,0.5) 100%)", boxShadow: "0 0 0 1px rgba(0,0,0,0.03), 0 4px 24px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)" }}>
           <div className="flex items-center gap-2 border-b border-neutral-200 bg-neutral-50 px-4 py-3">
             <div className="flex gap-1.5">
               <div className="h-3 w-3 rounded-full bg-red-300" />
@@ -316,7 +319,7 @@ export default function Home() {
               ].map((item) => (
                 <div
                   key={item.title}
-                  className="hover-lift rounded-xl border border-neutral-200 bg-white p-5"
+                  className="hover-lift hover-glow rounded-xl border border-neutral-200 bg-white p-5"
                 >
                   <h3 className="text-sm font-semibold">{item.title}</h3>
                   <p className="mt-1.5 font-mono text-xs text-neutral-400">
@@ -427,15 +430,7 @@ export default function Home() {
                 key={item.label}
                 className="bg-white p-8 text-center"
               >
-                <p
-                  className="font-serif text-4xl italic"
-                  style={{
-                    background: "linear-gradient(180deg, #171717 0%, #525252 100%)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                    backgroundClip: "text",
-                  }}
-                >
+                <p className="font-serif text-4xl italic stat-gradient">
                   {item.stat}
                 </p>
                 <p className="mt-2 text-sm font-medium text-neutral-700">{item.label}</p>
@@ -478,9 +473,10 @@ export default function Home() {
       </section>
 
       {/* CTA */}
-      <section className="border-t border-neutral-200">
-        <div className="mx-auto max-w-4xl px-6 py-28 md:py-36 text-center">
-          <h2 className="scroll-reveal font-serif text-4xl italic tracking-tight sm:text-6xl">
+      <section className="relative border-t border-neutral-200 overflow-hidden">
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-neutral-50/50 to-neutral-100/30" />
+        <div className="relative mx-auto max-w-4xl px-6 py-28 md:py-36 text-center">
+          <h2 className="scroll-reveal font-serif text-4xl italic tracking-tight sm:text-6xl shimmer-text">
             Try it now
           </h2>
           <p className="scroll-reveal mx-auto mt-6 max-w-md text-base leading-relaxed text-neutral-500">
@@ -490,9 +486,10 @@ export default function Home() {
           <a
             href="https://x.com/intent/tweet?text=@stardroplin%20"
             target="_blank"
-            className="scroll-scale mt-10 inline-block rounded-lg bg-neutral-900 px-10 py-4 text-base font-medium text-white transition hover:bg-neutral-800 active:bg-black hover:shadow-xl"
+            className="group scroll-scale relative mt-10 inline-block rounded-lg bg-neutral-900 px-10 py-4 text-base font-medium text-white transition-all hover:bg-neutral-800 active:bg-black hover:shadow-2xl hover:scale-[1.03]"
           >
             Tag @stardroplin on X
+            <span className="absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
           </a>
         </div>
       </section>

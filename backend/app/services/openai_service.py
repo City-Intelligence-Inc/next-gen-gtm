@@ -55,6 +55,29 @@ def analyze_tweet(tweet_text: str, author_username: str) -> list[str]:
             "content": learnings,
         })
 
+    # Per-user customization: load their improvements + custom prompt
+    try:
+        from app.services import db_service
+        user = db_service.get_user(author_username)
+        if user:
+            custom = user.get("custom_prompt", "")
+            if custom:
+                messages.append({
+                    "role": "system",
+                    "content": f"USER-SPECIFIC INSTRUCTIONS for @{author_username}:\n{custom}",
+                })
+            # Load their past improvements as few-shot examples
+            user_mentions = db_service.get_mentions_for_user(author_username)
+            improvements = [m for m in user_mentions if m.get("type") == "improvement" and m.get("improved_response")]
+            if improvements:
+                examples = improvements[:3]
+                example_text = "EXAMPLES OF RESPONSES THIS USER PREFERS:\n"
+                for ex in examples:
+                    example_text += f"Q: {ex.get('question','')[:100]}\nIdeal: {ex.get('improved_response','')[:200]}\n\n"
+                messages.append({"role": "system", "content": example_text})
+    except Exception:
+        pass  # Don't break if user lookup fails
+
     messages.append({
         "role": "user",
         "content": f"@{author_username} tweeted: \"{tweet_text}\"\n\nRespond with actionable GTM intelligence. Return ONLY a JSON array of tweet strings.",
