@@ -29,13 +29,66 @@ function XIcon() {
   );
 }
 
-function EngagementScore({ likes, replies, retweets }: { likes: number; replies: number; retweets: number }) {
-  const score = likes * 3 + replies * 5 + retweets * 2;
-  const color = score > 10 ? "text-green-600 bg-green-50 border-green-200" : score > 0 ? "text-amber-600 bg-amber-50 border-amber-200" : "text-neutral-400 bg-neutral-50 border-neutral-200";
+function ScoreDonut({ likes, replies, retweets, size = 64 }: { likes: number; replies: number; retweets: number; size?: number }) {
+  const criteria = [
+    { name: "Replies", value: replies, weight: 5, color: "#171717" },
+    { name: "Likes", value: likes, weight: 3, color: "#525252" },
+    { name: "Retweets", value: retweets, weight: 2, color: "#a3a3a3" },
+  ];
+  const total = criteria.reduce((s, c) => s + c.value * c.weight, 0);
+  const r = size / 2;
+  const innerR = r * 0.55;
+  const outerR = r * 0.9;
+
+  // Build pie slices
+  let cumAngle = -Math.PI / 2;
+  const slices = criteria.map((c) => {
+    const score = c.value * c.weight;
+    const angle = total > 0 ? (score / total) * Math.PI * 2 : 0;
+    const startAngle = cumAngle;
+    cumAngle += angle;
+    const endAngle = cumAngle;
+    const largeArc = angle > Math.PI ? 1 : 0;
+    const x1 = r + outerR * Math.cos(startAngle);
+    const y1 = r + outerR * Math.sin(startAngle);
+    const x2 = r + outerR * Math.cos(endAngle);
+    const y2 = r + outerR * Math.sin(endAngle);
+    const ix1 = r + innerR * Math.cos(endAngle);
+    const iy1 = r + innerR * Math.sin(endAngle);
+    const ix2 = r + innerR * Math.cos(startAngle);
+    const iy2 = r + innerR * Math.sin(startAngle);
+    return { ...c, score, d: total > 0 && score > 0
+      ? `M${x1},${y1} A${outerR},${outerR} 0 ${largeArc},1 ${x2},${y2} L${ix1},${iy1} A${innerR},${innerR} 0 ${largeArc},0 ${ix2},${iy2} Z`
+      : "" };
+  });
+
   return (
-    <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-semibold ${color}`}>
-      {score} pts
-    </span>
+    <div className="flex items-center gap-3">
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+        {/* Background ring */}
+        <circle cx={r} cy={r} r={outerR} fill="none" stroke="#f5f5f5" strokeWidth={outerR - innerR} />
+        {/* Slices */}
+        {slices.map((s, i) => s.d ? <path key={i} d={s.d} fill={s.color} /> : null)}
+        {/* Center */}
+        <circle cx={r} cy={r} r={innerR - 1} fill="white" />
+        <text x={r} y={r - 2} textAnchor="middle" className="text-[11px] font-bold fill-neutral-900" dominantBaseline="middle">
+          {total}
+        </text>
+        <text x={r} y={r + 9} textAnchor="middle" className="text-[7px] fill-neutral-400" dominantBaseline="middle">
+          pts
+        </text>
+      </svg>
+      <div className="space-y-1">
+        {criteria.map((c, i) => (
+          <div key={i} className="flex items-center gap-1.5">
+            <div className="h-2 w-2 rounded-sm shrink-0" style={{ backgroundColor: c.color }} />
+            <span className="text-[11px] text-neutral-600">{c.name}</span>
+            <span className="text-[11px] font-bold tabular-nums text-neutral-900">{c.value * c.weight}</span>
+            <span className="text-[9px] text-neutral-400">({c.value}×{c.weight})</span>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -167,10 +220,7 @@ export default function DashboardOverview() {
                           <p className="text-[11px] text-neutral-400">{timeAgo(m.ts)}</p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <EngagementScore likes={m.likes || 0} replies={m.replies || 0} retweets={m.retweets || 0} />
-                        <XIcon />
-                      </div>
+                      <XIcon />
                     </div>
 
                     {/* Tweet text */}
@@ -186,8 +236,13 @@ export default function DashboardOverview() {
                       </div>
                     )}
 
+                    {/* Score breakdown */}
+                    <div className="mt-3 pt-3 border-t border-neutral-100">
+                      <ScoreDonut likes={m.likes || 0} replies={m.replies || 0} retweets={m.retweets || 0} size={56} />
+                    </div>
+
                     {/* Footer */}
-                    <div className="mt-3 flex items-center gap-4 text-[11px] text-neutral-400">
+                    <div className="mt-3 flex items-center gap-3 text-[11px] text-neutral-400">
                       <span className="rounded bg-neutral-100 px-2 py-0.5 font-medium text-neutral-500 uppercase text-[10px]">
                         {INTENT_LABELS[m.intent] || m.intent}
                       </span>
@@ -197,9 +252,6 @@ export default function DashboardOverview() {
                           replied
                         </span>
                       )}
-                      <span>{m.likes || 0} likes</span>
-                      <span>{m.replies || 0} replies</span>
-                      <span>{m.retweets || 0} retweets</span>
                     </div>
                   </a>
                 );
