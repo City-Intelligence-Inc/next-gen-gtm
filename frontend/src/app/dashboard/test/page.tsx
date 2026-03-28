@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useMemo } from "react";
 
-// ── Types ──────────────────────────────────────────────────────────────────
+// -- Types --
 
 interface TestEntry {
   id: string;
@@ -31,7 +31,7 @@ interface VaultNote {
   relevance: number;
 }
 
-// ── Constants ──────────────────────────────────────────────────────────────
+// -- Constants --
 
 const STORAGE_KEY = "stardrop_tests";
 
@@ -108,7 +108,7 @@ const PATTERNS_APPLIED = [
   "Concrete this-week action item",
 ];
 
-// ── Helpers ────────────────────────────────────────────────────────────────
+// -- Helpers --
 
 function loadTests(): TestEntry[] {
   if (typeof window === "undefined") return [];
@@ -165,144 +165,127 @@ function retrieveVaultNotes(query: string): VaultNote[] {
   }));
 }
 
-// ── Interpretability section ───────────────────────────────────────────────
+// -- Right Panel: How Stardrop Thinks (always visible) --
 
-function InterpretabilitySection({
+function ThinkingPanel({
   query,
-  defaultOpen,
+  hasResponse,
 }: {
-  query: string;
-  defaultOpen: boolean;
+  query: string | null;
+  hasResponse: boolean;
 }) {
-  const [open, setOpen] = useState(defaultOpen);
-
-  const intentResult = useMemo(() => detectIntent(query), [query]);
-  const vaultNotes = useMemo(() => retrieveVaultNotes(query), [query]);
+  const intentResult = useMemo(
+    () => (query ? detectIntent(query) : null),
+    [query]
+  );
+  const vaultNotes = useMemo(
+    () => (query ? retrieveVaultNotes(query) : null),
+    [query]
+  );
 
   useEffect(() => {
-    console.log(`[Stardrop:Test] Intent: ${intentResult.intent} (${intentResult.confidence}%)`);
-    console.log(`[Stardrop:Test] Retrieved ${vaultNotes.length} vault notes`);
+    if (intentResult && vaultNotes) {
+      console.log(`[Stardrop:Test] Intent: ${intentResult.intent} (${intentResult.confidence}%)`);
+      console.log(`[Stardrop:Test] Retrieved ${vaultNotes.length} vault notes`);
+    }
   }, [intentResult, vaultNotes]);
 
-  return (
-    <div className="mb-8 rounded-lg border border-neutral-200 bg-white overflow-hidden">
-      {/* Header / toggle */}
-      <button
-        onClick={() => setOpen((prev) => !prev)}
-        className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-neutral-50 transition-colors"
-      >
-        <span className="text-sm font-semibold text-neutral-900">How Stardrop thinks</span>
-        <svg
-          className={`h-4 w-4 text-neutral-400 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2}
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-        </svg>
-      </button>
-
-      {open && (
-        <div className="px-4 pb-5 space-y-6 border-t border-neutral-100 pt-4">
-          {/* 1. Intent detected */}
-          <div>
-            <h3 className="text-[11px] font-semibold uppercase tracking-widest text-neutral-400 mb-2">
-              Intent detected
-            </h3>
-            <div className="flex items-center gap-3">
-              <span className="inline-flex items-center rounded-full bg-neutral-100 px-3 py-1 text-xs font-medium text-neutral-800">
-                {INTENT_LABELS[intentResult.intent]}
-              </span>
-              <div className="flex-1 flex items-center gap-2">
-                <div className="flex-1 h-2 rounded-full bg-neutral-100 overflow-hidden">
-                  <div
-                    className={`h-full rounded-full ${INTENT_COLORS[intentResult.intent]} transition-all duration-500`}
-                    style={{ width: `${intentResult.confidence}%` }}
-                  />
-                </div>
-                <span className="text-xs font-medium text-neutral-500 tabular-nums w-8 text-right">
-                  {intentResult.confidence}%
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* 2. Knowledge retrieved */}
-          <div>
-            <h3 className="text-[11px] font-semibold uppercase tracking-widest text-neutral-400 mb-2">
-              Knowledge retrieved
-            </h3>
-            <div className="space-y-2">
-              {vaultNotes.map((note) => (
-                <div key={note.title} className="flex items-center gap-3">
-                  <span className="text-xs text-neutral-700 w-48 shrink-0 truncate">
-                    {note.title}
-                  </span>
-                  <div className="flex-1 h-1.5 rounded-full bg-neutral-100 overflow-hidden">
-                    <div
-                      className="h-full rounded-full bg-neutral-400 transition-all duration-500"
-                      style={{ width: `${note.relevance}%` }}
-                    />
-                  </div>
-                  <span className="text-[10px] font-medium text-neutral-400 tabular-nums w-7 text-right">
-                    {note.relevance}%
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* 3. Reasoning chain */}
-          <div>
-            <h3 className="text-[11px] font-semibold uppercase tracking-widest text-neutral-400 mb-3">
-              Reasoning chain
-            </h3>
-            <div className="flex flex-col items-start">
-              {[
-                { icon: "\ud83d\udcdd", label: "Your question" },
-                {
-                  icon: "\ud83c\udfaf",
-                  label: `Intent: ${INTENT_LABELS[intentResult.intent]} (${intentResult.confidence}%)`,
-                },
-                { icon: "\ud83d\udcda", label: `Retrieved ${vaultNotes.length} vault notes` },
-                { icon: "\ud83e\udd16", label: "GPT-4o generated response" },
-                { icon: "\ud83d\udcca", label: "1 tweet thread" },
-              ].map((step, i, arr) => (
-                <div key={i} className="flex flex-col items-start">
-                  <div className="flex items-center gap-2.5 rounded-lg border border-neutral-150 bg-neutral-50 px-3 py-2">
-                    <span className="text-sm">{step.icon}</span>
-                    <span className="text-xs text-neutral-700">{step.label}</span>
-                  </div>
-                  {i < arr.length - 1 && (
-                    <div className="ml-5 h-4 w-px bg-neutral-200" />
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* 4. Patterns applied */}
-          <div>
-            <h3 className="text-[11px] font-semibold uppercase tracking-widest text-neutral-400 mb-2">
-              Patterns applied
-            </h3>
-            <ul className="space-y-1.5">
-              {PATTERNS_APPLIED.map((pattern) => (
-                <li key={pattern} className="flex items-start gap-2 text-xs text-neutral-600">
-                  <span className="mt-0.5 h-1.5 w-1.5 rounded-full bg-neutral-300 shrink-0" />
-                  {pattern}
-                </li>
-              ))}
-            </ul>
-          </div>
+  if (!query || !intentResult || !vaultNotes) {
+    return (
+      <div className="flex items-center justify-center h-full text-neutral-300">
+        <div className="text-center px-4">
+          <p className="text-[10px] font-semibold uppercase tracking-widest mb-1">How Stardrop Thinks</p>
+          <p className="text-[11px] text-neutral-400">Generate a response to see the reasoning chain.</p>
         </div>
-      )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-3 space-y-4 overflow-y-auto h-full">
+      <h3 className="text-[10px] font-semibold uppercase tracking-widest text-neutral-400">
+        How Stardrop Thinks
+      </h3>
+
+      {/* Intent */}
+      <div>
+        <p className="text-[9px] font-semibold uppercase tracking-widest text-neutral-300 mb-1.5">Intent</p>
+        <div className="flex items-center gap-2">
+          <span className="rounded bg-neutral-100 px-2 py-0.5 text-[10px] font-medium text-neutral-700">
+            {INTENT_LABELS[intentResult.intent]}
+          </span>
+          <div className="flex-1 h-1.5 rounded-full bg-neutral-100 overflow-hidden">
+            <div
+              className={`h-full rounded-full ${INTENT_COLORS[intentResult.intent]} transition-all duration-500`}
+              style={{ width: `${intentResult.confidence}%` }}
+            />
+          </div>
+          <span className="text-[10px] font-serif italic text-neutral-500 tabular-nums">
+            {intentResult.confidence}%
+          </span>
+        </div>
+      </div>
+
+      {/* Vault notes */}
+      <div>
+        <p className="text-[9px] font-semibold uppercase tracking-widest text-neutral-300 mb-1.5">Knowledge Retrieved</p>
+        <div className="space-y-1">
+          {vaultNotes.map((note) => (
+            <div key={note.title} className="flex items-center gap-2">
+              <span className="text-[10px] text-neutral-600 w-32 shrink-0 truncate">{note.title}</span>
+              <div className="flex-1 h-1 rounded-full bg-neutral-100 overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-neutral-400 transition-all duration-500"
+                  style={{ width: `${note.relevance}%` }}
+                />
+              </div>
+              <span className="text-[9px] font-serif italic text-neutral-400 tabular-nums w-6 text-right">
+                {note.relevance}%
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Reasoning chain */}
+      <div>
+        <p className="text-[9px] font-semibold uppercase tracking-widest text-neutral-300 mb-1.5">Chain</p>
+        <div className="flex flex-col items-start">
+          {[
+            { step: "Query received", done: true },
+            { step: `Intent: ${INTENT_LABELS[intentResult.intent]}`, done: true },
+            { step: `${vaultNotes.length} vault notes`, done: true },
+            { step: "GPT-4o response", done: hasResponse },
+            { step: "1 tweet thread", done: hasResponse },
+          ].map((s, i, arr) => (
+            <div key={i} className="flex flex-col items-start">
+              <div className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] ${s.done ? "text-neutral-700 bg-neutral-50" : "text-neutral-300 bg-neutral-50/50"}`}>
+                <span className={`inline-block h-1.5 w-1.5 rounded-full ${s.done ? "bg-green-500" : "bg-neutral-300"}`} />
+                {s.step}
+              </div>
+              {i < arr.length - 1 && <div className="ml-[7px] h-2 w-px bg-neutral-200" />}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Patterns */}
+      <div>
+        <p className="text-[9px] font-semibold uppercase tracking-widest text-neutral-300 mb-1.5">Patterns Applied</p>
+        <ul className="space-y-1">
+          {PATTERNS_APPLIED.map((p) => (
+            <li key={p} className="flex items-start gap-1.5 text-[10px] text-neutral-500">
+              <span className="mt-1 h-1 w-1 rounded-full bg-neutral-300 shrink-0" />
+              {p}
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }
 
-// ── Main page ──────────────────────────────────────────────────────────────
+// -- Main page --
 
 export default function TestPage() {
   const [query, setQuery] = useState("");
@@ -312,7 +295,6 @@ export default function TestPage() {
   const [tests, setTests] = useState<TestEntry[]>([]);
   const [sliding, setSliding] = useState(false);
   const [lastQuery, setLastQuery] = useState<string | null>(null);
-  const [interpretOpen, setInterpretOpen] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -325,8 +307,7 @@ export default function TestPage() {
     console.log(`[Stardrop:Test] Generating response for: "${trimmed}"`);
     setLoading(true);
     setResponse(null);
-    setLastQuery(null);
-    setInterpretOpen(false);
+    setLastQuery(trimmed);
 
     try {
       const r = await fetch(`/api/proxy/gtm/analyze?text=${encodeURIComponent(trimmed)}&author=dashboard`);
@@ -337,8 +318,6 @@ export default function TestPage() {
       const id = Date.now().toString();
       setResponse(text);
       setCurrentId(id);
-      setLastQuery(trimmed);
-      setInterpretOpen(true);
 
       const entry: TestEntry = {
         id,
@@ -353,8 +332,6 @@ export default function TestPage() {
     } catch (e) {
       console.log(`[Stardrop:Test] Error: ${e}`);
       setResponse("Failed to get response. Check that the backend is running.");
-      setLastQuery(trimmed);
-      setInterpretOpen(true);
     } finally {
       setLoading(false);
     }
@@ -370,119 +347,143 @@ export default function TestPage() {
     saveTests(updated);
     setTests(updated);
 
-    // Slide away
     setSliding(true);
     setTimeout(() => {
       setSliding(false);
       setResponse(null);
       setCurrentId(null);
       setLastQuery(null);
-      setInterpretOpen(false);
       setQuery("");
       inputRef.current?.focus();
     }, 300);
   }
 
   return (
-    <div className="px-4 py-6 md:px-8 max-w-2xl mx-auto">
-      <h1 className="text-xl font-semibold text-neutral-900 mb-1">Test</h1>
-      <p className="text-sm text-neutral-400 mb-6">Ask Stardrop anything and rate the response.</p>
-
-      {/* Input area */}
-      <div className="mb-6">
-        <textarea
-          ref={inputRef}
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              handleGenerate();
-            }
-          }}
-          placeholder="Ask Stardrop anything..."
-          rows={3}
-          className="w-full rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-400 focus:outline-none resize-none"
-        />
-        <button
-          onClick={handleGenerate}
-          disabled={!query.trim() || loading}
-          className="mt-2 w-full rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-neutral-800 disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          {loading ? (
-            <span className="flex items-center justify-center gap-2">
-              <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-neutral-600 border-t-white" />
-              Generating...
-            </span>
-          ) : (
-            "Generate"
-          )}
-        </button>
+    <div className="min-h-full bg-[#FAFAF9]">
+      {/* Header bar */}
+      <div className="bg-[#0A0A0A] text-white px-4 py-2.5 md:px-6">
+        <div className="flex items-center justify-between">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/70">
+            The Lab
+          </span>
+          <span className="text-[10px] text-white/40">Test &amp; rate Stardrop responses</span>
+        </div>
       </div>
 
-      {/* Response card */}
-      {response && (
-        <div
-          className={`mb-4 transition-all duration-300 ${
-            sliding ? "opacity-0 translate-x-full" : "opacity-100 translate-x-0"
-          }`}
-        >
-          <div className="rounded-lg border border-neutral-200 bg-white p-4">
-            <p className="text-sm text-neutral-700 leading-relaxed whitespace-pre-wrap">{response}</p>
+      {/* Split layout */}
+      <div className="flex flex-col lg:flex-row min-h-[calc(100vh-100px)]">
+        {/* Left side (60%) — Input + Response */}
+        <div className="flex-1 lg:w-[60%] border-r border-neutral-200 p-4 md:p-5">
+          {/* Input */}
+          <div className="mb-4">
+            <textarea
+              ref={inputRef}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  handleGenerate();
+                }
+              }}
+              placeholder="What's your GTM question?"
+              rows={3}
+              className="w-full border border-neutral-200 bg-white px-3 py-2.5 text-[13px] text-neutral-900 placeholder:text-neutral-400 placeholder:font-serif placeholder:italic focus:border-[#0A0A0A] focus:outline-none resize-none rounded"
+            />
+            <button
+              onClick={handleGenerate}
+              disabled={!query.trim() || loading}
+              className="mt-2 w-full bg-[#0A0A0A] px-4 py-2.5 text-[12px] font-semibold uppercase tracking-widest text-white transition hover:bg-neutral-800 disabled:opacity-40 disabled:cursor-not-allowed rounded"
+            >
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <span className="h-3 w-3 animate-spin rounded-full border-2 border-neutral-600 border-t-white" />
+                  Generating...
+                </span>
+              ) : (
+                "Generate"
+              )}
+            </button>
           </div>
 
-          {/* Rating buttons */}
-          <div className="mt-3 flex gap-3 mb-4">
-            <button
-              onClick={() => handleRate("good")}
-              className="flex-1 rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm font-medium text-neutral-700 transition hover:border-green-300 hover:bg-green-50"
+          {/* Response card */}
+          {response && (
+            <div
+              className={`mb-3 transition-all duration-300 ${
+                sliding ? "opacity-0 translate-x-full" : "opacity-100 translate-x-0"
+              }`}
             >
-              <span className="mr-1.5">{"\ud83d\udc4d"}</span> Good
-            </button>
-            <button
-              onClick={() => handleRate("bad")}
-              className="flex-1 rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm font-medium text-neutral-700 transition hover:border-red-300 hover:bg-red-50"
-            >
-              <span className="mr-1.5">{"\ud83d\udc4e"}</span> Bad
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Interpretability section — appears below the response + rating */}
-      {lastQuery && !sliding && (
-        <InterpretabilitySection
-          query={lastQuery}
-          defaultOpen={interpretOpen}
-        />
-      )}
-
-      {/* Past tests */}
-      {tests.length > 0 && (
-        <div>
-          <h2 className="text-[11px] font-semibold uppercase tracking-widest text-neutral-400 mb-3">
-            Past tests
-          </h2>
-          <div className="space-y-2">
-            {tests.map((t) => (
-              <div key={t.id} className="rounded-lg border border-neutral-100 bg-neutral-50/50 px-4 py-3">
-                <div className="flex items-center justify-between mb-1">
-                  <p className="text-xs font-medium text-neutral-900 truncate pr-4">{t.query}</p>
-                  <div className="flex items-center gap-2 shrink-0">
-                    {t.rating === "good" && <span className="text-xs text-green-600">{"\ud83d\udc4d"}</span>}
-                    {t.rating === "bad" && <span className="text-xs text-red-600">{"\ud83d\udc4e"}</span>}
-                    {!t.rating && <span className="text-[10px] text-neutral-300">no rating</span>}
-                    <span className="text-[10px] text-neutral-300">
-                      {new Date(t.timestamp).toLocaleDateString()}
-                    </span>
-                  </div>
-                </div>
-                <p className="text-xs text-neutral-500 line-clamp-2">{t.response}</p>
+              <div className="border border-neutral-200 bg-white p-3 rounded">
+                <p className="text-[13px] text-neutral-700 leading-relaxed whitespace-pre-wrap">{response}</p>
               </div>
-            ))}
-          </div>
+
+              {/* Rating buttons */}
+              <div className="mt-2 flex gap-2">
+                <button
+                  onClick={() => handleRate("good")}
+                  className="flex-1 border border-neutral-200 bg-white px-3 py-2.5 text-[11px] font-semibold text-neutral-700 transition hover:border-green-300 hover:bg-green-50 rounded uppercase tracking-wide"
+                >
+                  Good
+                </button>
+                <button
+                  onClick={() => handleRate("bad")}
+                  className="flex-1 border border-neutral-200 bg-white px-3 py-2.5 text-[11px] font-semibold text-neutral-700 transition hover:border-red-300 hover:bg-red-50 rounded uppercase tracking-wide"
+                >
+                  Bad
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Separator */}
+          {tests.length > 0 && <div className="h-px bg-neutral-200 my-3" />}
+
+          {/* Past tests — compact table */}
+          {tests.length > 0 && (
+            <div>
+              <h2 className="text-[10px] font-semibold uppercase tracking-widest text-neutral-400 mb-2">
+                Past Tests
+              </h2>
+              <div className="border border-neutral-200 rounded overflow-hidden bg-white">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="border-b border-neutral-100 bg-neutral-50">
+                      <th className="px-3 py-1.5 text-[9px] font-semibold uppercase tracking-widest text-neutral-400">Query</th>
+                      <th className="px-3 py-1.5 text-[9px] font-semibold uppercase tracking-widest text-neutral-400 w-16 text-center">Rating</th>
+                      <th className="px-3 py-1.5 text-[9px] font-semibold uppercase tracking-widest text-neutral-400 w-20 text-right">Date</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-neutral-50">
+                    {tests.slice(0, 10).map((t) => (
+                      <tr key={t.id} className="hover:bg-neutral-50 transition">
+                        <td className="px-3 py-2">
+                          <p className="text-[11px] font-medium text-neutral-800 truncate max-w-[300px]">{t.query}</p>
+                          <p className="text-[10px] text-neutral-400 truncate max-w-[300px]">{t.response.slice(0, 80)}</p>
+                        </td>
+                        <td className="px-3 py-2 text-center">
+                          {t.rating === "good" && <span className="text-[10px] font-medium text-green-600">Good</span>}
+                          {t.rating === "bad" && <span className="text-[10px] font-medium text-red-500">Bad</span>}
+                          {!t.rating && <span className="text-[10px] text-neutral-300">--</span>}
+                        </td>
+                        <td className="px-3 py-2 text-right">
+                          <span className="text-[10px] text-neutral-400 font-serif italic">
+                            {new Date(t.timestamp).toLocaleDateString()}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </div>
-      )}
+
+        {/* Right side (40%) — How Stardrop Thinks */}
+        <div className="lg:w-[40%] bg-white border-t lg:border-t-0 border-neutral-200">
+          <ThinkingPanel query={lastQuery} hasResponse={!!response} />
+        </div>
+      </div>
     </div>
   );
 }

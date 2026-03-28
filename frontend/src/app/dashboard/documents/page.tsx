@@ -83,114 +83,147 @@ export default function DocumentsPage() {
   }
 
   return (
-    <div className="px-4 py-6 md:px-8 max-w-3xl mx-auto">
-      <h1 className="text-xl font-semibold text-neutral-900 mb-1">Documents</h1>
-      <p className="text-sm text-neutral-400 mb-1">
-        Teach Stardrop about your product.
-      </p>
-      <p className="text-xs text-neutral-300 mb-6">
-        Upload documents and Stardrop will use them to personalize responses for your business.
-      </p>
-
-      {/* Counter */}
-      {docs.length > 0 && (
-        <p className="text-xs text-neutral-500 mb-4">
-          {docs.length} document{docs.length !== 1 ? "s" : ""} saved
-        </p>
-      )}
-
-      {/* Upload area */}
-      <div
-        onDragOver={(e) => e.preventDefault()}
-        onDrop={handleDrop}
-        className="rounded-lg border-2 border-dashed border-neutral-200 bg-white p-5 mb-8 transition hover:border-neutral-300"
-      >
-        <p className="text-xs text-neutral-400 mb-4 text-center">
-          Drag and drop a file here, or fill in the fields below
-        </p>
-
-        {/* Title */}
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="Title (required)"
-          className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-400 focus:outline-none mb-3"
-        />
-
-        {/* Category pills */}
-        <div className="flex flex-wrap gap-2 mb-3">
-          {CATEGORIES.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setCategory(cat)}
-              className={`rounded-full px-3 py-1 text-xs font-medium transition ${
-                category === cat
-                  ? "bg-neutral-900 text-white"
-                  : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
+    <div className="min-h-full bg-[#FAFAF9]">
+      {/* Header bar */}
+      <div className="bg-[#0A0A0A] text-white px-4 py-2.5 md:px-6">
+        <div className="flex items-center justify-between">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/70">
+            Knowledge Base
+          </span>
+          <span className="text-[10px] text-white/40">
+            {docs.length} document{docs.length !== 1 ? "s" : ""} saved
+          </span>
         </div>
-
-        {/* Content */}
-        <textarea
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder="Paste or type your content here..."
-          rows={6}
-          className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-400 focus:outline-none resize-none mb-3"
-        />
-
-        {/* Save button */}
-        <button
-          onClick={handleSave}
-          disabled={!title.trim() || !content.trim()}
-          className="w-full rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-neutral-800 disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          {saved ? "Saved!" : "Save"}
-        </button>
       </div>
 
-      {/* Document grid */}
-      {docs.length > 0 && (
-        <div>
-          <h2 className="text-[11px] font-semibold uppercase tracking-widest text-neutral-400 mb-3">
-            Saved documents
+      {/* Two-column layout */}
+      <div className="flex flex-col lg:flex-row min-h-[calc(100vh-100px)]">
+        {/* Left: Upload form */}
+        <div
+          className="lg:w-[45%] border-r border-neutral-200 p-4 md:p-5"
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={handleDrop}
+        >
+          <h2 className="text-[10px] font-semibold uppercase tracking-widest text-neutral-400 mb-3">
+            Add Document
           </h2>
-          <div className="grid gap-3 sm:grid-cols-2">
-            {docs.map((doc) => (
-              <div key={doc.id} className="rounded-lg border border-neutral-200 bg-white p-4">
-                <div className="flex items-start justify-between mb-2">
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-neutral-900 truncate">{doc.title}</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-[10px] font-medium text-neutral-500">
-                        {doc.category}
-                      </span>
-                      <span className="text-[10px] text-neutral-300">
-                        {new Date(doc.createdAt).toLocaleDateString()}
-                      </span>
-                    </div>
-                  </div>
+          <p className="text-[11px] text-neutral-400 mb-3">
+            Drag a file here or fill in the fields. Stardrop uses these to personalize responses.
+          </p>
+
+          <div className="space-y-2.5">
+            {/* Title */}
+            <div>
+              <label className="block text-[9px] font-semibold uppercase tracking-widest text-neutral-400 mb-1">Title</label>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Document title"
+                className="w-full border border-neutral-200 bg-white px-3 py-2 text-[13px] text-neutral-900 placeholder:text-neutral-400 focus:border-[#0A0A0A] focus:outline-none rounded"
+              />
+            </div>
+
+            {/* Category pills */}
+            <div>
+              <label className="block text-[9px] font-semibold uppercase tracking-widest text-neutral-400 mb-1">Category</label>
+              <div className="flex flex-wrap gap-1.5">
+                {CATEGORIES.map((cat) => (
                   <button
-                    onClick={() => handleDelete(doc.id)}
-                    className="shrink-0 ml-2 rounded p-1 text-neutral-300 hover:text-red-500 hover:bg-red-50 transition"
+                    key={cat}
+                    onClick={() => setCategory(cat)}
+                    className={`px-2.5 py-1 text-[10px] font-medium transition rounded ${
+                      category === cat
+                        ? "bg-[#0A0A0A] text-white"
+                        : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"
+                    }`}
                   >
-                    <svg className="h-4 w-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-                      <line x1="4" y1="4" x2="12" y2="12" />
-                      <line x1="12" y1="4" x2="4" y2="12" />
-                    </svg>
+                    {cat}
                   </button>
-                </div>
-                <p className="text-xs text-neutral-500 line-clamp-3">{doc.content.slice(0, 100)}</p>
+                ))}
               </div>
-            ))}
+            </div>
+
+            {/* Content */}
+            <div>
+              <label className="block text-[9px] font-semibold uppercase tracking-widest text-neutral-400 mb-1">Content</label>
+              <textarea
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="Paste or type content..."
+                rows={8}
+                className="w-full border border-neutral-200 bg-white px-3 py-2 text-[13px] text-neutral-900 placeholder:text-neutral-400 focus:border-[#0A0A0A] focus:outline-none resize-none rounded"
+              />
+            </div>
+
+            {/* Save */}
+            <button
+              onClick={handleSave}
+              disabled={!title.trim() || !content.trim()}
+              className="w-full bg-[#0A0A0A] px-4 py-2.5 text-[11px] font-semibold uppercase tracking-widest text-white transition hover:bg-neutral-800 disabled:opacity-40 disabled:cursor-not-allowed rounded"
+            >
+              {saved ? "Saved!" : "Save Document"}
+            </button>
           </div>
         </div>
-      )}
+
+        {/* Right: Documents table */}
+        <div className="flex-1 p-4 md:p-5">
+          <h2 className="text-[10px] font-semibold uppercase tracking-widest text-neutral-400 mb-3">
+            Saved Documents
+          </h2>
+
+          {docs.length === 0 ? (
+            <div className="border border-dashed border-neutral-200 bg-white p-8 text-center rounded">
+              <p className="text-[11px] text-neutral-400">No documents yet. Add one to get started.</p>
+            </div>
+          ) : (
+            <div className="border border-neutral-200 rounded overflow-hidden bg-white">
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="border-b border-neutral-100 bg-neutral-50">
+                    <th className="px-3 py-1.5 text-[9px] font-semibold uppercase tracking-widest text-neutral-400">Title</th>
+                    <th className="px-3 py-1.5 text-[9px] font-semibold uppercase tracking-widest text-neutral-400 w-24">Category</th>
+                    <th className="px-3 py-1.5 text-[9px] font-semibold uppercase tracking-widest text-neutral-400 w-20 text-right">Date</th>
+                    <th className="px-3 py-1.5 text-[9px] font-semibold uppercase tracking-widest text-neutral-400 w-10"></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-neutral-50">
+                  {docs.map((doc) => (
+                    <tr key={doc.id} className="group hover:bg-neutral-50 transition">
+                      <td className="px-3 py-2">
+                        <p className="text-[11px] font-medium text-neutral-800 truncate max-w-[220px]">{doc.title}</p>
+                        <p className="text-[10px] text-neutral-400 truncate max-w-[220px]">{doc.content.slice(0, 60)}</p>
+                      </td>
+                      <td className="px-3 py-2">
+                        <span className="rounded bg-neutral-100 px-1.5 py-0.5 text-[9px] font-medium text-neutral-500 uppercase tracking-wide">
+                          {doc.category}
+                        </span>
+                      </td>
+                      <td className="px-3 py-2 text-right">
+                        <span className="text-[10px] font-serif italic text-neutral-400">
+                          {new Date(doc.createdAt).toLocaleDateString()}
+                        </span>
+                      </td>
+                      <td className="px-3 py-2 text-right">
+                        <button
+                          onClick={() => handleDelete(doc.id)}
+                          className="opacity-0 group-hover:opacity-100 p-1 text-neutral-300 hover:text-red-500 transition rounded"
+                        >
+                          <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                            <line x1="4" y1="4" x2="12" y2="12" />
+                            <line x1="12" y1="4" x2="4" y2="12" />
+                          </svg>
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
