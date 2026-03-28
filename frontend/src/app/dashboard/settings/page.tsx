@@ -1,161 +1,194 @@
+"use client";
+
+import { useState, useEffect } from "react";
+
+const PREFIX = "stardrop_settings_";
+
+function load(key: string, fallback: string): string {
+  if (typeof window === "undefined") return fallback;
+  return localStorage.getItem(PREFIX + key) || fallback;
+}
+
+function save(key: string, value: string) {
+  localStorage.setItem(PREFIX + key, value);
+  console.log(`[Stardrop:Settings] Saved: ${key} = "${value}"`);
+}
+
 export default function SettingsPage() {
+  const [productName, setProductName] = useState("");
+  const [description, setDescription] = useState("");
+  const [audience, setAudience] = useState("");
+  const [tone, setTone] = useState("Direct");
+  const [length, setLength] = useState("Standard");
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    setProductName(load("product_name", ""));
+    setDescription(load("description", ""));
+    setAudience(load("audience", ""));
+    setTone(load("tone", "Direct"));
+    setLength(load("length", "Standard"));
+  }, []);
+
+  function handleSave() {
+    save("product_name", productName);
+    save("description", description);
+    save("audience", audience);
+    save("tone", tone);
+    save("length", length);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  }
+
   return (
-    <div className="px-6 py-8 md:px-10 md:py-10 max-w-4xl">
-      {/* Header */}
-      <div className="mb-8">
-        <p className="text-xs font-medium uppercase tracking-[0.15em] text-neutral-400">
-          Dashboard
-        </p>
-        <h1 className="mt-1 font-serif text-3xl italic tracking-tight text-neutral-900">
-          Settings
-        </h1>
-        <p className="mt-2 text-sm text-neutral-500">
-          Read-only overview of the Stardrop agent configuration.
-        </p>
-      </div>
+    <div className="px-4 py-6 md:px-8 max-w-2xl mx-auto">
+      <h1 className="text-xl font-semibold text-neutral-900 mb-6">Settings</h1>
 
-      <div className="space-y-8">
-        {/* Agent Status */}
-        <section className="rounded-xl border border-neutral-200 bg-white p-6">
-          <h2 className="text-sm font-semibold text-neutral-900 mb-5">
-            Agent status
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="rounded-lg border border-neutral-100 bg-neutral-50/50 px-4 py-3">
-              <p className="text-[11px] font-medium uppercase tracking-wide text-neutral-400">
-                Agent
-              </p>
-              <p className="mt-1 text-sm font-medium text-neutral-900">
-                @stardroplin
-              </p>
-            </div>
-            <div className="rounded-lg border border-neutral-100 bg-neutral-50/50 px-4 py-3">
-              <p className="text-[11px] font-medium uppercase tracking-wide text-neutral-400">
-                Status
-              </p>
-              <p className="mt-1 flex items-center gap-1.5 text-sm font-medium text-neutral-900">
-                <span className="inline-block h-2 w-2 rounded-full bg-green-500" />
-                Active
-              </p>
-            </div>
-            <div className="rounded-lg border border-neutral-100 bg-neutral-50/50 px-4 py-3">
-              <p className="text-[11px] font-medium uppercase tracking-wide text-neutral-400">
-                Poll interval
-              </p>
-              <p className="mt-1 text-sm font-medium text-neutral-900">
-                60s
-              </p>
-            </div>
-            <div className="rounded-lg border border-neutral-100 bg-neutral-50/50 px-4 py-3">
-              <p className="text-[11px] font-medium uppercase tracking-wide text-neutral-400">
-                Model
-              </p>
-              <p className="mt-1 text-sm font-medium text-neutral-900">
-                GPT-4o
-              </p>
-            </div>
-            <div className="rounded-lg border border-neutral-100 bg-neutral-50/50 px-4 py-3 sm:col-span-2">
-              <p className="text-[11px] font-medium uppercase tracking-wide text-neutral-400">
-                RAG
-              </p>
-              <p className="mt-1 text-sm font-medium text-neutral-900">
-                60+ notes, 441 chunks
-              </p>
-            </div>
+      {/* Your Product */}
+      <section className="mb-8">
+        <h2 className="text-sm font-semibold text-neutral-900 mb-4">Your Product</h2>
+        <div className="space-y-3">
+          <div>
+            <label className="block text-xs font-medium text-neutral-500 mb-1">Product name</label>
+            <input
+              type="text"
+              value={productName}
+              onChange={(e) => setProductName(e.target.value)}
+              onBlur={() => save("product_name", productName)}
+              placeholder="e.g. Stardrop"
+              className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-400 focus:outline-none"
+            />
           </div>
-        </section>
-
-        {/* How Stardrop Works */}
-        <section className="rounded-xl border border-neutral-200 bg-white p-6">
-          <h2 className="text-sm font-semibold text-neutral-900 mb-3">
-            How Stardrop works
-          </h2>
-          <div className="space-y-3 text-sm leading-relaxed text-neutral-600">
-            <p>
-              Stardrop is configured via environment variables on AWS App Runner. There
-              is no UI-based configuration.
-            </p>
-            <p>
-              To modify behavior, update the system prompt in the codebase or add notes
-              to the Obsidian vault.
-            </p>
+          <div>
+            <label className="block text-xs font-medium text-neutral-500 mb-1">One-line description</label>
+            <input
+              type="text"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              onBlur={() => save("description", description)}
+              placeholder="e.g. AI-powered GTM agent for Twitter"
+              className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-400 focus:outline-none"
+            />
           </div>
-        </section>
+          <div>
+            <label className="block text-xs font-medium text-neutral-500 mb-1">Target audience</label>
+            <input
+              type="text"
+              value={audience}
+              onChange={(e) => setAudience(e.target.value)}
+              onBlur={() => save("audience", audience)}
+              placeholder="e.g. B2B SaaS founders"
+              className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-400 focus:outline-none"
+            />
+          </div>
+        </div>
+      </section>
 
-        {/* Links */}
-        <section className="rounded-xl border border-neutral-200 bg-white p-6">
-          <h2 className="text-sm font-semibold text-neutral-900 mb-5">
-            Links
-          </h2>
-          <div className="space-y-3">
-            <a
-              href="https://github.com/City-Intelligence-Inc/next-gen-gtm"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-between rounded-lg border border-neutral-100 bg-neutral-50/50 px-4 py-3 transition-colors hover:border-neutral-300 hover:bg-neutral-100/60"
-            >
-              <div>
-                <p className="text-sm font-medium text-neutral-900">
-                  GitHub repo
-                </p>
-                <p className="mt-0.5 text-xs text-neutral-400">
-                  City-Intelligence-Inc/next-gen-gtm
-                </p>
-              </div>
-              <ArrowUpRightIcon className="h-4 w-4 shrink-0 text-neutral-400" />
-            </a>
+      {/* Response Style */}
+      <section className="mb-8">
+        <h2 className="text-sm font-semibold text-neutral-900 mb-4">Response Style</h2>
+
+        {/* Tone */}
+        <div className="mb-4">
+          <label className="block text-xs font-medium text-neutral-500 mb-2">Tone</label>
+          <div className="flex gap-2">
+            {["Direct", "Friendly", "Technical"].map((t) => (
+              <button
+                key={t}
+                onClick={() => {
+                  setTone(t);
+                  save("tone", t);
+                }}
+                className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
+                  tone === t
+                    ? "bg-neutral-900 text-white"
+                    : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"
+                }`}
+              >
+                {t}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Length */}
+        <div>
+          <label className="block text-xs font-medium text-neutral-500 mb-2">Length</label>
+          <div className="flex gap-2">
+            {[
+              { label: "Short", desc: "1 tweet" },
+              { label: "Standard", desc: "2-3" },
+              { label: "Detailed", desc: "thread" },
+            ].map((l) => (
+              <button
+                key={l.label}
+                onClick={() => {
+                  setLength(l.label);
+                  save("length", l.label);
+                }}
+                className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
+                  length === l.label
+                    ? "bg-neutral-900 text-white"
+                    : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"
+                }`}
+              >
+                {l.label}
+                <span className={`ml-1 text-xs ${length === l.label ? "text-neutral-400" : "text-neutral-400"}`}>
+                  ({l.desc})
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Save button */}
+      <button
+        onClick={handleSave}
+        className="w-full rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-neutral-800 mb-8"
+      >
+        {saved ? "Saved!" : "Save all"}
+      </button>
+
+      {/* Agent Info (read-only) */}
+      <section>
+        <h2 className="text-sm font-semibold text-neutral-900 mb-4">Agent Info</h2>
+        <div className="rounded-lg border border-neutral-200 bg-neutral-50/50 divide-y divide-neutral-100">
+          <div className="flex items-center justify-between px-4 py-3">
+            <span className="text-xs text-neutral-500">Agent</span>
+            <span className="text-sm font-medium text-neutral-900">@stardroplin</span>
+          </div>
+          <div className="flex items-center justify-between px-4 py-3">
+            <span className="text-xs text-neutral-500">Status</span>
+            <span className="flex items-center gap-1.5 text-sm font-medium text-neutral-900">
+              <span className="inline-block h-2 w-2 rounded-full bg-green-500" />
+              Active
+            </span>
+          </div>
+          <div className="flex items-center justify-between px-4 py-3">
+            <span className="text-xs text-neutral-500">API</span>
             <a
               href="https://xitwxb23yn.us-east-1.awsapprunner.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-between rounded-lg border border-neutral-100 bg-neutral-50/50 px-4 py-3 transition-colors hover:border-neutral-300 hover:bg-neutral-100/60"
+              className="text-sm font-medium text-neutral-900 hover:underline"
             >
-              <div>
-                <p className="text-sm font-medium text-neutral-900">
-                  API
-                </p>
-                <p className="mt-0.5 text-xs text-neutral-400">
-                  xitwxb23yn.us-east-1.awsapprunner.com
-                </p>
-              </div>
-              <ArrowUpRightIcon className="h-4 w-4 shrink-0 text-neutral-400" />
-            </a>
-            <a
-              href="https://x.com/stardroplin"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-between rounded-lg border border-neutral-100 bg-neutral-50/50 px-4 py-3 transition-colors hover:border-neutral-300 hover:bg-neutral-100/60"
-            >
-              <div>
-                <p className="text-sm font-medium text-neutral-900">
-                  Bot
-                </p>
-                <p className="mt-0.5 text-xs text-neutral-400">
-                  x.com/stardroplin
-                </p>
-              </div>
-              <ArrowUpRightIcon className="h-4 w-4 shrink-0 text-neutral-400" />
+              xitwxb23yn.us-east-1.awsapprunner.com
             </a>
           </div>
-        </section>
-      </div>
+          <div className="flex items-center justify-between px-4 py-3">
+            <span className="text-xs text-neutral-500">GitHub</span>
+            <a
+              href="https://github.com/City-Intelligence-Inc/next-gen-gtm"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm font-medium text-neutral-900 hover:underline"
+            >
+              City-Intelligence-Inc/next-gen-gtm
+            </a>
+          </div>
+        </div>
+      </section>
     </div>
-  );
-}
-
-function ArrowUpRightIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 16 16"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <line x1="4" y1="12" x2="12" y2="4" />
-      <polyline points="6 4 12 4 12 10" />
-    </svg>
   );
 }

@@ -6,11 +6,8 @@ import { useState } from "react";
 
 const navItems = [
   { label: "Overview", href: "/dashboard", icon: OverviewIcon },
-  { label: "History", href: "/dashboard/history", icon: HistoryIcon },
-  { label: "Insights", href: "/dashboard/insights", icon: InsightsIcon },
-  { label: "Environments", href: "/dashboard/environments", icon: EnvironmentsIcon },
-  { label: "Knowledge", href: "/dashboard/knowledge", icon: KnowledgeIcon },
-  { label: "Improve", href: "/dashboard/improve", icon: ImproveIcon },
+  { label: "Test", href: "/dashboard/test", icon: TestIcon },
+  { label: "Documents", href: "/dashboard/documents", icon: DocumentsIcon },
   { label: "Settings", href: "/dashboard/settings", icon: SettingsIcon },
 ];
 
@@ -25,48 +22,21 @@ function OverviewIcon({ className }: { className?: string }) {
   );
 }
 
-function HistoryIcon({ className }: { className?: string }) {
+function TestIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="8" cy="8" r="6.5" />
-      <polyline points="8 4 8 8 11 10" />
+      <path d="M13 8l-8 5V3l8 5z" />
     </svg>
   );
 }
 
-function InsightsIcon({ className }: { className?: string }) {
+function DocumentsIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="1.5 12 5 6 8.5 9 14.5 2" />
-      <polyline points="10.5 2 14.5 2 14.5 6" />
-    </svg>
-  );
-}
-
-function EnvironmentsIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="8" cy="8" r="6.5" />
-      <path d="M1.5 8h13" />
-      <ellipse cx="8" cy="8" rx="3" ry="6.5" />
-    </svg>
-  );
-}
-
-function KnowledgeIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M2 2.5h4.5a2 2 0 0 1 2 2v9.5a1.5 1.5 0 0 0-1.5-1.5H2z" />
-      <path d="M14 2.5H9.5a2 2 0 0 0-2 2v9.5a1.5 1.5 0 0 1 1.5-1.5H14z" />
-    </svg>
-  );
-}
-
-function ImproveIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="1.5 12 5 6 8.5 9 14.5 2" />
-      <circle cx="14.5" cy="2" r="1" fill="currentColor" />
+      <rect x="2" y="1" width="12" height="14" rx="2" />
+      <line x1="5" y1="5" x2="11" y2="5" />
+      <line x1="5" y1="8" x2="11" y2="8" />
+      <line x1="5" y1="11" x2="9" y2="11" />
     </svg>
   );
 }
