@@ -7,7 +7,7 @@ aliases: [Home, Index, Map of Content]
 
 > "Build the next generation of how we do go to market and tie all of our systems together internally." — @arichoudhary
 
-This vault is a comprehensive knowledge base on modern Go-To-Market strategy, tooling, and architecture. Research conducted March 2026.
+Research vault for the Stardrop GTM Agent — 65 interconnected notes across 10 categories, powering a RAG pipeline with 441 indexed chunks. Part of the Coframe + HaystacksAI GTM stack.
 
 ---
 
@@ -66,21 +66,21 @@ How companies bring products to market:
 ### The Composable Stack
 | Tool | Category | Role |
 |------|----------|------|
-| [[Clay]] | Data orchestration | Middleware — enrichment, research, workflows |
-| [[Instantly]] | Cold email | Outbound execution layer |
-| [[Attio]] | Modern CRM | Flexible system of record |
-| [[Common Room]] | Signal intelligence | 50+ signal sources unified |
-| [[Unify]] | Signal-based outbound | Signal → play automation |
+| [[Clay]] | Data orchestration | Middleware — enrichment (150+ providers), research, workflows |
+| [[Instantly]] | Cold email | Outbound execution, domain rotation, warmup |
+| [[Attio]] | Modern CRM | Flexible system of record ($52M Series B, 5K+ companies) |
+| [[Common Room]] | Signal intelligence | 50+ signal sources unified, RoomieAI agent |
+| [[Unify]] | Signal-based outbound | Signal → play automation ($40M Series B) |
 | [[Pocus]] | Product-led sales | PQL scoring and routing |
-| [[Hightouch]] | Composable CDP | Reverse ETL / data activation |
-| [[Apollo]] | All-in-one GTM | Database + outbound + CRM + AI agents |
+| [[Hightouch]] | Composable CDP | Reverse ETL / data activation (25+ sources → 60+ destinations) |
+| [[Apollo]] | All-in-one GTM | 275M contacts + outbound + CRM + Vibe GTM agents ($150M ARR) |
 | [[Rilo]] | AI workflow automation | Natural language → GTM workflows |
+| [[Coframe]] | AI growth agent | Autonomous A/B testing, personalization, website optimization (10x experiment volume) |
 
 ### AI Agents
 | Tool | What It Does |
 |------|-------------|
 | [[AI SDR Agents]] | Autonomous outbound (11x, Artisan, Apollo Vibe GTM) |
-| [[Coframe]] | AI growth agent — autonomous A/B testing, personalization, website optimization |
 | [[AI Agents in GTM]] | Full landscape: SDR, inbound, research, scoring, deal intelligence |
 
 ### Reference
@@ -99,8 +99,8 @@ How companies bring products to market:
 | [[Case Study - Figma]] | Community → PLG → PLS | Community first, sales later ($10B) |
 | [[Case Study - Datadog]] | Multi-product land-expand | 75% growth from expansion (120% NRR) |
 | [[Case Study - Notion]] | Template-driven viral PLG | $10B without advertising |
-| [[Case Study - Clay]] | Category creation | Built the middleware, defined the role |
-| [[Case Study - Coframe]] | AI growth engineering | Multi-agent autonomous experimentation (10x volume) |
+| [[Case Study - Clay]] | Category creation | Built the middleware, defined the role ($5B) |
+| [[Case Study - Coframe]] | AI growth engineering | Multi-agent autonomous experimentation (10x volume, 26% quality improvement) |
 
 ---
 
@@ -130,16 +130,17 @@ How companies bring products to market:
 | Role | What They Do |
 |------|-------------|
 | [[GTM Engineer]] | Revenue systems architect — builds the composable GTM stack |
+| [[Bo Mohazzabi]] | VP GTM @ Coframe — $36K→$2.4M (67x), 264% quota, HaystacksAI founder, practitioner voice standard |
 
 ---
 
 ## Signals & Intelligence
 
-| Note                     | What It Covers                            |
-| ------------------------ | ----------------------------------------- |
-| [[Signal-Based Selling]] | Evidence-backed, timing-aware engagement  |
-| [[AI Agents in GTM]]     | Autonomous workers across the GTM process |
-|                          |                                           |
+| Note | What It Covers |
+|------|---------------|
+| [[Signal-Based Selling]] | Evidence-backed, timing-aware engagement |
+| [[Signal-Based Selling Deep Dive]] | Signal taxonomy with decay rates, scoring thresholds (70+ hot, 40-70 warm), 4 example plays |
+| [[AI Agents in GTM]] | Autonomous workers across the GTM process |
 
 ---
 
@@ -147,17 +148,32 @@ How companies bring products to market:
 
 Detailed research notes with specific data, comparisons, and implementation details:
 
-| Deep Dive                              | Key Finding                                                            |
-| -------------------------------------- | ---------------------------------------------------------------------- |
-| [[AI SDR Agents Deep Dive]]            | 11x: 70-80% churn; hybrid human+AI outperforms pure AI 2.3-2.6x        |
-| [[Agent-Led Growth Deep Dive]]         | MCP + WebMCP enable agents as buyers; Supabase grew $765M→$5B          |
-| [[GTM Engineering Deep Dive]]          | 1,000 job posting analysis; HubSpot 52%, Outreach 49%; $80K-$280K comp |
-| [[Apollo Vibe GTM Deep Dive]]          | $150M ARR, 500% YoY; 4 agentic modules; natural language GTM           |
-| [[Composable GTM Stack Deep Dive]]     | Full reference architecture; essential stack ~$500/mo                  |
-| [[Signal-Based Selling Deep Dive]]     | Signal taxonomy; 94% have vendor list locked before first contact      |
-| [[Warehouse-Native GTM Deep Dive]]     | dbt modeling patterns; Ramp predicts 75% of SQLs                       |
-| [[Death of Traditional CRM Deep Dive]] | Salesforce down 37%; what's replacing it                               |
-| [[Deep Dive Research Index]]           | Master index of all deep dive research                                 |
+| Deep Dive | Key Finding |
+|-----------|------------|
+| [[AI SDR Agents Deep Dive]] | 11x: 70-80% churn; hybrid human+AI outperforms pure AI 2.3-2.6x |
+| [[Agent-Led Growth Deep Dive]] | MCP + WebMCP enable agents as buyers; Supabase grew 1M→4.5M devs (350%), $765M→$5B |
+| [[GTM Engineering Deep Dive]] | 1,000 job posting analysis; HubSpot 52%, Outreach 49%; $80K-$280K comp |
+| [[Apollo Vibe GTM Deep Dive]] | $150M ARR, 500% YoY; 4 agentic modules; natural language GTM |
+| [[Composable GTM Stack Deep Dive]] | Full reference architecture; essential stack ~$500/mo; Clay + Instantly + Attio |
+| [[Signal-Based Selling Deep Dive]] | Signal taxonomy with decay model; 94% have vendor list locked before first contact |
+| [[Warehouse-Native GTM Deep Dive]] | dbt modeling patterns; Ramp predicts 75% of SQLs from data warehouse |
+| [[Death of Traditional CRM Deep Dive]] | Salesforce down 37%, HubSpot down 60% vs S&P +15%; what's replacing monolithic CRM |
+| [[Deep Dive Research Index]] | Master index of all deep dive research |
+
+---
+
+## Research Paper
+
+The academic formalization of this work:
+
+| Document | What It Is |
+|----------|-----------|
+| [[PAPER-OUTLINE]] | Full paper outline with action plan, timeline, and submission strategy |
+| [[paper]] | Complete draft: "Environmental Engineering for Go-To-Market Systems" — NeurIPS 2026 / arXiv cs.AI target |
+
+**Authors:** Arihant Choudhary (Stanford, City Intelligence), Bo Mohazzabi (VP GTM, Coframe), Josh Payne (CEO, Coframe)
+
+**Key contributions:** Environmental Engineering Framework (formal definitions), environment taxonomy (7 classes), progressive maturity model (Level 0-4), three self-improvement mechanisms (engagement feedback, HyDE, compound tracking), 37 references including EvoConfig, AgentOrchestra TEA, ARIA, MiniMax M2.7.
 
 ---
 
@@ -170,6 +186,11 @@ Detailed research notes with specific data, comparisons, and implementation deta
 - `GTM-DEEP-RESEARCH.md` — Frameworks & case studies deep research (~1,244 lines)
 - `DATA_INFRASTRUCTURE_RESEARCH.md` — Technical data infrastructure research (~1,858 lines)
 
+### Project Documents (in project root)
+- `DESIGN.md` — Technical design document (1,655 lines)
+- `BUSINESS-CASE.md` — Technical business case for Coframe: Signal Activation Problem, cost model, pipeline architecture
+- `CHANGELOG.md` — Full build timeline
+
 ---
 
 ## Vault Structure
@@ -177,18 +198,19 @@ Detailed research notes with specific data, comparisons, and implementation deta
 ```
 vault/
 ├── Home.md                          ← You are here
-├── concepts/                        ← Core ideas and thesis
-├── motions/                         ← GTM motions (SLG, PLG, CLG, PLS, ALG)
-├── frameworks/                      ← Mental models and measurement
-├── tools/                           ← Tool and platform profiles
-├── case-studies/                    ← Company deep dives
-├── architecture/                    ← System design and GTM OS
-├── data-infrastructure/             ← Data stack, CDP, ETL
-├── roles/                           ← GTM roles
-├── signals/                         ← Signals and AI agents
-└── resources/                       ← Sources and reading lists
+├── concepts/          (10 notes)    ← Core ideas and thesis
+├── motions/           (6 notes)     ← GTM motions (SLG, PLG, CLG, PLS, ALG)
+├── frameworks/        (7 notes)     ← Mental models and measurement
+├── tools/             (14 notes)    ← Tool and platform profiles
+├── case-studies/      (6 notes)     ← Company deep dives
+├── architecture/      (3 notes)     ← System design and GTM OS
+├── data-infrastructure/ (8 notes)   ← Data stack, CDP, ETL
+├── roles/             (3 notes)     ← GTM roles and practitioner profiles
+├── signals/           (3 notes)     ← Signals and AI agents
+├── resources/         (1 note)      ← Sources and reading lists
+└── paper/             (2 notes)     ← arXiv paper draft and outline
 ```
 
 ---
 
-*Research as of March 2026. 55+ interconnected notes, 100+ wikilinks, 3 raw research documents (~3,800 lines total). Open in Obsidian for full graph view.*
+*65 interconnected notes, 116 wikilinks, 10 categories + paper section. Indexed into 441 chunks via ChromaDB (all-MiniLM-L6-v2) for RAG retrieval. Research as of March 2026.*
