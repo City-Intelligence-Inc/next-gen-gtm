@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-const API = "https://xitwxb23yn.us-east-1.awsapprunner.com";
+const API = "";
 
 export default function ImprovePage() {
   const [question, setQuestion] = useState("");
@@ -21,7 +21,7 @@ export default function ImprovePage() {
     setBetterResponse("");
     setErrorMsg(null);
 
-    const url = `${API}/api/gtm/analyze?text=${encodeURIComponent(question)}&author=improve_session`;
+    const url = `/api/proxy/gtm/analyze?text=${encodeURIComponent(question)}&author=improve_session`;
     console.log("[improve] Fetching:", url);
 
     try {
@@ -59,7 +59,7 @@ export default function ImprovePage() {
     setSaved(true);
 
     // Also POST to backend if available
-    fetch(`${API}/api/improve`, {
+    fetch(`/api/proxy/improve`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

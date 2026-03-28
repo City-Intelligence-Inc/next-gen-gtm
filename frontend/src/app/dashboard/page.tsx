@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 
-const API = "https://xitwxb23yn.us-east-1.awsapprunner.com";
+const API = "";
 
 interface DashboardData {
   stats: {
@@ -52,7 +52,7 @@ const ENV_LINKS: Record<string, string> = {
   twitter: "https://x.com/stardroplin",
   openai: "https://platform.openai.com",
   chromadb: "https://www.trychroma.com",
-  app_runner: "https://xitwxb23yn.us-east-1.awsapprunner.com",
+  app_runner: "",
   github: "https://github.com/stardrop-cli",
   luma: "https://luma.com/user/stardrop",
 };
@@ -68,8 +68,8 @@ export default function DashboardOverview() {
     fetched.current = true;
 
     console.log("[Stardrop:Dashboard] 1. Mounting dashboard overview...");
-    console.log("[Stardrop:Dashboard] 2. Fetching overview data from API...", `${API}/api/dashboard/overview`);
-    fetch(`${API}/api/dashboard/overview`)
+    console.log("[Stardrop:Dashboard] 2. Fetching overview data from API...", `/api/proxy/dashboard/overview`);
+    fetch(`/api/proxy/dashboard/overview`)
       .then((r) => {
         console.log(`[Stardrop:Dashboard] 3. API responded: ${r.status} (${r.ok ? "ok" : "error"})`);
         if (!r.ok) throw new Error(`API returned ${r.status}`);

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 
-const API = "https://xitwxb23yn.us-east-1.awsapprunner.com";
+const API = "";
 
 const SAMPLE_QUESTIONS = [
   "who should I sell to? we built an AI code review tool",
@@ -38,7 +38,7 @@ export default function RatePage() {
       const generated: Card[] = [];
       for (const q of shuffled) {
         try {
-          const r = await fetch(`${API}/api/gtm/analyze?text=${encodeURIComponent(q)}&author=rate_session`, { method: "POST" });
+          const r = await fetch(`/api/proxy/gtm/analyze?text=${encodeURIComponent(q)}&author=rate_session`, { method: "POST" });
           const data = await r.json();
           generated.push({ question: q, response: data.response_tweets || [], intent: data.intent });
         } catch {
@@ -59,7 +59,7 @@ export default function RatePage() {
     const rating = direction === "right" ? "good" : "bad";
 
     // Save rating
-    fetch(`${API}/api/improve`, {
+    fetch(`/api/proxy/improve`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
