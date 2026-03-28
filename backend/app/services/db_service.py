@@ -137,6 +137,7 @@ def get_mentions_for_user(username: str) -> list[dict]:
     all_mentions = get_all_mentions(limit=200)
     return [m for m in all_mentions
             if m.get("type") != "improvement"
+            and not m.get("mention_id", "").startswith(("doc_", "improve_"))
             and (m.get("author_username", "").lower() == clean)]
 
 

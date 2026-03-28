@@ -305,7 +305,7 @@ export default function DashboardOverview() {
                       </p>
                     </div>
                     <a
-                      href={unrated[rateIndex].mention_id ? `https://x.com/i/status/${unrated[rateIndex].mention_id}` : "#"}
+                      href={unrated[rateIndex].mention_id && /^\d+$/.test(unrated[rateIndex].mention_id) ? `https://x.com/i/status/${unrated[rateIndex].mention_id}` : "#"}
                       target="_blank"
                       className="ml-auto text-[10px] text-neutral-300 hover:text-neutral-600"
                     >
@@ -419,7 +419,7 @@ export default function DashboardOverview() {
                 return (
                   <div key={id} className="rounded-xl border border-neutral-200 bg-white overflow-hidden hover:shadow-sm transition">
                     {/* Tweet */}
-                    <a href={m.mention_id ? `https://x.com/i/status/${m.mention_id}` : "#"} target="_blank" className="block px-4 pt-3 pb-2">
+                    <a href={m.mention_id && /^\d+$/.test(m.mention_id) ? `https://x.com/i/status/${m.mention_id}` : "#"} target="_blank" className="block px-4 pt-3 pb-2">
                       <div className="flex items-center gap-2.5">
                         <div className="h-8 w-8 rounded-full bg-neutral-100 flex items-center justify-center text-xs font-bold text-neutral-400">
                           {handle.charAt(1)?.toUpperCase() || "?"}
@@ -448,7 +448,7 @@ export default function DashboardOverview() {
 
                     {/* Action bar — Twitter-style */}
                     <div className="flex items-center border-t border-neutral-100 px-4 py-1.5">
-                      <a href={m.mention_id ? `https://x.com/i/status/${m.mention_id}` : "#"} target="_blank" className="text-[10px] text-neutral-300 hover:text-neutral-500 transition mr-auto">
+                      <a href={m.mention_id && /^\d+$/.test(m.mention_id) ? `https://x.com/i/status/${m.mention_id}` : "#"} target="_blank" className="text-[10px] text-neutral-300 hover:text-neutral-500 transition mr-auto">
                         View on X
                       </a>
                       {currentRating ? (
