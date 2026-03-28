@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-const API = "https://xitwxb23yn.us-east-1.awsapprunner.com";
+const API = process.env.NEXT_PUBLIC_API_URL || "https://xitwxb23yn.us-east-1.awsapprunner.com";
 
 interface DashboardData {
   stats: {
@@ -116,8 +116,7 @@ export default function DashboardOverview() {
 
         <EmptyState
           title="Waiting for data"
-          subtitle="Connect the API to see live metrics. The dashboard will populate once the agent starts processing mentions."
-          apiHint={`${API}/api/dashboard/overview`}
+          subtitle="The dashboard will populate once the agent starts processing mentions. Tag @stardroplin on X to generate data."
         />
       </div>
     );
@@ -222,24 +221,36 @@ export default function DashboardOverview() {
               Environments
             </h2>
             <div className="space-y-2">
-              {Object.keys(environments).length === 0 ? (
-                <p className="text-xs text-neutral-400">No environments connected yet.</p>
-              ) : (
-                Object.entries(environments).map(([name, status]) => (
-                  <div
-                    key={name}
-                    className="flex items-center justify-between rounded-lg border border-neutral-200 bg-white px-4 py-2.5"
-                  >
-                    <span className="text-sm font-medium capitalize">
-                      {name.replace("_", " ")}
-                    </span>
-                    <span className="flex items-center gap-1.5 text-xs text-green-600">
-                      <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
-                      {status}
-                    </span>
-                  </div>
-                ))
-              )}
+              {(() => {
+                const ENV_LINKS: Record<string, string> = {
+                  twitter: "https://x.com/stardroplin",
+                  openai: "https://platform.openai.com",
+                  chromadb: "https://www.trychroma.com",
+                  app_runner: "https://xitwxb23yn.us-east-1.awsapprunner.com",
+                  github: "https://github.com/stardrop-cli",
+                  luma: "https://luma.com/user/stardrop",
+                };
+                return Object.keys(environments).length === 0 ? (
+                  <p className="text-xs text-neutral-400">No environments connected yet.</p>
+                ) : (
+                  Object.entries(environments).map(([name, status]) => (
+                    <a
+                      key={name}
+                      href={ENV_LINKS[name] || "#"}
+                      target="_blank"
+                      className="flex items-center justify-between rounded-lg border border-neutral-200 bg-white px-4 py-2.5 transition hover:border-neutral-300 hover:shadow-sm"
+                    >
+                      <span className="text-sm font-medium capitalize">
+                        {name.replace("_", " ")}
+                      </span>
+                      <span className="flex items-center gap-1.5 text-xs text-green-600">
+                        <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
+                        {status}
+                      </span>
+                    </a>
+                  ))
+                );
+              })()}
             </div>
           </div>
 

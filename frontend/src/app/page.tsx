@@ -83,7 +83,7 @@ export default function Home() {
               Environments
             </a>
             <a
-              href="https://xitwxb23yn.us-east-1.awsapprunner.com/api/gtm/intents"
+              href="https://github.com/stardrop-cli"
               target="_blank"
               className="hidden text-sm text-neutral-500 transition hover:text-neutral-900 sm:block"
             >
@@ -528,7 +528,7 @@ export default function Home() {
             </a>
             <span className="text-neutral-200">&bull;</span>
             <a
-              href="https://xitwxb23yn.us-east-1.awsapprunner.com/api/gtm/intents"
+              href="https://github.com/stardrop-cli"
               target="_blank"
               className="transition hover:text-neutral-900"
             >
