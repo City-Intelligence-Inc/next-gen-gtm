@@ -1,257 +1,221 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
 const INTENT_LABELS: Record<string, string> = {
-  competitor_intel: "Competitor Intel",
-  icp_analyzer: "ICP Analysis",
-  signal_scanner: "Signal Detection",
-  gtm_roast: "GTM Roast",
-  stack_advisor: "Stack Advisor",
-  outbound_generator: "Outbound Gen",
-  general_gtm: "General GTM",
+  competitor_intel: "Competitor",
+  icp_analyzer: "ICP",
+  signal_scanner: "Signals",
+  gtm_roast: "Roast",
+  stack_advisor: "Stack",
+  outbound_generator: "Outbound",
+  general_gtm: "GTM",
 };
 
-const ENV_LINKS: Record<string, string> = {
-  twitter: "https://x.com/stardroplin",
-  openai: "https://platform.openai.com",
-  chromadb: "https://www.trychroma.com",
-  app_runner: "https://xitwxb23yn.us-east-1.awsapprunner.com",
-  github: "https://github.com/stardrop-cli",
-  luma: "https://luma.com/user/stardrop",
-};
-
-function XIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-4 w-4 text-neutral-400" fill="currentColor">
-      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-    </svg>
-  );
-}
-
-function ScoreDonut({ likes, replies, retweets, size = 64 }: { likes: number; replies: number; retweets: number; size?: number }) {
-  const criteria = [
-    { name: "Replies", value: replies, weight: 5, color: "#171717" },
-    { name: "Likes", value: likes, weight: 3, color: "#525252" },
-    { name: "Retweets", value: retweets, weight: 2, color: "#a3a3a3" },
-  ];
-  const total = criteria.reduce((s, c) => s + c.value * c.weight, 0);
+function ScoreRing({ score, size = 40 }: { score: number; size?: number }) {
   const r = size / 2;
-  const innerR = r * 0.55;
-  const outerR = r * 0.9;
-
-  // Build pie slices
-  let cumAngle = -Math.PI / 2;
-  const slices = criteria.map((c) => {
-    const score = c.value * c.weight;
-    const angle = total > 0 ? (score / total) * Math.PI * 2 : 0;
-    const startAngle = cumAngle;
-    cumAngle += angle;
-    const endAngle = cumAngle;
-    const largeArc = angle > Math.PI ? 1 : 0;
-    const x1 = r + outerR * Math.cos(startAngle);
-    const y1 = r + outerR * Math.sin(startAngle);
-    const x2 = r + outerR * Math.cos(endAngle);
-    const y2 = r + outerR * Math.sin(endAngle);
-    const ix1 = r + innerR * Math.cos(endAngle);
-    const iy1 = r + innerR * Math.sin(endAngle);
-    const ix2 = r + innerR * Math.cos(startAngle);
-    const iy2 = r + innerR * Math.sin(startAngle);
-    return { ...c, score, d: total > 0 && score > 0
-      ? `M${x1},${y1} A${outerR},${outerR} 0 ${largeArc},1 ${x2},${y2} L${ix1},${iy1} A${innerR},${innerR} 0 ${largeArc},0 ${ix2},${iy2} Z`
-      : "" };
-  });
+  const stroke = 3;
+  const radius = r - stroke;
+  const circ = 2 * Math.PI * radius;
+  const maxScore = 50;
+  const pct = Math.min(score / maxScore, 1);
+  const offset = circ * (1 - pct);
+  const color = score > 10 ? "#16a34a" : score > 0 ? "#171717" : "#d4d4d4";
 
   return (
-    <div className="flex items-center gap-3">
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-        {/* Background ring */}
-        <circle cx={r} cy={r} r={outerR} fill="none" stroke="#f5f5f5" strokeWidth={outerR - innerR} />
-        {/* Slices */}
-        {slices.map((s, i) => s.d ? <path key={i} d={s.d} fill={s.color} /> : null)}
-        {/* Center */}
-        <circle cx={r} cy={r} r={innerR - 1} fill="white" />
-        <text x={r} y={r - 2} textAnchor="middle" className="text-[11px] font-bold fill-neutral-900" dominantBaseline="middle">
-          {total}
-        </text>
-        <text x={r} y={r + 9} textAnchor="middle" className="text-[7px] fill-neutral-400" dominantBaseline="middle">
-          pts
-        </text>
+    <div className="relative" style={{ width: size, height: size }}>
+      <svg width={size} height={size} className="-rotate-90">
+        <circle cx={r} cy={r} r={radius} fill="none" stroke="#f5f5f5" strokeWidth={stroke} />
+        <circle cx={r} cy={r} r={radius} fill="none" stroke={color} strokeWidth={stroke}
+          strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round" />
       </svg>
-      <div className="space-y-1">
-        {criteria.map((c, i) => (
-          <div key={i} className="flex items-center gap-1.5">
-            <div className="h-2 w-2 rounded-sm shrink-0" style={{ backgroundColor: c.color }} />
-            <span className="text-[11px] text-neutral-600">{c.name}</span>
-            <span className="text-[11px] font-bold tabular-nums text-neutral-900">{c.value * c.weight}</span>
-            <span className="text-[9px] text-neutral-400">({c.value}×{c.weight})</span>
-          </div>
-        ))}
-      </div>
+      <span className="absolute inset-0 flex items-center justify-center text-[11px] font-bold text-neutral-900">
+        {score}
+      </span>
     </div>
   );
 }
 
-function timeAgo(ts: string) {
-  if (!ts) return "";
-  const diff = Date.now() - new Date(ts).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  const days = Math.floor(hrs / 24);
-  return `${days}d ago`;
-}
-
-export default function DashboardOverview() {
+function DashboardContent() {
+  const searchParams = useSearchParams();
+  const urlUser = searchParams.get("user");
   const [data, setData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [currentUser, setCurrentUser] = useState<string | null>(null);
   const fetched = useRef(false);
+
+  useEffect(() => {
+    const saved = urlUser || (typeof window !== "undefined" ? localStorage.getItem("stardrop_username") : null);
+    setCurrentUser(saved);
+  }, [urlUser]);
 
   useEffect(() => {
     if (fetched.current) return;
     fetched.current = true;
 
-    async function fetchWithRetry(attempts = 3) {
+    async function load(attempts = 3) {
+      const endpoint = currentUser
+        ? `/api/proxy/dashboard/${currentUser}`
+        : `/api/proxy/dashboard/overview`;
+
       for (let i = 0; i < attempts; i++) {
         try {
-          const r = await fetch(`/api/proxy/dashboard/overview`);
-          if (r.status === 503 || r.status === 502) {
-            if (i < attempts - 1) {
-              console.log(`[dashboard] ${r.status}, retrying in ${(i + 1) * 3}s...`);
-              await new Promise(res => setTimeout(res, (i + 1) * 3000));
-              continue;
-            }
+          const r = await fetch(endpoint);
+          if ((r.status === 503 || r.status === 502) && i < attempts - 1) {
+            await new Promise(res => setTimeout(res, (i + 1) * 3000));
+            continue;
           }
-          if (!r.ok) throw new Error(`API returned ${r.status}`);
+          if (!r.ok) throw new Error(`${r.status}`);
           const d = await r.json();
-          if (d.stats) { setData(d); return; }
-          throw new Error("Invalid response");
+          setData(d);
+          return;
         } catch (e) {
           if (i === attempts - 1) setError(e instanceof Error ? e.message : "Failed");
           else await new Promise(res => setTimeout(res, (i + 1) * 3000));
         }
       }
     }
-    fetchWithRetry().finally(() => setLoading(false));
-  }, []);
+    load().finally(() => setLoading(false));
+  }, [currentUser]);
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center px-6 py-20">
-        <div className="text-center">
-          <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-neutral-200 border-t-neutral-900" />
-          <p className="mt-3 text-sm text-neutral-400">Loading dashboard...</p>
-        </div>
+      <div className="flex items-center justify-center py-20">
+        <div className="h-5 w-5 animate-spin rounded-full border-2 border-neutral-200 border-t-neutral-900" />
       </div>
     );
   }
 
   if (error || !data) {
     return (
-      <div className="px-6 py-8 md:px-10 max-w-6xl">
-        <h1 className="font-serif text-3xl italic text-neutral-900">Dashboard</h1>
-        <div className="mt-6 rounded-xl border border-dashed border-neutral-200 p-12 text-center">
-          <p className="text-sm text-neutral-600">{error || "Waiting for data"}</p>
-          <p className="mt-2 text-xs text-neutral-400">Backend may be starting. Try in 30 seconds.</p>
-          <button onClick={() => window.location.reload()} className="mt-4 rounded-lg bg-neutral-900 px-4 py-2 text-sm text-white hover:bg-neutral-800">
-            Retry
-          </button>
+      <div className="px-6 py-8 max-w-5xl mx-auto">
+        <h1 className="font-serif text-2xl italic text-neutral-900">Dashboard</h1>
+        <div className="mt-4 rounded-lg border border-neutral-200 p-8 text-center">
+          <p className="text-sm text-neutral-500">{error || "No data"}</p>
+          <button onClick={() => window.location.reload()} className="mt-3 rounded-lg bg-neutral-900 px-4 py-2 text-xs text-white">Retry</button>
         </div>
       </div>
     );
   }
 
-  const { stats, intent_distribution, recent_mentions, worker, environments } = data;
+  const stats = data.stats || {};
+  const mentions = data.recent_mentions || [];
+  const intents = data.intent_distribution || {};
+  const environments = data.environments || {};
+  const user = data.user;
 
   return (
-    <div className="px-6 py-8 md:px-10 max-w-6xl">
-      <div className="mb-8">
-        <h1 className="font-serif text-3xl italic text-neutral-900">Dashboard</h1>
-        <p className="mt-1 text-sm text-neutral-500">Live data from Stardrop &mdash; {stats.total_mentions} mentions processed.</p>
+    <div className="px-4 py-6 md:px-8 max-w-6xl mx-auto">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <div className="flex items-center gap-2">
+            <h1 className="font-serif text-2xl italic text-neutral-900">
+              {currentUser ? `@${currentUser}` : "Dashboard"}
+            </h1>
+            {currentUser && (
+              <span className="rounded-full bg-neutral-900 px-2 py-0.5 text-[10px] font-medium text-white">personal agent</span>
+            )}
+          </div>
+          <p className="mt-0.5 text-xs text-neutral-400">{stats.total_mentions || 0} mentions &middot; {stats.replies_sent || 0} replies</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <a href="/improve" className="rounded-lg border border-neutral-200 px-3 py-1.5 text-xs font-medium text-neutral-600 hover:bg-neutral-50">Improve</a>
+          <a href="/rate" className="rounded-lg border border-neutral-200 px-3 py-1.5 text-xs font-medium text-neutral-600 hover:bg-neutral-50">Rate</a>
+          {!currentUser && (
+            <a href="/onboard" className="rounded-lg bg-neutral-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-neutral-800">Connect X</a>
+          )}
+        </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {/* Stats row — compact */}
+      <div className="grid grid-cols-4 gap-2 mb-6">
         {[
-          { label: "Mentions", value: stats.total_mentions, sub: `${stats.mentions_today} today` },
-          { label: "Replies", value: stats.replies_sent, sub: `${stats.mentions_this_week} this week` },
-          { label: "Avg engagement", value: stats.avg_engagement_score, sub: "score (L×3 + R×5 + RT×2)" },
-          { label: "Processed", value: worker.processed_count, sub: "by worker" },
+          { label: "Mentions", value: stats.total_mentions || 0 },
+          { label: "Replied", value: stats.replies_sent || 0 },
+          { label: "Engagement", value: stats.avg_engagement || 0 },
+          { label: "Score", value: `${stats.avg_engagement || 0}/50` },
         ].map((s) => (
-          <div key={s.label} className="rounded-xl border border-neutral-200 p-5">
-            <p className="text-[11px] font-medium uppercase tracking-widest text-neutral-400">{s.label}</p>
-            <p className="mt-1.5 font-serif text-3xl italic text-neutral-900">{s.value}</p>
-            <p className="mt-0.5 text-[11px] text-neutral-400">{s.sub}</p>
+          <div key={s.label} className="rounded-lg bg-neutral-950 px-4 py-3">
+            <p className="text-[10px] uppercase tracking-widest text-neutral-500">{s.label}</p>
+            <p className="mt-0.5 text-xl font-bold text-white tabular-nums">{s.value}</p>
           </div>
         ))}
       </div>
 
-      <div className="mt-8 grid gap-8 lg:grid-cols-[2fr_1fr]">
-        {/* Mentions */}
+      {/* Main grid */}
+      <div className="grid gap-4 lg:grid-cols-[1fr_280px]">
+        {/* Mentions feed */}
         <div>
-          <h2 className="mb-4 text-sm font-semibold uppercase tracking-widest text-neutral-400">Mentions</h2>
-          {recent_mentions.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-neutral-200 p-10 text-center">
-              <p className="text-sm text-neutral-400">No mentions yet. Tag @stardroplin on X.</p>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-[11px] font-semibold uppercase tracking-widest text-neutral-400">Mentions</h2>
+            <span className="text-[11px] text-neutral-300">{mentions.length} total</span>
+          </div>
+
+          {mentions.length === 0 ? (
+            <div className="rounded-lg border border-dashed border-neutral-200 p-8 text-center">
+              <p className="text-sm text-neutral-400">
+                {currentUser ? `No mentions from @${currentUser} yet.` : "No mentions yet."}
+              </p>
+              <p className="mt-1 text-xs text-neutral-300">Tag @stardroplin on X to get started.</p>
             </div>
           ) : (
-            <div className="space-y-3">
-              {recent_mentions.map((m: any, i: number) => {
+            <div className="space-y-2">
+              {mentions.map((m: any, i: number) => {
                 const score = (m.likes || 0) * 3 + (m.replies || 0) * 5 + (m.retweets || 0) * 2;
+                const tweetText = m.author?.split(": ").slice(1).join(": ") || m.author || "";
+                const handle = m.author?.split(":")[0] || "";
+
                 return (
                   <a
                     key={i}
                     href={m.mention_id ? `https://x.com/i/status/${m.mention_id}` : "#"}
                     target="_blank"
-                    className="block rounded-xl border border-neutral-200 bg-white p-4 transition hover:border-neutral-300 hover:shadow-sm"
+                    className="group flex gap-3 rounded-lg border border-neutral-200 bg-white p-3 transition hover:border-neutral-300 hover:shadow-sm"
                   >
-                    {/* Header */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-neutral-100 text-xs font-semibold text-neutral-600">
-                          {(m.author || "?")[1]?.toUpperCase() || "?"}
-                        </div>
-                        <div>
-                          <p className="text-sm font-semibold text-neutral-900">
-                            {m.author?.split(":")[0] || "Unknown"}
-                          </p>
-                          <p className="text-[11px] text-neutral-400">{timeAgo(m.ts)}</p>
-                        </div>
-                      </div>
-                      <XIcon />
+                    {/* Score ring */}
+                    <div className="shrink-0 pt-0.5">
+                      <ScoreRing score={score} size={38} />
                     </div>
 
-                    {/* Tweet text */}
-                    <p className="mt-3 text-sm text-neutral-700 leading-relaxed">
-                      {m.author?.split(": ").slice(1).join(": ") || ""}
-                    </p>
-
-                    {/* Reply preview */}
-                    {m.response_preview && (
-                      <div className="mt-3 rounded-lg bg-neutral-50 border border-neutral-100 p-3">
-                        <p className="text-[11px] uppercase tracking-widest text-neutral-400 mb-1">Stardrop replied</p>
-                        <p className="text-xs text-neutral-600 leading-relaxed">{m.response_preview}</p>
+                    {/* Content */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-semibold text-neutral-900">{handle}</span>
+                          <span className="rounded bg-neutral-100 px-1.5 py-0.5 text-[9px] font-medium text-neutral-500 uppercase">
+                            {INTENT_LABELS[m.intent] || m.intent}
+                          </span>
+                          {m.replied && (
+                            <span className="h-1.5 w-1.5 rounded-full bg-green-500" title="replied" />
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] text-neutral-300">{m.ts ? new Date(m.ts).toLocaleDateString() : ""}</span>
+                          <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 text-neutral-300 group-hover:text-neutral-500" fill="currentColor">
+                            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                          </svg>
+                        </div>
                       </div>
-                    )}
 
-                    {/* Score breakdown */}
-                    <div className="mt-3 pt-3 border-t border-neutral-100">
-                      <ScoreDonut likes={m.likes || 0} replies={m.replies || 0} retweets={m.retweets || 0} size={56} />
-                    </div>
+                      <p className="mt-1 text-sm text-neutral-700 leading-snug">{tweetText}</p>
 
-                    {/* Footer */}
-                    <div className="mt-3 flex items-center gap-3 text-[11px] text-neutral-400">
-                      <span className="rounded bg-neutral-100 px-2 py-0.5 font-medium text-neutral-500 uppercase text-[10px]">
-                        {INTENT_LABELS[m.intent] || m.intent}
-                      </span>
-                      {m.replied && (
-                        <span className="flex items-center gap-1 text-green-600">
-                          <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
-                          replied
-                        </span>
+                      {m.response_preview && (
+                        <div className="mt-2 rounded bg-neutral-50 px-2.5 py-2">
+                          <p className="text-[11px] text-neutral-500 leading-relaxed line-clamp-2">{m.response_preview}</p>
+                        </div>
                       )}
+
+                      {/* Engagement inline */}
+                      <div className="mt-1.5 flex items-center gap-3 text-[10px] text-neutral-400">
+                        <span>{m.likes || 0}L</span>
+                        <span>{m.replies || 0}R</span>
+                        <span>{m.retweets || 0}RT</span>
+                        <span className="font-semibold text-neutral-600">{score}pts</span>
+                      </div>
                     </div>
                   </a>
                 );
@@ -260,50 +224,68 @@ export default function DashboardOverview() {
           )}
         </div>
 
-        {/* Sidebar */}
-        <div className="space-y-8">
-          {/* Environments */}
-          <div>
-            <h2 className="mb-3 text-sm font-semibold uppercase tracking-widest text-neutral-400">Environments</h2>
-            <div className="space-y-2">
-              {Object.entries(environments).map(([name, status]: [string, any]) => (
-                <a
-                  key={name}
-                  href={ENV_LINKS[name] || "#"}
-                  target="_blank"
-                  className="flex items-center justify-between rounded-lg border border-neutral-200 bg-white px-4 py-2.5 transition hover:border-neutral-300 hover:shadow-sm"
-                >
-                  <span className="text-sm font-medium capitalize">{name.replace("_", " ")}</span>
-                  <span className="flex items-center gap-1.5 text-xs text-green-600">
-                    <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
-                    {status}
-                  </span>
-                </a>
+        {/* Sidebar — compact */}
+        <div className="space-y-4">
+          {/* Intents */}
+          {Object.keys(intents).length > 0 && (
+            <div className="rounded-lg border border-neutral-200 p-3">
+              <h3 className="text-[10px] font-semibold uppercase tracking-widest text-neutral-400 mb-2">Intents</h3>
+              {Object.entries(intents).map(([k, v]: [string, any]) => (
+                <div key={k} className="mb-1.5">
+                  <div className="flex justify-between text-[11px]">
+                    <span className="text-neutral-600">{INTENT_LABELS[k] || k}</span>
+                    <span className="font-bold tabular-nums">{v}%</span>
+                  </div>
+                  <div className="mt-0.5 h-1 rounded-full bg-neutral-100">
+                    <div className="h-1 rounded-full bg-neutral-900" style={{ width: `${v}%` }} />
+                  </div>
+                </div>
               ))}
             </div>
-          </div>
+          )}
 
-          {/* Intent distribution */}
-          {Object.keys(intent_distribution).length > 0 && (
-            <div>
-              <h2 className="mb-3 text-sm font-semibold uppercase tracking-widest text-neutral-400">Intents</h2>
-              <div className="space-y-2">
-                {Object.entries(intent_distribution).map(([intent, pct]: [string, any]) => (
-                  <div key={intent}>
-                    <div className="flex justify-between text-xs">
-                      <span className="text-neutral-600">{INTENT_LABELS[intent] || intent}</span>
-                      <span className="text-neutral-400">{pct}%</span>
-                    </div>
-                    <div className="mt-1 h-1.5 w-full rounded-full bg-neutral-100">
-                      <div className="h-1.5 rounded-full bg-neutral-900" style={{ width: `${pct}%` }} />
-                    </div>
-                  </div>
-                ))}
-              </div>
+          {/* Environments */}
+          {Object.keys(environments).length > 0 && (
+            <div className="rounded-lg border border-neutral-200 p-3">
+              <h3 className="text-[10px] font-semibold uppercase tracking-widest text-neutral-400 mb-2">Environments</h3>
+              {Object.entries(environments).map(([name, status]: [string, any]) => (
+                <div key={name} className="flex items-center justify-between py-1 text-[11px]">
+                  <span className="text-neutral-600 capitalize">{name.replace("_", " ")}</span>
+                  <span className="flex items-center gap-1 text-green-600">
+                    <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
+                    live
+                  </span>
+                </div>
+              ))}
             </div>
           )}
+
+          {/* Quick actions */}
+          <div className="rounded-lg bg-neutral-950 p-3">
+            <h3 className="text-[10px] font-semibold uppercase tracking-widest text-neutral-500 mb-2">Quick</h3>
+            <div className="space-y-1.5">
+              <a href="https://x.com/intent/tweet?text=@stardroplin%20" target="_blank"
+                className="block rounded bg-white/10 px-3 py-2 text-xs text-white hover:bg-white/20 transition">
+                Tag @stardroplin
+              </a>
+              <a href="/improve" className="block rounded bg-white/10 px-3 py-2 text-xs text-white hover:bg-white/20 transition">
+                Improve responses
+              </a>
+              <a href="/rate" className="block rounded bg-white/10 px-3 py-2 text-xs text-white hover:bg-white/20 transition">
+                Rate responses
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </div>
+  );
+}
+
+export default function DashboardOverview() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center py-20"><div className="h-5 w-5 animate-spin rounded-full border-2 border-neutral-200 border-t-neutral-900" /></div>}>
+      <DashboardContent />
+    </Suspense>
   );
 }

@@ -105,3 +105,51 @@ def get_improvements() -> list[dict]:
         ExpressionAttributeValues={":v": "improvement"},
     )
     return sorted(r.get("Items", []), key=lambda x: x.get("ts", ""), reverse=True)
+
+
+# ─── USERS TABLE ───
+
+def save_user(username: str, data: dict = None):
+    table = _get_table("stardrop-users")
+    from datetime import datetime
+    item = {
+        "username": username.lower().strip().lstrip("@"),
+        "created_at": datetime.utcnow().isoformat(),
+        "custom_prompt": "",
+        "improvements": [],
+        "settings": {},
+        **(data or {}),
+    }
+    table.put_item(Item=item)
+    return item
+
+
+def get_user(username: str) -> dict | None:
+    table = _get_table("stardrop-users")
+    r = table.get_item(Key={"username": username.lower().strip().lstrip("@")})
+    return r.get("Item")
+
+
+def get_mentions_for_user(username: str) -> list[dict]:
+    clean = username.lower().strip().lstrip("@")
+    all_mentions = get_all_mentions(limit=200)
+    return [m for m in all_mentions
+            if m.get("type") != "improvement"
+            and (m.get("author_username", "").lower() == clean)]
+
+
+def update_user(username: str, updates: dict):
+    table = _get_table("stardrop-users")
+    expressions = []
+    values = {}
+    for k, v in updates.items():
+        expressions.append(f"#{k} = :{k}")
+        values[f":{k}"] = v
+    if not expressions:
+        return
+    table.update_item(
+        Key={"username": username.lower().strip().lstrip("@")},
+        UpdateExpression="SET " + ", ".join(expressions),
+        ExpressionAttributeNames={f"#{k}": k for k in updates},
+        ExpressionAttributeValues=values,
+    )

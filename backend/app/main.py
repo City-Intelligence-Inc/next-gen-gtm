@@ -249,3 +249,75 @@ async def list_improvements():
     from app.services import db_service
     items = db_service.get_improvements()
     return {"improvements": items, "total": len(items)}
+
+
+@app.post("/api/user/onboard")
+async def onboard_user(request: dict = None):
+    """Create or get a user by Twitter username."""
+    from app.services import db_service
+    if not request or not request.get("username"):
+        return {"error": "username required"}
+    username = request["username"].lower().strip().lstrip("@")
+    existing = db_service.get_user(username)
+    if existing:
+        return {"user": existing, "new": False}
+    user = db_service.save_user(username)
+    return {"user": user, "new": True}
+
+
+@app.get("/api/user/{username}")
+async def get_user(username: str):
+    """Get user profile + their mentions."""
+    from app.services import db_service
+    user = db_service.get_user(username)
+    if not user:
+        return {"error": "User not found. Onboard first via POST /api/user/onboard"}
+    mentions = db_service.get_mentions_for_user(username)
+    return {"user": user, "mentions": mentions, "total_mentions": len(mentions)}
+
+
+@app.get("/api/dashboard/{username}")
+async def user_dashboard(username: str):
+    """Per-user dashboard data — only their mentions."""
+    from app.services import db_service
+    from collections import Counter
+
+    user = db_service.get_user(username)
+    mentions = db_service.get_mentions_for_user(username)
+
+    intent_counts = Counter(m.get("intent", "general_gtm") for m in mentions)
+    total_intents = max(sum(intent_counts.values()), 1)
+
+    engagement_scores = []
+    for m in mentions:
+        eng = m.get("engagement")
+        if eng and isinstance(eng, dict):
+            s = int(eng.get("likes", 0) or 0) * 3 + int(eng.get("replies", 0) or 0) * 5 + int(eng.get("retweets", 0) or 0) * 2
+            engagement_scores.append(s)
+
+    recent = []
+    for m in mentions[:20]:
+        eng = m.get("engagement") or {}
+        response_tweets = m.get("response_tweets", [])
+        recent.append({
+            "ts": m.get("ts"),
+            "author": f"@{m.get('author_username', 'unknown')}: {(m.get('text', '') or '')[:80]}",
+            "mention_id": m.get("mention_id"),
+            "intent": m.get("intent"),
+            "response_preview": response_tweets[0][:120] if response_tweets else "",
+            "likes": int(eng.get("likes", 0) or 0),
+            "replies": int(eng.get("replies", 0) or 0),
+            "retweets": int(eng.get("retweets", 0) or 0),
+            "replied": m.get("replied", False),
+        })
+
+    return {
+        "user": user,
+        "stats": {
+            "total_mentions": len(mentions),
+            "replies_sent": sum(1 for m in mentions if m.get("replied")),
+            "avg_engagement": round(sum(engagement_scores) / max(len(engagement_scores), 1), 1),
+        },
+        "intent_distribution": {k: round(v / total_intents * 100) for k, v in intent_counts.most_common()},
+        "recent_mentions": recent,
+    }
