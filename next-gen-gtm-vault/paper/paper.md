@@ -64,29 +64,45 @@ We make four contributions:
 
 Recent work on AI agents has made significant progress in single-environment and multi-tool settings. ReAct (Yao et al., 2023) introduced interleaved reasoning and action traces. Toolformer (Schick et al., 2023) demonstrated self-supervised tool-use learning. ToolLLM (Qin et al., 2023) scaled to 16,000+ real-world APIs with a depth-first decision tree search.
 
-WebArena (Zhou et al., 2023) is most directly relevant to our work: it defines realistic web environments with state, action, and observation spaces for autonomous web agents. AgentBench (Liu et al., 2023) evaluates LLMs across 8 diverse environments. RestGPT (Song et al., 2023) addresses planning and execution over REST APIs, relevant to SaaS API orchestration.
+WebArena (Zhou et al., 2023) defines realistic web environments with state, action, and observation spaces for autonomous web agents. AgentBench (Liu et al., 2023) evaluates LLMs across 8 diverse environments. Agent-Diff (Pysklo et al., 2026) benchmarks 9 LLMs across 224 enterprise API tasks spanning Slack, Box, Linear, and Google Calendar, using state-diff evaluation to measure whether expected environment changes occurred — validating that LLM agents can operate across enterprise SaaS APIs, but without building self-improving systems.
 
-Multi-agent systems add coordination complexity. AutoGen (Wu et al., 2023) introduces conversable agents with flexible conversation patterns. Voyager (Wang et al., 2023) demonstrates lifelong learning with a persistent skill library. MRKL Systems (Karpas et al., 2022) route queries to specialized expert modules.
+AgentOrchestra (Zhang et al., 2025) introduces the Tool-Environment-Agent (TEA) protocol, treating environments, agents, and tools as first-class resources with explicit lifecycles and versioned interfaces, achieving 89.04% on the GAIA benchmark. Our work applies a similar decomposition specifically to GTM workflows, adding the self-improvement dimension that TEA lacks.
 
-The key gap in all prior work: environments are treated as fixed. An agent is given access to a web browser, a code editor, or an API — and the environment is assumed to be pre-configured and stable. We formalize environment *configuration* itself as a first-class problem, because in enterprise settings, the majority of engineering effort goes into connecting, authenticating, and maintaining environment access.
+The closest work to ours in naming is EvoConfig (Guo et al., 2026), which introduces self-evolving multi-agent systems for autonomous environment configuration, achieving 78.1% on EnvBench. However, their "environment configuration" refers to software runtime environments (pip, Docker, system packages) — fundamentally different from our definition of environments as business SaaS tools and channels. We formalize environment *configuration* as connecting, authenticating, and maintaining agent access to heterogeneous enterprise software — a problem where the majority of engineering effort is spent in practice.
+
+Vishnyakova (2026) introduces context engineering as a discipline for designing the informational environment in which AI agents operate, proposing five quality criteria and a maturity pyramid. Yang et al. (2026) formalize this further with Digital-Twin MDPs and offline reinforcement learning for enterprise agent improvement. Our work operationalizes these theoretical frameworks with a deployed production system.
 
 ### 2.2 Retrieval-Augmented Generation
 
-Lewis et al. (2020) introduced RAG, combining parametric and non-parametric memory for knowledge-intensive tasks. Gao et al. (2024) provide a comprehensive survey of production RAG systems. Barnett et al. (2024) enumerate the practical challenges: chunking strategy, embedding model selection, retrieval accuracy, and hallucination mitigation.
+Lewis et al. (2020) introduced RAG, combining parametric and non-parametric memory for knowledge-intensive tasks. Gao et al. (2024) provide a comprehensive survey of production RAG systems. Barnett et al. (2024) enumerate practical challenges: chunking strategy, embedding model selection, retrieval accuracy, and hallucination mitigation. Singh et al. (2025) survey agentic RAG systems where autonomous agents enhance retrieval pipelines with reflection, planning, and tool use.
 
-Our contribution is domain-specific: RAG over a *curated, interconnected* Obsidian vault of 60+ notes with 116 wikilinks, rather than unstructured web scraping. The vault encodes not just factual knowledge but practitioner voice and philosophy — for example, Bo Mohazzabi's profile (VP GTM @ Coframe, $36K→$2.4M ARR, 67x growth at KarmaCheck) is retrievable as RAG context, calibrating the system's tone toward specificity and practitioner credibility.
+Our RAG contribution is domain-specific: retrieval over a *curated, interconnected* Obsidian vault of 60+ notes with 116 wikilinks, rather than unstructured web scraping. The vault encodes not just factual knowledge but practitioner voice and philosophy — Bo Mohazzabi's profile (VP GTM @ Coframe, $36K→$2.4M ARR, 67x growth at KarmaCheck) is retrievable as RAG context, calibrating the system's tone toward practitioner credibility. We further apply Hypothetical Document Embedding (HyDE; Gao et al., 2022) not merely for zero-shot retrieval but as a self-improvement mechanism: user-approved responses become gold-standard documents that guide future generation.
 
 ### 2.3 Enterprise Tool Integration
 
-The Model Context Protocol (MCP, Anthropic, 2025) standardizes agent-tool connections via JSON-RPC over stdio/HTTP, exposing tools, resources, and prompt templates. Agent-to-Agent Protocol (A2A, Google, 2026) addresses inter-agent communication. TaskWeaver (Microsoft, 2023) provides a code-first approach to enterprise data analytics. WebMCP (Chrome 146, February 2026) extends MCP to the browser via `navigator.modelContext`, enabling declarative tool registration in HTML forms.
+The Model Context Protocol (MCP, Anthropic, 2025) standardizes agent-tool connections via JSON-RPC over stdio/HTTP, exposing tools, resources, and prompt templates. Krishnan (2025) demonstrates MCP's application to multi-agent enterprise knowledge management. Agent-to-Agent Protocol (A2A, Google, 2026) addresses inter-agent communication. WebMCP (Chrome 146, February 2026) extends MCP to the browser via `navigator.modelContext`.
 
-Integration Platform as a Service (iPaaS) vendors like Workato and Tray.io handle rule-based integration but are not agent-native — they lack the ability for an AI agent to dynamically discover, evaluate, and interact with connected environments. The gap remains: no formal framework for reasoning about how AI agents should configure and maintain connections to enterprise environments.
+Kandogan et al. (2024, 2025) propose a blueprint architecture for compound AI systems using "streams" as the orchestration concept, with agent and data registries enabling coordinated planning. Adimulam et al. (2026) present a unified orchestration framework integrating planning, policy enforcement, and quality operations. Zeng et al. (2025) introduce Routine, a structural planning framework that boosts GPT-4o enterprise task accuracy from 41.1% to 96.3%.
 
-### 2.4 AI for Sales and Marketing
+iPaaS platforms (Workato, Tray.io) handle rule-based integration but are not agent-native. The gap remains: no formal framework for reasoning about how AI agents should configure and maintain connections to enterprise environments — which is the central contribution of our work.
 
-Academic work on AI for GTM is remarkably sparse. Lead scoring as classification exists (Yan et al., 2015; Wieland, 2019), but LLM-based sales agents (11x, Artisan, Regie.ai) are industry systems without academic formalization. The 11x AI SDR product line exhibits 70–80% churn, suggesting that current approaches lack the self-improving feedback loops necessary for sustained performance.
+### 2.4 Self-Improving Agent Systems
 
-SWE-bench and SWE-Agent (Jimenez et al., 2024) provide an analogous model: software engineering agents operating in real codebases. We propose the equivalent for GTM — agents operating in real SaaS tools, with the additional complexity of multi-environment orchestration.
+Self-improving agents have emerged as an active research area. Chojecki (2025) formalizes self-improvement as a dynamical system with a Generator-Verifier-Updater operator, deriving stability conditions that unify techniques like STaR, SPIN, and Reflexion. He et al. (2025) introduce ARIA, which learns domain knowledge at test time through structured self-dialogue, deployed at TikTok Pay. Yuksel and Sawaf (2024) demonstrate multi-agent autonomous optimization using LLM-driven feedback loops without human intervention.
+
+Two comprehensive surveys (Gao et al., 2025; Fang et al., 2025) map the self-evolving agent landscape across coding, healthcare, education, and finance — but notably exclude GTM and sales as application domains. Chiu et al. (2025) model self-improving agents in competitive labor markets, demonstrating strategic adaptation.
+
+In industry, MiniMax's M2.7 (2026) demonstrates model self-evolution: the model autonomously iterates its own harness through cycles of "analyze failure → plan changes → modify → evaluate → compare → keep/revert," achieving 30% performance improvement over 100+ autonomous rounds. This pattern directly parallels Stardrop's feedback loop, though applied to model training rather than GTM response quality.
+
+Our contribution to this space is threefold: (1) self-improvement from *real engagement signals* (likes, replies, retweets) rather than synthetic evaluation, (2) HyDE as a self-improvement mechanism where approved responses become gold-standard embeddings, and (3) application to the GTM domain, which is absent from existing surveys.
+
+### 2.5 AI for Sales and Marketing
+
+Academic work on AI for GTM is remarkably sparse. Lead scoring as classification exists (Yan et al., 2015; Wieland, 2019). SalesRLAgent (Nandakishor, 2025) uses RL for real-time conversion prediction, achieving 96.7% accuracy — but optimizes 1:1 sales conversations, not 1:many social outreach. Srinivas et al. (2025) present agentic multimodal AI for hyper-personalized advertising with RAG and adaptive targeting, but focus on paid channels rather than organic engagement.
+
+Most directly comparable is the autonomous social media marketing study (MDPI Electronics, 2025), which deployed persona-driven AI agents across Twitter/X, Discord, and Telegram using ElizaOS for 18 days. They found effectiveness was platform-dependent and character design mattered — but their agents had no self-improvement, no domain knowledge base, and no feedback loops. Stardrop addresses all three gaps.
+
+SWE-bench and SWE-Agent (Jimenez et al., 2024) provide an analogous model for software engineering. TheAgentCompany (Xu et al., 2024) benchmarks agents on professional work tasks, finding best agents complete only 30% of tasks — motivating why domain-specific knowledge and self-improvement are needed rather than general-purpose agents alone.
 
 ---
 
@@ -399,38 +415,82 @@ Stardrop is deployed and operational. The system, dashboard, knowledge vault, an
 
 ## References
 
+Adimulam, A., Gupta, R., & Kumar, S. (2026). The orchestration of multi-agent systems: Architectures, protocols, and enterprise adoption. *arXiv:2601.13671*.
+
 Argyris, C. (1977). Double loop learning in organizations. *Harvard Business Review*, 55(5), 115–125.
 
 Barnett, S., et al. (2024). Seven failure points when engineering a retrieval augmented generation system. *arXiv:2401.05856*.
 
 Boyd, J. R. (1976). Destruction and creation. *Unpublished manuscript*.
 
+Chiu, C., Zhang, S., & van der Schaar, M. (2025). Strategic self-improvement for competitive agents in AI labour markets. *arXiv:2512.04988*.
+
+Chojecki, P. (2025). Self-improving AI agents through self-play. *arXiv:2512.02731*.
+
 Collins, J. (2001). *Good to Great*. HarperBusiness.
+
+Fang, J., et al. (2025). A comprehensive survey of self-evolving AI agents: Bridging foundation models and lifelong agentic systems. *arXiv:2508.07407*.
+
+Gao, H., et al. (2025). A survey of self-evolving agents: On path to artificial super intelligence. *arXiv:2507.21046*.
+
+Gao, L., Ma, X., Lin, J., & Callan, J. (2022). Precise zero-shot dense retrieval without relevance labels. *arXiv:2212.10496*.
 
 Gao, Y., et al. (2024). Retrieval-augmented generation for large language models: A survey. *arXiv:2312.10997*.
 
+Guo, X., et al. (2026). EvoConfig: Self-evolving multi-agent systems for efficient autonomous environment configuration. *arXiv:2601.16489*.
+
+He, Y., et al. (2025). ARIA: Enabling self-improving agents to learn at test time with human-in-the-loop guidance. *arXiv:2507.17131*.
+
 Jimenez, C. E., et al. (2024). SWE-bench: Can language models resolve real-world GitHub issues? *ICLR 2024*.
 
+Kandogan, E., et al. (2024). A blueprint architecture of compound AI systems for enterprise. *arXiv:2406.00584*.
+
+Kandogan, E., et al. (2025). Orchestrating agents and data for enterprise: A blueprint architecture for compound AI. *arXiv:2504.08148*.
+
 Karpas, E., et al. (2022). MRKL systems: A modular, neuro-symbolic architecture that combines large language models, external knowledge sources and discrete reasoning. *arXiv:2205.00445*.
+
+Krishnan, N. (2025). Advancing multi-agent systems through model context protocol. *arXiv:2504.21030*.
 
 Lewis, P., et al. (2020). Retrieval-augmented generation for knowledge-intensive NLP tasks. *NeurIPS 2020*.
 
 Liu, X., et al. (2023). AgentBench: Evaluating LLMs as agents. *ICLR 2024*.
 
+MiniMax. (2026). MiniMax M2.7: Early echoes of self-evolution. *Technical Report*.
+
+Nandakishor, M. (2025). SalesRLAgent: A reinforcement learning approach for real-time sales conversion prediction. *arXiv:2503.23303*.
+
+Pysklo, H. M., Zhuravel, A., & Watson, P. D. (2026). Agent-Diff: Benchmarking LLM agents on enterprise API tasks. *arXiv:2602.11224*.
+
 Qin, Y., et al. (2023). ToolLLM: Facilitating large language models to master 16000+ real-world APIs. *ICLR 2024*.
 
 Schick, T., et al. (2023). Toolformer: Language models can teach themselves to use tools. *NeurIPS 2023*.
 
+Singh, A., Ehtesham, A., Kumar, S., & Khoei, T. T. (2025). Agentic retrieval-augmented generation: A survey on agentic RAG. *arXiv:2501.09136*.
+
 Song, Y., et al. (2023). RestGPT: Connecting large language models with real-world RESTful APIs. *arXiv:2306.06624*.
 
+Srinivas, S. S., Das, A., Gupta, S., & Runkana, V. (2025). Agentic multimodal AI for hyper-personalized B2B and B2C advertising. *arXiv:2504.00338*.
+
 Taleb, N. N. (2012). *Antifragile: Things That Gain from Disorder*. Random House.
+
+Vishnyakova, V. V. (2026). Context engineering: From prompts to corporate multi-agent architecture. *arXiv:2603.09619*.
 
 Wang, G., et al. (2023). Voyager: An open-ended embodied agent with large language models. *NeurIPS 2023*.
 
 Wu, Q., et al. (2023). AutoGen: Enabling next-gen LLM applications via multi-agent conversation. *arXiv:2308.08155*.
 
+Xu, F. F., et al. (2024). TheAgentCompany: Benchmarking LLM agents on consequential real world tasks. *arXiv:2412.14161*.
+
 Yan, J., et al. (2015). Machine learning approach for B2B lead scoring. *KDD Workshop on Data Science for Business*.
 
+Yang, X., et al. (2026). A context engineering framework for improving enterprise AI agents based on digital-twin MDP. *arXiv:2603.22083*.
+
 Yao, S., et al. (2023). ReAct: Synergizing reasoning and acting in language models. *ICLR 2023*.
+
+Yuksel, K. A., & Sawaf, H. (2024). A multi-AI agent system for autonomous optimization via iterative refinement and LLM-driven feedback loops. *arXiv:2412.17149*.
+
+Zeng, G., et al. (2025). Routine: A structural planning framework for LLM agent system in enterprise. *arXiv:2507.14447*.
+
+Zhang, W., et al. (2025). AgentOrchestra: Orchestrating multi-agent intelligence with the tool-environment-agent (TEA) protocol. *arXiv:2506.12508*.
 
 Zhou, S., et al. (2023). WebArena: A realistic web environment for building autonomous agents. *ICLR 2024*.
