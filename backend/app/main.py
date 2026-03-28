@@ -48,8 +48,11 @@ app = FastAPI(title="Next-Gen GTM Agent", version="1.0.0", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
+    expose_headers=["*"],
+    allow_credentials=False,
+    max_age=3600,
 )
 
 
