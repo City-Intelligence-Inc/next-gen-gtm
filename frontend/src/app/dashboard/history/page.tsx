@@ -1,7 +1,4 @@
 export default function HistoryPage() {
-  console.log("[Stardrop:History] 1. Rendering history page (server component)");
-  console.log("[Stardrop:History] 2. No API data loaded yet — showing empty state");
-  console.log("[Stardrop:History] 3. Endpoint hint: GET /api/dashboard/history");
   return (
     <div className="px-6 py-8 md:px-10 md:py-10 max-w-6xl">
       {/* Header */}

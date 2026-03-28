@@ -1,7 +1,4 @@
 export default function InsightsPage() {
-  console.log("[Stardrop:Insights] 1. Rendering insights page (server component)");
-  console.log("[Stardrop:Insights] 2. No insights data loaded yet — showing empty state");
-  console.log("[Stardrop:Insights] 3. Endpoint hint: GET /api/dashboard/insights");
   return (
     <div className="px-6 py-8 md:px-10 md:py-10 max-w-6xl">
       {/* Header */}
