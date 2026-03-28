@@ -14,6 +14,12 @@ export default function Home() {
           </div>
           <div className="flex items-center gap-4">
             <a
+              href="/dashboard"
+              className="hidden text-sm text-neutral-500 transition hover:text-neutral-900 sm:block"
+            >
+              Dashboard
+            </a>
+            <a
               href="#environments"
               className="hidden text-sm text-neutral-500 transition hover:text-neutral-900 sm:block"
             >
