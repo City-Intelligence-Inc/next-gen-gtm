@@ -6,7 +6,7 @@ import { useState, useEffect, useCallback } from "react";
 // Types & Constants
 // ---------------------------------------------------------------------------
 
-type Tab = "score" | "knowledge" | "learn" | "trace" | "compound";
+type Tab = "automate" | "score" | "knowledge" | "learn" | "trace" | "compound";
 
 interface SkillScore {
   key: string;
@@ -141,6 +141,269 @@ const LEVEL_CHALLENGES: Record<number, { id: string; prompt: string }[]> = {
 const API_BASE = "https://xitwxb23yn.us-east-1.awsapprunner.com";
 
 // ---------------------------------------------------------------------------
+// Playbook types & data
+// ---------------------------------------------------------------------------
+
+interface PlaybookStep {
+  title: string;
+  detail: string;
+}
+
+interface Playbook {
+  id: string;
+  title: string;
+  time: string;
+  difficulty: "Beginner" | "Intermediate" | "Advanced";
+  tools: string[];
+  description: string;
+  steps: PlaybookStep[];
+}
+
+const PLAYBOOKS: Playbook[] = [
+  {
+    id: "cold-outbound",
+    title: "Set Up Cold Outbound in 45 Minutes",
+    time: "45 min",
+    difficulty: "Beginner",
+    tools: ["Clay", "Apollo", "Instantly"],
+    description:
+      "Go from zero to a live outbound sequence hitting real inboxes. No fluff, no strategy decks — just a working pipeline you can measure by Friday.",
+    steps: [
+      {
+        title: "Define your ICP",
+        detail:
+          'Pick 1 job title + 1 company size + 1 industry. Write it in one sentence. (e.g. "VP Engineering at B2B SaaS, 50-200 employees, Series A-B")',
+      },
+      {
+        title: "Build a Clay table",
+        detail:
+          "Go to clay.com, create a free account, start a new table. Add columns: Company, Name, Title, Email, LinkedIn.",
+      },
+      {
+        title: "Find 50 leads in Apollo",
+        detail:
+          "Go to apollo.io, filter by your ICP criteria. Export 50 contacts as CSV.",
+      },
+      {
+        title: "Import to Clay",
+        detail:
+          'Upload your Apollo CSV to Clay. Run the "Enrich Email" waterfall to verify emails.',
+      },
+      {
+        title: "Write your cold email",
+        detail:
+          'Subject: "[Specific pain point] at [Company]". Body: 2 sentences about their problem, 1 sentence about your solution, 1 CTA. No more than 80 words.',
+      },
+      {
+        title: "Set up Instantly",
+        detail:
+          "Create account at instantly.ai. Connect your email (use a secondary domain). Import your enriched list from Clay.",
+      },
+      {
+        title: "Launch sequence",
+        detail:
+          "Set up a 3-email sequence: Day 1 (cold email), Day 3 (follow-up with case study), Day 7 (breakup email). Send 20/day max.",
+      },
+      {
+        title: "Track results",
+        detail:
+          "After 1 week, check: open rate (target >50%), reply rate (target >5%). If below, iterate on subject lines.",
+      },
+    ],
+  },
+  {
+    id: "signal-detection",
+    title: "Build a Signal Detection Pipeline",
+    time: "30 min",
+    difficulty: "Intermediate",
+    tools: ["Google Alerts", "LinkedIn", "Twitter/X Lists"],
+    description:
+      "Stop guessing who to reach out to. Set up a system that tells you when a prospect is ready to buy — before they even start looking.",
+    steps: [
+      {
+        title: "Identify 5 buying signals",
+        detail:
+          'Hiring signals (posting "Senior Engineer"), funding (raised Series A-B in last 6 months), tech stack changes (migrating to Kubernetes), complaints about competitors, G2 research.',
+      },
+      {
+        title: "Set up Google Alerts",
+        detail:
+          'Create alerts for: "[competitor name] alternative", "[your category] problems", "hiring [your buyer persona title]". Set to daily digest.',
+      },
+      {
+        title: "Create Twitter/X lists",
+        detail:
+          "Make a private list of 50 target accounts. Add competitors, industry analysts, and potential buyers. Check daily.",
+      },
+      {
+        title: "LinkedIn saved searches",
+        detail:
+          "Search for your ICP title + keywords. Save the search. LinkedIn notifies you of new matches weekly.",
+      },
+      {
+        title: "Build a tracking spreadsheet",
+        detail:
+          "Columns: Company, Signal Type, Signal Date, Signal Detail, Action Taken, Result. Review weekly.",
+      },
+      {
+        title: "Score your signals",
+        detail:
+          "Rate each signal 1-5 for purchase intent. Prioritize 4-5s for immediate outreach. Queue 2-3s for nurture.",
+      },
+    ],
+  },
+  {
+    id: "icp-definition",
+    title: "Create Your ICP in 20 Minutes",
+    time: "20 min",
+    difficulty: "Beginner",
+    tools: [],
+    description:
+      "Most founders skip this and regret it for 6 months. Spend 20 minutes now so every piece of outbound, content, and product decision has a target.",
+    steps: [
+      {
+        title: "List your best 3 customers",
+        detail:
+          "Who uses your product the most? Who pays the most? Who had the fastest sales cycle?",
+      },
+      {
+        title: "Find the pattern",
+        detail:
+          "What do they have in common? Industry, company size, funding stage, tech stack, team structure.",
+      },
+      {
+        title: "Name the buyer",
+        detail:
+          'Write the exact job title of the person who says yes. Not "decision maker" — the actual title. (e.g. "VP Engineering" not "technical leader")',
+      },
+      {
+        title: "Define their pain",
+        detail:
+          'What keeps them up at night? Be specific. Not "efficiency" — "their PR review time is 3x industry average and they\'re losing engineers over it."',
+      },
+      {
+        title: "Write the one-sentence ICP",
+        detail:
+          '"[Title] at [company type] ([size]) who struggles with [specific pain]." This goes into every piece of outbound you write.',
+      },
+    ],
+  },
+  {
+    id: "competitive-intel",
+    title: "Automate Competitive Intelligence",
+    time: "25 min",
+    difficulty: "Intermediate",
+    tools: ["Google Alerts", "LinkedIn", "Crunchbase"],
+    description:
+      "Know what your competitors are doing before their own customers do. Set up passive monitoring that takes 10 minutes a week to maintain.",
+    steps: [
+      {
+        title: "List your top 5 competitors",
+        detail:
+          "Include direct competitors and adjacent tools that could expand into your space.",
+      },
+      {
+        title: "Set up monitoring",
+        detail:
+          'Google Alerts for each: "[competitor] funding", "[competitor] launch", "[competitor] hiring". LinkedIn: follow their company pages and executives.',
+      },
+      {
+        title: "Create a battle card",
+        detail:
+          "For each competitor: their positioning, pricing, strengths, weaknesses, customers they win, customers you win. One page max.",
+      },
+      {
+        title: "Track their moves weekly",
+        detail:
+          "Every Monday, 10 minutes: check alerts, scan LinkedIn posts, note any changes. Update battle cards.",
+      },
+      {
+        title: "Turn intel into action",
+        detail:
+          "When a competitor raises prices: email their customers. When they have an outage: post your uptime stats. When they hire aggressively in a new vertical: that vertical is heating up, go there too.",
+      },
+    ],
+  },
+  {
+    id: "product-led-sales",
+    title: "Set Up Product-Led Sales",
+    time: "60 min",
+    difficulty: "Advanced",
+    tools: ["PostHog/Amplitude", "Slack", "CRM"],
+    description:
+      "Let your product tell you who to sell to. Build the pipeline from activation metric to PQL alert to sales-assist outreach.",
+    steps: [
+      {
+        title: "Define your activation metric",
+        detail:
+          'What action in your product means a user "gets it"? Not signup — the moment of value. (e.g. "created first dashboard", "invited 3 teammates", "ran first query")',
+      },
+      {
+        title: "Set up event tracking",
+        detail:
+          "Track the activation event + key usage milestones in your analytics tool. You need: signup, activation, daily active use, feature adoption.",
+      },
+      {
+        title: "Build PQL criteria",
+        detail:
+          "A Product Qualified Lead has: activated + used product 3+ days + team >3 users. Set up a saved segment for this.",
+      },
+      {
+        title: "Create Slack alerts",
+        detail:
+          'When a user hits PQL status, fire a Slack message to #sales: "{Company} ({size}) hit PQL — {user} activated {days} ago, {teammates} teammates, using {features}."',
+      },
+      {
+        title: "Define the sales-assist playbook",
+        detail:
+          'AE reaches out within 4 hours of PQL alert. Message: not "want a demo?" but "I saw your team set up [feature] — here\'s how [similar company] got 3x more value from it."',
+      },
+      {
+        title: "Track PQL to Paid conversion",
+        detail:
+          "Target: 15-25% of PQLs convert within 30 days. If below 15%, your PQL criteria is too loose. If above 25%, it's too tight.",
+      },
+    ],
+  },
+  {
+    id: "gtm-strategy",
+    title: "Write a GTM Strategy in 30 Minutes",
+    time: "30 min",
+    difficulty: "Beginner",
+    tools: [],
+    description:
+      "No 40-page deck. One page that forces clarity on who, what, how, and where. If you can't fill this out, you're not ready to spend money on growth.",
+    steps: [
+      {
+        title: "Pick your motion",
+        detail:
+          "Are you PLG (users find you), SLG (you find them), or PLS (users find you, sales closes them)? Pick one. Don't try to do all three.",
+      },
+      {
+        title: "Define your wedge",
+        detail:
+          "What's the smallest, most specific use case you win 80%+ of the time? That's your wedge. Everything else is noise until you own this.",
+      },
+      {
+        title: "Name your channels",
+        detail:
+          "Where do your buyers actually hang out? Pick 2 channels max. LinkedIn + cold email? Twitter + community? Product Hunt + content? Two. That's it.",
+      },
+      {
+        title: "Set your 30-day targets",
+        detail:
+          "50 outbound conversations, 10 demos, 2 customers. If you can't hit this, your ICP is wrong or your channels are wrong.",
+      },
+      {
+        title: "Write the one-pager",
+        detail:
+          "One page: ICP (who), Problem (why), Solution (what), Motion (how), Channels (where), 30-day targets (when). This is your GTM strategy. Everything else is execution.",
+      },
+    ],
+  },
+];
+
+// ---------------------------------------------------------------------------
 // localStorage helpers
 // ---------------------------------------------------------------------------
 
@@ -234,7 +497,7 @@ function SkillBar({ label, score, color }: { label: string; score: number; color
 // ---------------------------------------------------------------------------
 
 export default function ImprovePage() {
-  const [tab, setTab] = useState<Tab>("score");
+  const [tab, setTab] = useState<Tab>("automate");
   const [skills, setSkills] = useState<SkillScore[]>([]);
   const [exploredCategories, setExploredCategories] = useState<Set<string>>(new Set());
   const [levels, setLevels] = useState<Level[]>([]);
@@ -244,6 +507,8 @@ export default function ImprovePage() {
   const [dailyLog, setDailyLog] = useState<DailyLog[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [expandedPlaybook, setExpandedPlaybook] = useState<string | null>(null);
+  const [playbookProgress, setPlaybookProgress] = useState<Record<string, boolean[]>>({});
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -286,6 +551,17 @@ export default function ImprovePage() {
     const savedDailyLog = loadJSON<DailyLog[]>("daily_log", []);
     console.log(`[Stardrop:Improve] 8. Daily log: ${savedDailyLog.length} entries loaded`);
     setDailyLog(savedDailyLog);
+
+    console.log("[Stardrop:Improve] Automate: Loading playbook progress from localStorage...");
+    const savedProgress: Record<string, boolean[]> = {};
+    for (const pb of PLAYBOOKS) {
+      const steps = loadJSON<boolean[]>(`playbook_${pb.id}`, new Array(pb.steps.length).fill(false));
+      savedProgress[pb.id] = steps;
+      const completed = steps.filter(Boolean).length;
+      console.log(`[Stardrop:Improve] Automate: Playbook "${pb.title}" — ${completed}/${steps.length} steps complete`);
+    }
+    setPlaybookProgress(savedProgress);
+
     console.log("[Stardrop:Improve] 9. Mount complete, rendering improve page.");
     setMounted(true);
   }, []);
@@ -321,6 +597,34 @@ export default function ImprovePage() {
       saveJSON("daily_log", dailyLog);
     }
   }, [dailyLog, mounted]);
+
+  // Persist playbook progress
+  useEffect(() => {
+    if (mounted && Object.keys(playbookProgress).length > 0) {
+      for (const [id, steps] of Object.entries(playbookProgress)) {
+        saveJSON(`playbook_${id}`, steps);
+      }
+    }
+  }, [playbookProgress, mounted]);
+
+  // Toggle a playbook step
+  const togglePlaybookStep = useCallback(
+    (playbookId: string, stepIndex: number) => {
+      setPlaybookProgress((prev) => {
+        const pb = PLAYBOOKS.find((p) => p.id === playbookId);
+        if (!pb) return prev;
+        const steps = prev[playbookId] || new Array(pb.steps.length).fill(false);
+        const updated = [...steps];
+        updated[stepIndex] = !updated[stepIndex];
+        const stepTitle = pb.steps[stepIndex].title;
+        console.log(
+          `[Stardrop:Improve] Automate: Step toggled — "${stepTitle}" → ${updated[stepIndex]}`
+        );
+        return { ...prev, [playbookId]: updated };
+      });
+    },
+    []
+  );
 
   // Computed overall score
   const overallScore = skills.length > 0
@@ -486,6 +790,7 @@ export default function ImprovePage() {
   }, [weakest, overallScore]);
 
   const TABS: { key: Tab; label: string }[] = [
+    { key: "automate", label: "Automate" },
     { key: "score", label: "Your GTM Score" },
     { key: "knowledge", label: "Knowledge Map" },
     { key: "learn", label: "Learn" },
@@ -538,6 +843,196 @@ export default function ImprovePage() {
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto">
+        {/* ----------------------------------------------------------------- */}
+        {/* Tab 0: Automate */}
+        {/* ----------------------------------------------------------------- */}
+        {tab === "automate" && (
+          <div className="px-6 py-8 md:px-10 max-w-3xl">
+            <p className="text-sm font-medium text-neutral-700 mb-1">
+              Stop learning, start doing.
+            </p>
+            <p className="text-sm text-neutral-500 mb-8">
+              Pick a playbook and execute it this week. Each one is a concrete GTM action with a measurable outcome.
+            </p>
+
+            <div className="space-y-4">
+              {PLAYBOOKS.map((pb) => {
+                const steps = playbookProgress[pb.id] || new Array(pb.steps.length).fill(false);
+                const completedCount = steps.filter(Boolean).length;
+                const totalSteps = pb.steps.length;
+                const pct = Math.round((completedCount / totalSteps) * 100);
+                const isExpanded = expandedPlaybook === pb.id;
+                const isComplete = completedCount === totalSteps;
+
+                const difficultyColor =
+                  pb.difficulty === "Beginner"
+                    ? "bg-green-50 text-green-700"
+                    : pb.difficulty === "Intermediate"
+                      ? "bg-amber-50 text-amber-700"
+                      : "bg-red-50 text-red-700";
+
+                return (
+                  <div
+                    key={pb.id}
+                    className="rounded-xl border border-neutral-200 bg-white overflow-hidden"
+                  >
+                    {/* Collapsed header */}
+                    <button
+                      onClick={() =>
+                        setExpandedPlaybook(isExpanded ? null : pb.id)
+                      }
+                      className="w-full px-5 pt-5 pb-4 text-left"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h3 className="text-sm font-semibold text-neutral-800">
+                              {pb.title}
+                            </h3>
+                            {isComplete && (
+                              <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-green-700">
+                                <svg className="h-2.5 w-2.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                  <polyline points="3 8 7 12 13 4" />
+                                </svg>
+                                Completed
+                              </span>
+                            )}
+                          </div>
+                          <div className="mt-2 flex items-center gap-2 flex-wrap">
+                            <span className="inline-block rounded-full bg-neutral-100 px-2.5 py-0.5 text-[11px] font-medium text-neutral-600">
+                              {pb.time}
+                            </span>
+                            <span
+                              className={`inline-block rounded-full px-2.5 py-0.5 text-[11px] font-medium ${difficultyColor}`}
+                            >
+                              {pb.difficulty}
+                            </span>
+                            {pb.tools.length > 0 &&
+                              pb.tools.map((tool) => (
+                                <span
+                                  key={tool}
+                                  className="inline-block rounded-full bg-blue-50 px-2.5 py-0.5 text-[11px] font-medium text-blue-700"
+                                >
+                                  {tool}
+                                </span>
+                              ))}
+                          </div>
+                        </div>
+                        <div className="shrink-0 flex items-center gap-2">
+                          {completedCount > 0 && !isComplete && (
+                            <span className="text-xs text-neutral-400">
+                              {completedCount}/{totalSteps}
+                            </span>
+                          )}
+                          <svg
+                            className={`h-4 w-4 text-neutral-400 transition-transform duration-200 ${
+                              isExpanded ? "rotate-180" : ""
+                            }`}
+                            viewBox="0 0 16 16"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <polyline points="4 6 8 10 12 6" />
+                          </svg>
+                        </div>
+                      </div>
+                    </button>
+
+                    {/* Expanded content */}
+                    {isExpanded && (
+                      <div className="border-t border-neutral-100">
+                        {/* Description + progress */}
+                        <div className="px-5 pt-4 pb-3">
+                          <p className="text-sm text-neutral-600 leading-relaxed">
+                            {pb.description}
+                          </p>
+                          {/* Progress bar */}
+                          <div className="mt-4 flex items-center gap-3">
+                            <div className="flex-1 h-2 rounded-full bg-neutral-100">
+                              <div
+                                className={`h-2 rounded-full transition-all duration-500 ${
+                                  isComplete ? "bg-green-500" : "bg-neutral-900"
+                                }`}
+                                style={{ width: `${pct}%` }}
+                              />
+                            </div>
+                            <span className="text-xs font-medium text-neutral-500 shrink-0">
+                              {pct}%
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Steps */}
+                        <div className="px-5 pb-5">
+                          <div className="space-y-0">
+                            {pb.steps.map((step, idx) => {
+                              const checked = steps[idx] || false;
+                              return (
+                                <div
+                                  key={idx}
+                                  className="flex items-start gap-3 py-3 border-b border-neutral-50 last:border-b-0"
+                                >
+                                  <button
+                                    onClick={() =>
+                                      togglePlaybookStep(pb.id, idx)
+                                    }
+                                    className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition-colors ${
+                                      checked
+                                        ? "border-green-500 bg-green-500 text-white"
+                                        : "border-neutral-300 hover:border-neutral-400"
+                                    }`}
+                                  >
+                                    {checked && (
+                                      <svg
+                                        className="h-3 w-3"
+                                        viewBox="0 0 16 16"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2.5"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                      >
+                                        <polyline points="3 8 7 12 13 4" />
+                                      </svg>
+                                    )}
+                                  </button>
+                                  <div className="flex-1 min-w-0">
+                                    <p
+                                      className={`text-sm font-medium leading-snug ${
+                                        checked
+                                          ? "text-neutral-400 line-through"
+                                          : "text-neutral-800"
+                                      }`}
+                                    >
+                                      {idx + 1}. {step.title}
+                                    </p>
+                                    <p
+                                      className={`mt-1 text-xs leading-relaxed ${
+                                        checked
+                                          ? "text-neutral-300"
+                                          : "text-neutral-500"
+                                      }`}
+                                    >
+                                      {step.detail}
+                                    </p>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* ----------------------------------------------------------------- */}
         {/* Tab 1: Your GTM Score */}
         {/* ----------------------------------------------------------------- */}
