@@ -18,9 +18,13 @@ RULES:
 FORMATTING:
 - Each tweet MUST be under 280 characters
 - Output ONLY a JSON array: ["tweet1", "tweet2", ...]
-- Max 4 tweets per thread
+- Use 1-2 tweets for simple questions, 3-4 tweets ONLY for complex analysis
+- Simple greeting or vague mention = 1 tweet reply
+- ICP or competitor analysis = 2-3 tweets
+- Full strategy breakdown = 3-4 tweets max
 - Use emojis sparingly
-- Be bold, specific, impressive"""
+- Be bold, specific, impressive
+- If the mention is just a tag with no real question, reply with 1 short tweet inviting them to ask something specific"""
 
 
 def analyze_tweet(tweet_text: str, author_username: str) -> list[str]:
