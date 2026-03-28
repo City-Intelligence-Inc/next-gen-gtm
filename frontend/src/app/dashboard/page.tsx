@@ -2,20 +2,26 @@
 
 import { useEffect, useState, useRef } from "react";
 
+type FilterMode = "all" | "mine";
+
 export default function DashboardOverview() {
   const [mentions, setMentions] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [ratings, setRatings] = useState<Record<string, string>>({});
+  const [filterMode, setFilterMode] = useState<FilterMode>("all");
+  const [twitterHandle, setTwitterHandle] = useState("");
   const fetched = useRef(false);
 
-  // Load ratings from localStorage
+  // Load ratings + twitter handle from localStorage
   useEffect(() => {
     if (typeof window === "undefined") return;
     try {
       const saved = localStorage.getItem("stardrop_mention_ratings");
       if (saved) setRatings(JSON.parse(saved));
     } catch {}
+    const handle = localStorage.getItem("stardrop_settings_twitter") || "";
+    setTwitterHandle(handle);
   }, []);
 
   // Fetch mentions
@@ -53,6 +59,23 @@ export default function DashboardOverview() {
     localStorage.setItem("stardrop_mention_ratings", JSON.stringify(updated));
   };
 
+  // Filter mentions based on mode
+  const normalizedHandle = twitterHandle.replace(/^@/, "").toLowerCase();
+  const filteredMentions =
+    filterMode === "mine" && normalizedHandle
+      ? mentions.filter((m: any) => {
+          const author = (m.author || "").toLowerCase();
+          return author.includes(normalizedHandle);
+        })
+      : mentions;
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    console.log(
+      `[Stardrop:Overview] Filtering: ${filterMode} (handle: ${twitterHandle})`
+    );
+  }, [filterMode, twitterHandle]);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -70,7 +93,12 @@ export default function DashboardOverview() {
             @stardroplin
           </span>
           <span className="text-xs text-neutral-400">
-            {mentions.length} mention{mentions.length !== 1 ? "s" : ""}
+            {filteredMentions.length} mention{filteredMentions.length !== 1 ? "s" : ""}
+            {filterMode === "mine" && mentions.length !== filteredMentions.length && (
+              <span className="ml-1 text-neutral-300">
+                of {mentions.length}
+              </span>
+            )}
           </span>
         </div>
         <a
@@ -82,6 +110,33 @@ export default function DashboardOverview() {
         </a>
       </div>
 
+      {/* Filter toggle — only show when twitter handle is set */}
+      {twitterHandle && (
+        <div className="mb-4 flex items-center gap-1 rounded-lg border border-neutral-200 bg-neutral-50 p-1 w-fit">
+          <span className="text-xs text-neutral-400 px-2">Show:</span>
+          <button
+            onClick={() => setFilterMode("all")}
+            className={`rounded-md px-3 py-1.5 text-xs font-medium transition ${
+              filterMode === "all"
+                ? "bg-white text-neutral-900 shadow-sm"
+                : "text-neutral-500 hover:text-neutral-700"
+            }`}
+          >
+            All mentions
+          </button>
+          <button
+            onClick={() => setFilterMode("mine")}
+            className={`rounded-md px-3 py-1.5 text-xs font-medium transition ${
+              filterMode === "mine"
+                ? "bg-white text-neutral-900 shadow-sm"
+                : "text-neutral-500 hover:text-neutral-700"
+            }`}
+          >
+            My mentions only
+          </button>
+        </div>
+      )}
+
       {error ? (
         <div className="rounded-lg border border-neutral-200 p-8 text-center">
           <p className="text-sm text-neutral-500">{error}</p>
@@ -92,20 +147,33 @@ export default function DashboardOverview() {
             Retry
           </button>
         </div>
-      ) : mentions.length === 0 ? (
+      ) : filteredMentions.length === 0 ? (
         <div className="rounded-lg border border-dashed border-neutral-200 p-12 text-center">
-          <p className="text-sm text-neutral-500">No mentions yet.</p>
-          <a
-            href="https://x.com/intent/tweet?text=@stardroplin%20"
-            target="_blank"
-            className="mt-4 inline-block rounded-lg bg-neutral-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-neutral-800"
-          >
-            Tag @stardroplin on X
-          </a>
+          <p className="text-sm text-neutral-500">
+            {filterMode === "mine"
+              ? "No mentions from your handle yet."
+              : "No mentions yet."}
+          </p>
+          {filterMode === "mine" ? (
+            <button
+              onClick={() => setFilterMode("all")}
+              className="mt-4 inline-block rounded-lg bg-neutral-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-neutral-800"
+            >
+              Show all mentions
+            </button>
+          ) : (
+            <a
+              href="https://x.com/intent/tweet?text=@stardroplin%20"
+              target="_blank"
+              className="mt-4 inline-block rounded-lg bg-neutral-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-neutral-800"
+            >
+              Tag @stardroplin on X
+            </a>
+          )}
         </div>
       ) : (
         <div className="space-y-3">
-          {mentions.map((m: any, i: number) => {
+          {filteredMentions.map((m: any, i: number) => {
             const tweetText =
               m.author?.split(": ").slice(1).join(": ") || m.author || "";
             const handle = m.author?.split(":")[0] || "";
@@ -114,7 +182,7 @@ export default function DashboardOverview() {
 
             return (
               <div
-                key={i}
+                key={id}
                 className="rounded-xl border border-neutral-200 bg-white overflow-hidden"
               >
                 {/* Mention */}
@@ -165,7 +233,7 @@ export default function DashboardOverview() {
                           : "text-red-500"
                       }`}
                     >
-                      {currentRating === "good" ? "👍 Good" : "👎 Bad"}
+                      {currentRating === "good" ? "Good" : "Bad"}
                     </span>
                   ) : (
                     <div className="flex gap-1">
@@ -173,13 +241,13 @@ export default function DashboardOverview() {
                         onClick={() => rate(id, "bad")}
                         className="rounded-md px-3 py-1 text-xs text-neutral-400 hover:bg-red-50 hover:text-red-600 transition"
                       >
-                        👎
+                        Bad
                       </button>
                       <button
                         onClick={() => rate(id, "good")}
                         className="rounded-md px-3 py-1 text-xs text-neutral-400 hover:bg-green-50 hover:text-green-600 transition"
                       >
-                        👍
+                        Good
                       </button>
                     </div>
                   )}

@@ -18,26 +18,64 @@ export default function SettingsPage() {
   const [productName, setProductName] = useState("");
   const [description, setDescription] = useState("");
   const [audience, setAudience] = useState("");
+  const [twitter, setTwitter] = useState("");
   const [tone, setTone] = useState("Direct");
   const [length, setLength] = useState("Standard");
   const [saved, setSaved] = useState(false);
+
+  // PIN state
+  const [pin, setPin] = useState("");
+  const [pinSaved, setPinSaved] = useState(false);
+  const [hasPin, setHasPin] = useState(false);
 
   useEffect(() => {
     setProductName(load("product_name", ""));
     setDescription(load("description", ""));
     setAudience(load("audience", ""));
+    setTwitter(load("twitter", ""));
     setTone(load("tone", "Direct"));
     setLength(load("length", "Standard"));
+
+    const existingPin = localStorage.getItem("stardrop_pin");
+    if (existingPin) {
+      setPin(existingPin);
+      setHasPin(true);
+    }
   }, []);
 
   function handleSave() {
     save("product_name", productName);
     save("description", description);
     save("audience", audience);
+    save("twitter", twitter);
     save("tone", tone);
     save("length", length);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
+  }
+
+  function handlePinChange(value: string) {
+    const digits = value.replace(/\D/g, "").slice(0, 4);
+    setPin(digits);
+    setPinSaved(false);
+  }
+
+  function handlePinSave() {
+    if (pin.length === 4) {
+      localStorage.setItem("stardrop_pin", pin);
+      console.log("[Stardrop:Settings] PIN set");
+      setHasPin(true);
+      setPinSaved(true);
+      setTimeout(() => setPinSaved(false), 2000);
+    }
+  }
+
+  function handlePinRemove() {
+    localStorage.removeItem("stardrop_pin");
+    setPin("");
+    setHasPin(false);
+    setPinSaved(false);
+    console.log("[Stardrop:Settings] PIN removed");
   }
 
   return (
@@ -78,6 +116,17 @@ export default function SettingsPage() {
               onChange={(e) => setAudience(e.target.value)}
               onBlur={() => save("audience", audience)}
               placeholder="e.g. B2B SaaS founders"
+              className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-400 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-neutral-500 mb-1">Twitter handle</label>
+            <input
+              type="text"
+              value={twitter}
+              onChange={(e) => setTwitter(e.target.value)}
+              onBlur={() => save("twitter", twitter)}
+              placeholder="@yourhandle"
               className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-400 focus:outline-none"
             />
           </div>
@@ -149,6 +198,47 @@ export default function SettingsPage() {
       >
         {saved ? "Saved!" : "Save all"}
       </button>
+
+      {/* Security */}
+      <section className="mb-8">
+        <h2 className="text-sm font-semibold text-neutral-900 mb-4">Security</h2>
+        <div className="rounded-lg border border-neutral-200 bg-neutral-50/50 p-4">
+          <label className="block text-xs font-medium text-neutral-500 mb-1">Dashboard PIN</label>
+          <p className="text-[11px] text-neutral-400 mb-3">
+            Set a 4-digit PIN to lock your dashboard. This prevents casual access but is not encryption.
+          </p>
+          <div className="flex items-center gap-3">
+            <input
+              type="password"
+              inputMode="numeric"
+              maxLength={4}
+              value={pin}
+              onChange={(e) => handlePinChange(e.target.value)}
+              placeholder="----"
+              className="w-28 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-center text-sm font-mono tracking-[0.3em] text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-400 focus:outline-none"
+            />
+            <button
+              onClick={handlePinSave}
+              disabled={pin.length !== 4}
+              className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
+                pin.length === 4
+                  ? "bg-neutral-900 text-white hover:bg-neutral-800"
+                  : "bg-neutral-200 text-neutral-400 cursor-not-allowed"
+              }`}
+            >
+              {pinSaved ? "Saved!" : "Set PIN"}
+            </button>
+            {hasPin && (
+              <button
+                onClick={handlePinRemove}
+                className="rounded-lg px-4 py-2 text-sm font-medium text-red-500 hover:bg-red-50 transition"
+              >
+                Remove
+              </button>
+            )}
+          </div>
+        </div>
+      </section>
 
       {/* Agent Info (read-only) */}
       <section>

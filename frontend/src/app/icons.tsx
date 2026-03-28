@@ -77,8 +77,14 @@ export function ChromaDBIcon({ className, size = defaults.size }: IconProps) {
 export function LumaIcon({ className, size = defaults.size }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 20 20" fill="none" className={className}>
-      <circle cx="10" cy="10" r="9" fill="#8B5CF6" />
-      <path d="M7 6V14H13" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <defs>
+        <linearGradient id="lumaGrad" x1="0" y1="0" x2="20" y2="20" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#8B5CF6" />
+          <stop offset="100%" stopColor="#EC4899" />
+        </linearGradient>
+      </defs>
+      <rect x="1" y="1" width="18" height="18" rx="5" fill="url(#lumaGrad)" />
+      <path d="M7.5 5.5V14.5H13.5" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -95,7 +101,7 @@ export function ClayIcon({ className, size = defaults.size }: IconProps) {
 export function ApolloIcon({ className, size = defaults.size }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 20 20" fill="none" className={className}>
-      <circle cx="10" cy="10" r="9" fill="#6366F1" />
+      <circle cx="10" cy="10" r="9" fill="#2563EB" />
       <path d="M10 4L7 14H9L10 10L11 14H13L10 4Z" fill="#fff" />
     </svg>
   );
@@ -124,8 +130,7 @@ export function CommonRoomIcon({ className, size = defaults.size }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 20 20" fill="none" className={className}>
       <circle cx="10" cy="10" r="9" fill="#22C55E" />
-      <rect x="7" y="6" width="6" height="9" rx="1" stroke="#fff" strokeWidth="1.5" fill="none" />
-      <circle cx="11.5" cy="10.5" r="0.8" fill="#fff" />
+      <path d="M5 9.5C5 6.7 7.2 5 10 5C12.8 5 15 6.7 15 9.5C15 12.3 12.8 13.5 10 13.5V16L7.5 13.5C6 12.5 5 11.2 5 9.5Z" fill="#fff" />
     </svg>
   );
 }
@@ -166,9 +171,7 @@ export function SegmentIcon({ className, size = defaults.size }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 20 20" fill="none" className={className}>
       <circle cx="10" cy="10" r="9" fill="#52BD95" />
-      <line x1="4" y1="7" x2="16" y2="7" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" />
-      <line x1="4" y1="10" x2="12" y2="10" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" />
-      <line x1="4" y1="13" x2="16" y2="13" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" />
+      <path d="M12.5 5.5C11 5 8.5 5.2 7 6.5C5.5 7.8 5.8 9.5 7.5 10C9.2 10.5 11.5 10 12.5 10.5C14 11.2 13.8 12.8 12.5 13.8C11 15 8.5 15.2 7 14.5" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" fill="none" />
     </svg>
   );
 }
@@ -177,9 +180,8 @@ export function GongIcon({ className, size = defaults.size }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 20 20" fill="none" className={className}>
       <circle cx="10" cy="10" r="9" fill="#7C3AED" />
-      <circle cx="8" cy="10" r="3" stroke="#fff" strokeWidth="1.5" fill="none" />
-      <path d="M13 6.5C14.5 8 14.5 12 13 13.5" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" fill="none" />
-      <path d="M15.5 4.5C17.5 7 17.5 13 15.5 15.5" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+      <path d="M13 6C11.5 5 8.5 5 7 6.5C5.5 8 5.5 11 7 13C8.5 14.5 11 15 13 14" stroke="#fff" strokeWidth="2" strokeLinecap="round" fill="none" />
+      <path d="M13 10H10.5" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
     </svg>
   );
 }

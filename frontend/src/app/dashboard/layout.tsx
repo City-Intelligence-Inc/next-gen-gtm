@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const navItems = [
   { label: "Overview", href: "/dashboard", icon: OverviewIcon },
@@ -69,6 +69,15 @@ function CloseIcon({ className }: { className?: string }) {
   );
 }
 
+function LockIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="7" width="10" height="7" rx="1.5" />
+      <path d="M5 7V5a3 3 0 0 1 6 0v2" />
+    </svg>
+  );
+}
+
 export default function DashboardLayout({
   children,
 }: {
@@ -80,15 +89,42 @@ export default function DashboardLayout({
   const [onboardName, setOnboardName] = useState("");
   const [onboardProduct, setOnboardProduct] = useState("");
   const [onboardAudience, setOnboardAudience] = useState("");
+  const [onboardTwitter, setOnboardTwitter] = useState("");
   const [mounted, setMounted] = useState(false);
 
-  // Check onboarding status
-  useState(() => {
+  // PIN lock state
+  const [pinRequired, setPinRequired] = useState(false);
+  const [pinUnlocked, setPinUnlocked] = useState(false);
+  const [pinInput, setPinInput] = useState("");
+  const [pinError, setPinError] = useState(false);
+  const [pinShake, setPinShake] = useState(false);
+
+  // Check onboarding + PIN status
+  useEffect(() => {
     if (typeof window === "undefined") return;
     setMounted(true);
     const done = localStorage.getItem("stardrop_onboarded");
     if (!done) setOnboarded(false);
-  });
+
+    const savedPin = localStorage.getItem("stardrop_pin");
+    if (savedPin) {
+      console.log("[Stardrop:Layout] PIN required, showing lock screen");
+      setPinRequired(true);
+    }
+  }, []);
+
+  const handlePinSubmit = () => {
+    const savedPin = localStorage.getItem("stardrop_pin");
+    if (pinInput === savedPin) {
+      setPinUnlocked(true);
+      setPinError(false);
+    } else {
+      setPinError(true);
+      setPinShake(true);
+      setTimeout(() => setPinShake(false), 500);
+      setPinInput("");
+    }
+  };
 
   // Show onboarding gate
   if (mounted && !onboarded) {
@@ -131,6 +167,15 @@ export default function DashboardLayout({
                 className="w-full rounded-lg border border-neutral-200 px-3 py-2.5 text-sm outline-none focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900"
               />
             </div>
+            <div>
+              <label className="block text-xs font-medium text-neutral-600 mb-1">Your X/Twitter handle <span className="text-neutral-400">(optional)</span></label>
+              <input
+                value={onboardTwitter}
+                onChange={(e) => setOnboardTwitter(e.target.value)}
+                placeholder="@yourhandle"
+                className="w-full rounded-lg border border-neutral-200 px-3 py-2.5 text-sm outline-none focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900"
+              />
+            </div>
             <button
               onClick={() => {
                 if (!canSubmit) return;
@@ -138,7 +183,8 @@ export default function DashboardLayout({
                 localStorage.setItem("stardrop_settings_name", onboardName);
                 localStorage.setItem("stardrop_settings_product", onboardProduct);
                 if (onboardAudience) localStorage.setItem("stardrop_settings_audience", onboardAudience);
-                console.log("[Stardrop:Onboarding] Completed:", { name: onboardName, product: onboardProduct, audience: onboardAudience });
+                if (onboardTwitter) localStorage.setItem("stardrop_settings_twitter", onboardTwitter);
+                console.log("[Stardrop:Onboarding] Completed:", { name: onboardName, product: onboardProduct, audience: onboardAudience, twitter: onboardTwitter });
                 setOnboarded(true);
               }}
               disabled={!canSubmit}
@@ -147,6 +193,60 @@ export default function DashboardLayout({
               }`}
             >
               Get started
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show PIN lock screen (after onboarding, before content)
+  if (mounted && pinRequired && !pinUnlocked) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-neutral-50 px-4">
+        <div className="w-full max-w-xs">
+          <div className="text-center mb-8">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-neutral-900">
+              <LockIcon className="h-5 w-5 text-white" />
+            </div>
+            <h1 className="mt-4 text-xl font-semibold text-neutral-900">Dashboard Locked</h1>
+            <p className="mt-2 text-sm text-neutral-500">Enter your 4-digit PIN to continue.</p>
+          </div>
+          <div className={`space-y-4 rounded-xl border border-neutral-200 bg-white p-6 ${pinShake ? "animate-shake" : ""}`}>
+            <div>
+              <input
+                type="password"
+                inputMode="numeric"
+                maxLength={4}
+                value={pinInput}
+                onChange={(e) => {
+                  const val = e.target.value.replace(/\D/g, "").slice(0, 4);
+                  setPinInput(val);
+                  setPinError(false);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && pinInput.length === 4) handlePinSubmit();
+                }}
+                placeholder="----"
+                className={`w-full rounded-lg border px-3 py-3 text-center text-2xl tracking-[0.5em] font-mono outline-none transition ${
+                  pinError
+                    ? "border-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                    : "border-neutral-200 focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900"
+                }`}
+                autoFocus
+              />
+              {pinError && (
+                <p className="mt-2 text-center text-xs font-medium text-red-500">Wrong PIN</p>
+              )}
+            </div>
+            <button
+              onClick={handlePinSubmit}
+              disabled={pinInput.length !== 4}
+              className={`w-full rounded-lg px-4 py-3 text-sm font-medium text-white transition ${
+                pinInput.length === 4 ? "bg-neutral-900 hover:bg-neutral-800" : "bg-neutral-300 cursor-not-allowed"
+              }`}
+            >
+              Unlock
             </button>
           </div>
         </div>

@@ -137,6 +137,58 @@ async def list_intents():
     }
 
 
+@app.get("/api/dashboard/insights")
+async def dashboard_insights():
+    """Goodfire-style interpretability data."""
+    from app.services import db_service
+    from collections import Counter, defaultdict
+
+    mentions = db_service.get_all_mentions(limit=200)
+    entries = [m for m in mentions if m.get("type") != "improvement"]
+
+    daily_scores = defaultdict(list)
+    for m in entries:
+        ts = m.get("ts", "")[:10]
+        eng = m.get("engagement")
+        if eng and isinstance(eng, dict):
+            score = int(eng.get("likes", 0) or 0) * 3 + int(eng.get("replies", 0) or 0) * 5 + int(eng.get("retweets", 0) or 0) * 2
+            daily_scores[ts].append(score)
+
+    timeline = [{"date": d, "avg_score": round(sum(s) / len(s), 1), "max_score": max(s), "count": len(s)} for d, s in sorted(daily_scores.items())]
+
+    intent_engagement = defaultdict(list)
+    for m in entries:
+        eng = m.get("engagement")
+        if eng and isinstance(eng, dict):
+            score = int(eng.get("likes", 0) or 0) * 3 + int(eng.get("replies", 0) or 0) * 5 + int(eng.get("retweets", 0) or 0) * 2
+            intent_engagement[m.get("intent", "general_gtm")].append(score)
+
+    intent_perf = {k: {"avg_score": round(sum(v) / len(v), 1), "count": len(v), "best": max(v)} for k, v in intent_engagement.items()}
+
+    scored = []
+    for m in entries:
+        eng = m.get("engagement") or {}
+        score = int(eng.get("likes", 0) or 0) * 3 + int(eng.get("replies", 0) or 0) * 5 + int(eng.get("retweets", 0) or 0) * 2
+        tweets = m.get("response_tweets", [])
+        scored.append({"score": score, "intent": m.get("intent"), "question": (m.get("text", "") or "")[:100], "response": tweets[0][:150] if tweets else "", "author": m.get("author_username", ""), "likes": int(eng.get("likes", 0) or 0), "replies": int(eng.get("replies", 0) or 0), "retweets": int(eng.get("retweets", 0) or 0)})
+    scored.sort(key=lambda x: x["score"], reverse=True)
+
+    total_score = sum(s["score"] for s in scored)
+    return {
+        "timeline": timeline,
+        "intent_performance": intent_perf,
+        "top_responses": scored[:10],
+        "worst_responses": scored[-5:] if len(scored) > 5 else [],
+        "prompt_versions": [
+            {"version": "v1", "date": "2026-03-27", "change": "Initial system prompt"},
+            {"version": "v2", "date": "2026-03-27", "change": "RAG over 60+ vault notes"},
+            {"version": "v3", "date": "2026-03-27", "change": "Bo voice — zero fluff, no hashtags"},
+            {"version": "v4", "date": "2026-03-28", "change": "Per-user agents + document upload"},
+        ],
+        "summary": {"total_mentions": len(entries), "total_with_engagement": sum(1 for s in scored if s["score"] > 0), "total_score": total_score, "avg_score": round(total_score / max(len(entries), 1), 1)},
+    }
+
+
 @app.get("/api/dashboard/overview")
 async def dashboard_overview():
     """Dashboard data from DynamoDB."""
