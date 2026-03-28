@@ -1,5 +1,8 @@
 # Project: next-gen-gtm
 
+## Git Workflow
+Always push to remote immediately after each commit. Never leave commits local-only.
+
 ## What This Is
 Stardrop GTM Agent — an AI-powered GTM intelligence bot on X/Twitter that replies with actionable advice. Self-improving via feedback loops and RAG over 60+ research notes.
 

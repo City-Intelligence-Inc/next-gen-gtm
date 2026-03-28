@@ -352,7 +352,7 @@ Stardrop is deployed and operational at https://xitwxb23yn.us-east-1.awsapprunne
 
 ### Appendix A: Environment Integration Specifications
 
-Full specification for all 23 environments (6 live + 17 planned):
+Full specification for all 24 environments (6 live + 18 planned):
 - API endpoints, auth protocols, data schemas
 - Rate limits and failure modes
 - Integration level (current and target)
@@ -360,29 +360,43 @@ Full specification for all 23 environments (6 live + 17 planned):
 
 ### Appendix B: Knowledge Base Statistics
 
-- 60+ notes across 10 categories
-- 441 chunks indexed
+- 60+ notes across 10 categories (concepts, motions, frameworks, tools, case studies, architecture, data infrastructure, signals, roles, resources)
+- 441 chunks indexed in ChromaDB
+- 116 wikilinks connecting notes
 - Token statistics per category
 - Most-retrieved chunks per intent category
+- Practitioner profiles (Bo Mohazzabi) as RAG-retrievable voice calibration
 
 ### Appendix C: Full System Prompt
 
-The complete GTM system prompt with all domain knowledge encoded.
+The complete GTM system prompt with domain knowledge, Bo Mohazzabi voice rules (zero fluff, practitioner voice, numbers always, intent first, no hashtags), and learnings injection points.
 
 ### Appendix D: Example Responses
 
 Side-by-side baseline vs. Stardrop responses for all 6 intent categories + general GTM.
 
+### Appendix E: Self-Improvement Data
+
+- Feedback log schema (`.feedback_log.jsonl`)
+- Engagement scoring formula and calibration
+- Learnings extraction algorithm
+- HyDE gold-standard document schema
+- Compound improvement tracker output format
+- Dashboard screenshots showing real-time improvement visualization
+
 ---
 
 ## What Makes This Paper Not Slop
 
-1. **Real system, real deployment** — Not a toy. Live on App Runner, actually replying on X, real users tagging it.
+1. **Real system, real deployment** — Not a toy. Live on App Runner, actually replying on X, real users tagging it. Dashboard with real-time data. Self-improvement loop running in production.
 2. **Novel framing** — "Environmental engineering" for AI agent systems. Nobody has formalized the multi-environment configuration problem this way.
 3. **Grounded in established theory** — Boyd (OODA), Argyris (double-loop), Collins (flywheel), Taleb (antifragility), Meadows (systems thinking). Not hand-wavy.
 4. **Practical contribution** — The integration interface, environment taxonomy, and progressive maturity model are immediately useful to practitioners building agent systems.
-5. **Honest limitations** — Acknowledges what doesn't work yet, what hasn't been measured, and where the science is still thin.
-6. **Open source** — Full code available. Reproducible.
+5. **Self-improvement is implemented, not theoretical** — Engagement feedback loop, HyDE gold-standard embedding, compound improvement tracking all running in production. The flywheel is real.
+6. **Industry validation** — Coframe + HaystacksAI acquisition independently validates the environmental engineering pattern. Three companies built this pipeline without reading our framework.
+7. **Practitioner co-author** — Bo Mohazzabi (VP GTM @ Coframe, ex-Optimizely top AE, KarmaCheck 50x) adds credibility that academic-only papers lack.
+8. **Honest limitations** — Acknowledges what doesn't work yet, what hasn't been measured, and where the science is still thin.
+9. **Open source** — Full code, vault, design doc, and dashboard available. Reproducible.
 
 ---
 
@@ -422,7 +436,12 @@ GitHub/LinkedIn to find intent       actionable GTM intelligence              au
 - **arXiv pre-print:** Upload ASAP after draft is ready (establishes priority)
 
 ### Phase 1: Evaluation Data (April 1-15)
-- [ ] Collect 30 days of live Stardrop deployment data (mentions, responses, engagement)
+- [x] Feedback loop deployed — logging every response with intent, tweets, reply IDs
+- [x] Engagement collection running — likes, replies, retweets tracked after 1 hour
+- [x] Improvement tracker live — compound improvement curve at `/improve`
+- [x] Dashboard live — 7 pages pulling real-time data from API
+- [x] Data collection plan filed as Issue #31
+- [ ] Accumulate 30 days of live deployment data (mentions, responses, engagement)
 - [ ] Run baseline comparison: GPT-4o without RAG on same 50 test queries
 - [ ] Have 3 GTM practitioners score specificity (1-5) and actionability (1-5) for both
 - [ ] Measure intent detection accuracy on labeled test set
@@ -480,8 +499,9 @@ If main conference doesn't work out:
 
 **Why this paper gets accepted:**
 1. Novel framing nobody has published (environmental engineering for agents)
-2. Real system, real deployment, real users (not a benchmark)
+2. Real system, real deployment, real users (not a benchmark) — with dashboard, self-improvement loop, and compound tracking all live
 3. Formal definitions (Environment, Configuration, GTM System) that are immediately useful
-4. Practitioner co-author who's done $36K→$2.4M and scaled 50x
-5. Industry validation via Coframe acquisition
-6. Open source, reproducible
+4. Self-improvement mechanisms implemented and running (feedback loop, HyDE, compound tracker) — not just proposed
+5. Practitioner co-author who's done $36K→$2.4M and scaled 50x
+6. Industry validation via Coframe + HaystacksAI acquisition — three companies independently converged on environmental engineering
+7. Open source, reproducible — code, vault, design doc, dashboard all public
