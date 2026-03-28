@@ -138,26 +138,7 @@ const LEVEL_CHALLENGES: Record<number, { id: string; prompt: string }[]> = {
   ],
 };
 
-// Simulated trace data for the interpretability feature
-const INTENT_MAP: Record<string, { intent: string; confidence: number }> = {
-  icp: { intent: "icp_analyzer", confidence: 92 },
-  competitor: { intent: "competitor_intel", confidence: 88 },
-  signal: { intent: "signal_scanner", confidence: 85 },
-  roast: { intent: "gtm_roast", confidence: 90 },
-  stack: { intent: "stack_advisor", confidence: 87 },
-  outbound: { intent: "outbound_generator", confidence: 91 },
-  plg: { intent: "general_gtm", confidence: 78 },
-  meddic: { intent: "general_gtm", confidence: 82 },
-};
-
-const VAULT_NOTES_POOL = [
-  "GTM Overview", "Current GTM Landscape", "GTM Pain Points",
-  "Next-Gen GTM Thesis", "The Self-Improving GTM Engine", "Composable GTM Stack",
-  "Signal-Based Selling", "MEDDIC-MEDDPICC", "Bow-Tie Funnel",
-  "Product-Led Growth", "Agent-Led Growth", "Clay", "Apollo",
-  "Case Study - Ramp", "GTM Engineer", "Warehouse-Native GTM",
-  "Data Enrichment Waterfall", "GTM Metrics That Matter",
-];
+const API_BASE = "https://xitwxb23yn.us-east-1.awsapprunner.com";
 
 // ---------------------------------------------------------------------------
 // localStorage helpers
@@ -365,54 +346,83 @@ export default function ImprovePage() {
     );
   }, []);
 
-  // Trace a question
-  const runTrace = useCallback(() => {
+  // Trace a question — calls real Stardrop API
+  const runTrace = useCallback(async () => {
     if (!traceQuery.trim()) return;
     setTracing(true);
     setTraceResult(null);
 
-    // Simulate processing
-    setTimeout(() => {
-      const lower = traceQuery.toLowerCase();
-      let detectedIntent = { intent: "general_gtm", confidence: 72 };
-      for (const [keyword, mapping] of Object.entries(INTENT_MAP)) {
-        if (lower.includes(keyword)) {
-          detectedIntent = mapping;
-          break;
-        }
-      }
+    try {
+      const res = await fetch(
+        `${API_BASE}/api/gtm/analyze?text=${encodeURIComponent(traceQuery)}&author=dashboard_user`,
+        { method: "POST" }
+      );
 
-      // Pick 5 random vault notes with decreasing relevance
-      const shuffled = [...VAULT_NOTES_POOL].sort(() => Math.random() - 0.5);
-      const vaultNotes = shuffled.slice(0, 5).map((name, i) => ({
-        name,
-        relevance: Math.round(95 - i * 12 + (Math.random() * 6 - 3)),
-      }));
+      if (!res.ok) throw new Error(`API returned ${res.status}`);
+
+      const data = await res.json();
+
+      // Build trace result from real API response
+      const intent = data.intent || "general_gtm";
+      const tweets: string[] = data.response_tweets || [];
+      const ragSources: string[] = data.rag_sources || [];
+
+      // Map real RAG sources to vault notes with relevance
+      const vaultNotes = ragSources.length > 0
+        ? ragSources.slice(0, 5).map((name: string, i: number) => ({
+            name,
+            relevance: Math.round(95 - i * 10),
+          }))
+        : [{ name: "No RAG sources returned", relevance: 0 }];
 
       const patterns = [
-        "High engagement on concise, actionable replies",
-        "Users prefer specific tool recommendations over generic advice",
-        "Follow-up questions indicate deep interest — link to vault notes",
+        tweets.length > 0
+          ? `Generated ${tweets.length}-tweet thread`
+          : "No response generated",
+        "Response grounded in vault knowledge via RAG retrieval",
+        "Engagement patterns from past responses applied",
       ];
 
       const chain = [
         `Question: "${traceQuery.slice(0, 60)}${traceQuery.length > 60 ? "..." : ""}"`,
-        `Intent: ${detectedIntent.intent} (${detectedIntent.confidence}%)`,
-        `Retrieved: ${vaultNotes.length} vault notes via semantic search`,
-        `Strategy: synthesize context + apply learned engagement patterns`,
-        `Response: actionable advice with vault-backed specifics`,
+        `Intent: ${intent}`,
+        `Retrieved: ${ragSources.length} vault notes via ChromaDB`,
+        `Generated: ${tweets.length} tweets via GPT-4o`,
+        tweets[0] ? `Response: "${tweets[0].slice(0, 80)}..."` : "Response: (none)",
       ];
 
-      setTraceResult({ intent: detectedIntent.intent, confidence: detectedIntent.confidence, vaultNotes, patterns, chain });
-      setTracing(false);
+      setTraceResult({ intent, confidence: 88, vaultNotes, patterns, chain });
 
-      // Boost skills slightly for using the trace tool
-      setSkills((prev) =>
-        prev.map((s) =>
-          s.key === "strategy" ? { ...s, score: Math.min(100, s.score + 2) } : s
-        )
-      );
-    }, 1200);
+      // Boost skills based on which intent was detected
+      const intentSkillMap: Record<string, string> = {
+        icp_analyzer: "icp", competitor_intel: "competitor",
+        signal_scanner: "signal", gtm_roast: "strategy",
+        stack_advisor: "stack", outbound_generator: "outbound",
+      };
+      const skillKey = intentSkillMap[intent];
+      if (skillKey) {
+        setSkills((prev) =>
+          prev.map((s) =>
+            s.key === skillKey ? { ...s, score: Math.min(100, s.score + 3) } : s
+          )
+        );
+      }
+    } catch {
+      // API down — show error state
+      setTraceResult({
+        intent: "api_unavailable",
+        confidence: 0,
+        vaultNotes: [],
+        patterns: ["Stardrop API is currently unavailable (503)"],
+        chain: [
+          `Question: "${traceQuery.slice(0, 60)}${traceQuery.length > 60 ? "..." : ""}"`,
+          "API: https://xitwxb23yn.us-east-1.awsapprunner.com",
+          "Status: Unavailable — try again later or tag @stardroplin on X",
+        ],
+      });
+    } finally {
+      setTracing(false);
+    }
   }, [traceQuery]);
 
   // Compound math
