@@ -73,25 +73,13 @@ def analyze_tweet(tweet_text: str, author_username: str) -> dict:
                     "content": f"USER-SPECIFIC INSTRUCTIONS for @{author_username}:\n{custom}",
                 })
 
-            # 2. User's uploaded documents — search for relevant chunks
+            # 2. User's uploaded documents — ALWAYS include all (users have few docs)
             user_docs = db_service.get_user_documents(author_username)
             if user_docs:
-                # Simple keyword match against user docs
-                query_lower = tweet_text.lower()
-                relevant_docs = []
-                for doc in user_docs:
-                    doc_content = doc.get("content", "")
-                    # Score by keyword overlap
-                    words = set(query_lower.split())
-                    doc_words = set(doc_content.lower().split())
-                    overlap = len(words & doc_words)
-                    if overlap > 1 or len(user_docs) <= 3:  # always include if few docs
-                        relevant_docs.append(doc)
-                if relevant_docs:
-                    doc_context = f"USER'S PRIVATE DOCUMENTS (prioritize these over general knowledge):\n\n"
-                    for doc in relevant_docs[:3]:
-                        doc_context += f"### {doc.get('title', 'Document')}\n{doc.get('content', '')[:1500]}\n\n"
-                    messages.append({"role": "system", "content": doc_context})
+                doc_context = "USER'S PRIVATE DOCUMENTS — ALWAYS prioritize these over general vault knowledge. If the question relates to any of these docs, answer from them FIRST:\n\n"
+                for doc in user_docs[:5]:
+                    doc_context += f"### {doc.get('title', 'Document')}\n{doc.get('content', '')[:4000]}\n\n"
+                messages.append({"role": "system", "content": doc_context})
 
             # 3. User's past improvements as few-shot examples
             user_improvements = db_service.get_improvements()
