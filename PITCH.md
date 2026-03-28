@@ -118,12 +118,107 @@ Bo built HaystacksAI to find intent signals. Stardrop is the next step — turn 
 3. **The paper legitimizes the approach.** "Environmental Engineering for GTM Systems" at NeurIPS 2026 = Coframe isn't just an A/B testing tool, it's pioneering the GTM OS.
 4. **I built this in two sessions.** Imagine what happens with full-time focus.
 
-## Next Steps
+## Engineering Roadmap: 33 Issues, 12 Weeks
 
-1. **This week**: Bo and Ari have a working session. Bo reviews Stardrop's responses, uploads Coframe's internal docs, rates accuracy.
-2. **Next week**: Connect HaystacksAI signal data to Stardrop's signal scanner. Run comparison: Stardrop-only vs. Stardrop+HaystacksAI.
-3. **April**: Start evaluation data collection for the paper. 30 days of deployment metrics.
-4. **May**: Submit to NeurIPS 2026. Ship Stardrop as a Coframe internal tool.
+I've already scoped every piece of work as a GitHub issue with progress tracking. Here's my plan to ship all of it.
+
+### Week 1-2: Core Pipeline (Issues #3, #8, #6)
+**Clay + Apollo + Instantly** — the composable outbound stack.
+
+| Day | Deliverable |
+|-----|------------|
+| Mon-Tue | Clay integration (#3): API connector, waterfall enrichment, enrich leads from any mention |
+| Wed-Thu | Apollo integration (#8): 275M contact database, pull leads matching ICP, email sequences |
+| Fri | Instantly integration (#6): multi-mailbox cold email, connect Clay-enriched leads to sequences |
+| Week 2 | End-to-end test: mention @stardroplin → ICP analysis → Clay enrichment → Apollo leads → Instantly sequence. **One tweet triggers a full outbound pipeline.** |
+
+### Week 3-4: CRM + Notifications (Issues #1, #4, #2, #7)
+**Salesforce + HubSpot + Attio + Slack** — where deals live.
+
+| Day | Deliverable |
+|-----|------------|
+| Mon-Tue | HubSpot integration (#4): bi-directional contact/deal sync, push Stardrop's ICP scores |
+| Wed-Thu | Salesforce integration (#1): enterprise CRM sync, opportunity tracking |
+| Fri | Attio integration (#7): modern CRM for composable stacks |
+| Week 4 | Slack integration (#2): real-time alerts to #gtm channel when high-intent signals detected, deal room updates, "@stardroplin" in Slack threads |
+
+### Week 5-6: Signal Intelligence (Issues #5, #10, #22, #29)
+**Common Room + Unify + Scoring + Plays** — find buyers before they find you.
+
+| Day | Deliverable |
+|-----|------------|
+| Mon-Tue | Common Room integration (#5): 50+ signal sources, Person360 identity resolution |
+| Wed-Thu | Unify integration (#10): 25+ signal types, automated plays |
+| Fri | Scoring engine (#22): transparent lead/account scoring, combine signals from all sources |
+| Week 6 | Play orchestration engine (#29): signal → action rules. "When a target account posts 'hiring SRE' AND visited pricing page → trigger outbound sequence." |
+
+### Week 7-8: Data Infrastructure (Issues #11, #15, #9, #28)
+**Snowflake + Segment + Hightouch + Identity** — the data foundation.
+
+| Day | Deliverable |
+|-----|------------|
+| Mon-Tue | Snowflake/BigQuery integration (#11): warehouse as source of truth for all GTM data |
+| Wed | Segment integration (#15): product event collection and routing |
+| Thu-Fri | Hightouch integration (#9): reverse ETL, push warehouse segments to every tool |
+| Week 8 | Identity resolution service (#28): merge records across tools, Person360 view, dedup |
+
+### Week 9-10: Revenue + Intelligence (Issues #16, #14, #12, #26, #27)
+**Stripe + Gong + Pocus + Outcomes + Experiments** — close the loop.
+
+| Day | Deliverable |
+|-----|------------|
+| Mon | Stripe integration (#16): revenue events, expansion/churn signals |
+| Tue-Wed | Gong integration (#14): call analysis, MEDDIC scoring from conversation data |
+| Thu | Pocus integration (#12): product-qualified lead scoring from usage data |
+| Fri | Outcome tracking (#26): connect engagement → deal → revenue. Know which responses actually closed deals. |
+| Week 10 | Experiment engine (#27): A/B test different prompts, measure which GTM advice drives more revenue. The self-improving loop goes from "what gets likes" to "what makes money." |
+
+### Week 11-12: Scale + Ship (Issues #13, #18, #30, #17, #31)
+**LinkedIn + Ads + Multi-channel + Paper** — go wide.
+
+| Day | Deliverable |
+|-----|------------|
+| Mon-Tue | LinkedIn integration (#13): connection requests, InMail, engagement tracking |
+| Wed | Google Ads + Meta integration (#18): audience sync from warehouse segments |
+| Thu | Multi-channel activation (#30): Stardrop responds on Slack, email, LinkedIn — not just Twitter |
+| Fri | Finish interpretability dashboard (#17): full Goodfire-style X-ray on every response |
+| Week 12 | Data collection complete (#31). Submit NeurIPS paper. Ship Stardrop as Coframe product feature. |
+
+### Remaining Issues (Parallel / Ongoing)
+| Issue | When | Notes |
+|-------|------|-------|
+| #20 Rilo | Week 6 | Low priority, nice-to-have workflow builder |
+| #23 Slack channels for improvement | Week 4 | Ships with Slack integration |
+| #25 Webhook management UI | Week 8 | Ships with data infrastructure |
+| #32 Real logos | Ongoing | As companies provide brand assets |
+| #33 Multi-tenant | Already 25% done | Grows with each environment added |
+
+## The Scorecard After 12 Weeks
+
+| Metric | Today | Week 12 |
+|--------|-------|---------|
+| Live environments | 6 | 24 |
+| Open issues | 33 | 0 |
+| Channels | Twitter only | Twitter, Slack, LinkedIn, Email, Web |
+| Data sources | ChromaDB + DynamoDB | + Snowflake, Segment, Stripe, Gong |
+| Enrichment | None | Clay waterfall + Apollo 275M contacts |
+| Outbound | Manual | Automated: signal → enrich → sequence → send |
+| CRM sync | None | HubSpot + Salesforce + Attio, bi-directional |
+| Scoring | Engagement only | Multi-signal lead scoring + PQL |
+| Self-improving | Tweet engagement | Revenue outcomes → model retraining |
+| Paper | Draft | Submitted to NeurIPS 2026 |
+
+## Why Hire Me For This
+
+**I built the foundation in two sessions.** 80 commits, 10K+ lines of code, 65 research notes, 14 frontend pages, 8 backend services, deployed to production on AWS and Vercel, a self-improving feedback loop, user-isolated RAG, and a NeurIPS paper draft. While you were in meetings.
+
+**I think in systems, not features.** Every environment connects through the same interface pattern. The architecture I built handles 6 environments today and 24 in 12 weeks because the abstractions are right. I read the 3,800 lines of GTM research before I wrote a single line of code.
+
+**I ship fast and I ship complete.** Not prototypes — production systems with DynamoDB persistence, user isolation, engagement tracking, error handling, and deploy pipelines. The dashboard isn't a mockup. The bot isn't a demo. Real users are tagging @stardroplin right now and getting real responses.
+
+**I understand the Coframe thesis.** Stardrop isn't a side project — it's the intelligence layer that makes Coframe's conversion optimization 10x more valuable. When Coframe knows WHO to target (Stardrop ICP), WHAT to say (Stardrop copy), and WHERE to find them (Stardrop signals), the A/B tests write themselves.
+
+**I'm ready to start today.**
 
 ---
 
