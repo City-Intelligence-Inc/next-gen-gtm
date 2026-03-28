@@ -18,6 +18,16 @@ logging.basicConfig(
 logger = logging.getLogger("gtm-api")
 
 
+def engagement_score(eng: dict) -> int:
+    """likes*3 + replies*5 + retweets*2 + unique_accounts*10"""
+    if not eng or not isinstance(eng, dict):
+        return 0
+    return (int(eng.get("likes", 0) or 0) * 3
+            + int(eng.get("replies", 0) or 0) * 5
+            + int(eng.get("retweets", 0) or 0) * 2
+            + int(eng.get("unique_accounts", 0) or 0) * 10)
+
+
 def _background_init():
     """Run slow init tasks in a background thread so the server starts fast."""
     import time
@@ -153,7 +163,7 @@ async def dashboard_insights():
         ts = m.get("ts", "")[:10]
         eng = m.get("engagement")
         if eng and isinstance(eng, dict):
-            score = int(eng.get("likes", 0) or 0) * 3 + int(eng.get("replies", 0) or 0) * 5 + int(eng.get("retweets", 0) or 0) * 2
+            score = engagement_score(eng)
             daily_scores[ts].append(score)
 
     timeline = [{"date": d, "avg_score": round(sum(s) / len(s), 1), "max_score": max(s), "count": len(s)} for d, s in sorted(daily_scores.items())]
@@ -162,7 +172,7 @@ async def dashboard_insights():
     for m in entries:
         eng = m.get("engagement")
         if eng and isinstance(eng, dict):
-            score = int(eng.get("likes", 0) or 0) * 3 + int(eng.get("replies", 0) or 0) * 5 + int(eng.get("retweets", 0) or 0) * 2
+            score = engagement_score(eng)
             intent_engagement[m.get("intent", "general_gtm")].append(score)
 
     intent_perf = {k: {"avg_score": round(sum(v) / len(v), 1), "count": len(v), "best": max(v)} for k, v in intent_engagement.items()}
@@ -170,7 +180,7 @@ async def dashboard_insights():
     scored = []
     for m in entries:
         eng = m.get("engagement") or {}
-        score = int(eng.get("likes", 0) or 0) * 3 + int(eng.get("replies", 0) or 0) * 5 + int(eng.get("retweets", 0) or 0) * 2
+        score = engagement_score(eng)
         tweets = m.get("response_tweets", [])
         scored.append({"score": score, "mention_id": m.get("mention_id", ""), "intent": m.get("intent"), "question": (m.get("text", "") or "")[:100], "response": tweets[0][:150] if tweets else "", "author": m.get("author_username", ""), "likes": int(eng.get("likes", 0) or 0), "replies": int(eng.get("replies", 0) or 0), "retweets": int(eng.get("retweets", 0) or 0)})
     scored.sort(key=lambda x: x["score"], reverse=True)
@@ -222,7 +232,7 @@ async def dashboard_overview():
     for e in entries:
         eng = e.get("engagement")
         if eng and isinstance(eng, dict):
-            score = int(eng.get("likes", 0) or 0) * 3 + int(eng.get("replies", 0) or 0) * 5 + int(eng.get("retweets", 0) or 0) * 2
+            score = engagement_score(eng)
             engagement_scores.append(score)
     avg_engagement = round(sum(engagement_scores) / max(len(engagement_scores), 1), 1)
 
@@ -360,7 +370,7 @@ async def user_dashboard(username: str):
     for m in mentions:
         eng = m.get("engagement")
         if eng and isinstance(eng, dict):
-            s = int(eng.get("likes", 0) or 0) * 3 + int(eng.get("replies", 0) or 0) * 5 + int(eng.get("retweets", 0) or 0) * 2
+            s = engagement_score(eng)
             engagement_scores.append(s)
 
     recent = []

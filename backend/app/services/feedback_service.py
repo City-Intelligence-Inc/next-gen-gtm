@@ -63,37 +63,68 @@ def collect_feedback():
             updated_lines.append(json.dumps(entry))
             continue
 
-        # Fetch engagement for the first reply tweet
+        # Fetch engagement across ALL reply tweets in the thread
         reply_ids = entry.get("reply_ids", [])
         if not reply_ids:
-            entry["engagement"] = {"likes": 0, "retweets": 0, "replies": 0}
+            entry["engagement"] = {"likes": 0, "retweets": 0, "replies": 0, "unique_accounts": 0}
             updated_lines.append(json.dumps(entry))
             continue
 
         try:
-            tweet = client.get_tweet(
-                reply_ids[0],
-                tweet_fields=["public_metrics"],
-                user_auth=True,
-            )
-            if tweet and tweet.data:
-                metrics = tweet.data.get("public_metrics", {}) if hasattr(tweet.data, "get") else {}
-                if not metrics and hasattr(tweet.data, "public_metrics"):
-                    metrics = tweet.data.public_metrics or {}
-                entry["engagement"] = {
-                    "likes": metrics.get("like_count", 0),
-                    "retweets": metrics.get("retweet_count", 0),
-                    "replies": metrics.get("reply_count", 0),
-                }
-                learnings_updated = True
-                logger.info(
-                    f"Feedback for {entry['mention_id']}: "
-                    f"{entry['engagement']['likes']} likes, "
-                    f"{entry['engagement']['replies']} replies"
+            total_likes = 0
+            total_retweets = 0
+            total_replies = 0
+            unique_accounts = set()
+
+            # Get metrics for each tweet in our reply thread
+            for rid in reply_ids:
+                try:
+                    tweet = client.get_tweet(
+                        rid,
+                        tweet_fields=["public_metrics"],
+                        user_auth=True,
+                    )
+                    if tweet and tweet.data:
+                        metrics = tweet.data.public_metrics if hasattr(tweet.data, "public_metrics") else {}
+                        if not metrics:
+                            metrics = tweet.data.get("public_metrics", {}) if hasattr(tweet.data, "get") else {}
+                        total_likes += metrics.get("like_count", 0)
+                        total_retweets += metrics.get("retweet_count", 0)
+                        total_replies += metrics.get("reply_count", 0)
+                except Exception:
+                    pass
+
+            # Count unique accounts that replied to our thread
+            conversation_id = entry.get("mention_id", reply_ids[0])
+            try:
+                replies_response = client.search_recent_tweets(
+                    query=f"conversation_id:{conversation_id} -from:stardroplin",
+                    max_results=50,
+                    tweet_fields=["author_id"],
+                    user_auth=True,
                 )
+                if replies_response and replies_response.data:
+                    for r in replies_response.data:
+                        if hasattr(r, "author_id"):
+                            unique_accounts.add(str(r.author_id))
+            except Exception:
+                pass
+
+            entry["engagement"] = {
+                "likes": total_likes,
+                "retweets": total_retweets,
+                "replies": total_replies,
+                "unique_accounts": len(unique_accounts),
+            }
+            learnings_updated = True
+            logger.info(
+                f"Feedback for {entry['mention_id']}: "
+                f"{total_likes} likes, {total_replies} replies, "
+                f"{len(unique_accounts)} unique accounts"
+            )
         except Exception as e:
             logger.warning(f"Could not fetch engagement for {reply_ids[0]}: {e}")
-            entry["engagement"] = {"likes": 0, "retweets": 0, "replies": 0}
+            entry["engagement"] = {"likes": 0, "retweets": 0, "replies": 0, "unique_accounts": 0}
 
         updated_lines.append(json.dumps(entry))
 
@@ -120,10 +151,14 @@ def _update_learnings():
     if len(entries) < 3:
         return  # Need enough data
 
-    # Score each response: likes*3 + replies*5 + retweets*2
+    # Score each response: likes*3 + replies*5 + retweets*2 + unique_accounts*10
+    # Unique accounts is the strongest signal — multiple people engaging means real impact
     for e in entries:
         eng = e["engagement"]
-        e["score"] = eng["likes"] * 3 + eng["replies"] * 5 + eng["retweets"] * 2
+        e["score"] = (eng.get("likes", 0) * 3
+                      + eng.get("replies", 0) * 5
+                      + eng.get("retweets", 0) * 2
+                      + eng.get("unique_accounts", 0) * 10)
 
     # Sort by score, take top performers
     entries.sort(key=lambda x: x["score"], reverse=True)
@@ -182,8 +217,11 @@ def get_learnings_context() -> str:
     lines = ["LEARNINGS FROM PAST RESPONSES (use these to improve):"]
 
     for p in learnings["top_patterns"][:3]:
+        eng = p["engagement"]
+        accts = eng.get("unique_accounts", 0)
+        acct_str = f", {accts} accounts" if accts else ""
         lines.append(
-            f"- High-engagement ({p['engagement']['likes']}L/{p['engagement']['replies']}R) "
+            f"- High-engagement ({eng.get('likes',0)}L/{eng.get('replies',0)}R{acct_str}) "
             f"intent={p['intent']}: \"{p['example_tweet'][:100]}...\""
         )
 
