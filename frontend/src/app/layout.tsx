@@ -49,6 +49,26 @@ export default function RootLayout({
         className={`${inter.variable} ${newsreader.variable} font-sans bg-white text-neutral-900 antialiased`}
       >
         {children}
+        <script async src="https://platform.twitter.com/widgets.js" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function(){
+                var obs = new IntersectionObserver(function(entries){
+                  entries.forEach(function(e){
+                    if(e.isIntersecting) {
+                      e.target.classList.add('in-view');
+                      obs.unobserve(e.target);
+                    }
+                  });
+                }, {threshold: 0.1});
+                document.querySelectorAll('.scroll-reveal,.scroll-reveal-left,.scroll-scale,.stagger-children').forEach(function(el){
+                  obs.observe(el);
+                });
+              })();
+            `,
+          }}
+        />
       </body>
     </html>
   );
