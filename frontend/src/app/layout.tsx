@@ -16,7 +16,26 @@ const newsreader = Newsreader({
 export const metadata: Metadata = {
   title: "Stardrop — Next-Gen GTM Intelligence",
   description:
-    "Tag @stardroplin on X and get actionable GTM intelligence powered by AI. Competitive analysis, ICP generation, signal detection, and more.",
+    "Tag @stardroplin on X and get competitive intel, ICP analysis, signal detection, and outbound copy in 60 seconds. Powered by AI + 60 pages of deep GTM research.",
+  metadataBase: new URL("https://next-gen-gtm.vercel.app"),
+  openGraph: {
+    title: "Stardrop — Your GTM team just got smarter",
+    description:
+      "Tag @stardroplin on X with any GTM question. Get competitive intel, ICP analysis, and outbound copy in 60 seconds — free, no signup.",
+    siteName: "Stardrop",
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Stardrop — Your GTM team just got smarter",
+    description:
+      "Tag @stardroplin on X with any GTM question. Get competitive intel, ICP analysis, and outbound copy in 60 seconds — free, no signup.",
+    creator: "@arichoudhary",
+  },
+  icons: {
+    icon: "/icon.svg",
+  },
 };
 
 export default function RootLayout({
