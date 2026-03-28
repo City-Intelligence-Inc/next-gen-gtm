@@ -226,10 +226,21 @@ async def dashboard_overview():
             engagement_scores.append(score)
     avg_engagement = round(sum(engagement_scores) / max(len(engagement_scores), 1), 1)
 
+    from app.services.rag_service import retrieve_with_sources
+
     recent = []
     for e in entries[:20]:
         eng = e.get("engagement") or {}
         response_tweets = e.get("response_tweets", [])
+        sources = e.get("rag_sources", [])
+
+        # Backfill: if no sources stored, re-retrieve from RAG
+        if not sources and e.get("text"):
+            try:
+                _, sources = retrieve_with_sources(e["text"], n_results=5)
+            except Exception:
+                sources = []
+
         recent.append({
             "ts": e.get("ts"),
             "author": f"@{e.get('author_username', 'unknown')}: {(e.get('text', '') or '')[:80]}",
@@ -240,7 +251,7 @@ async def dashboard_overview():
             "replies": int(eng.get("replies", 0) or 0),
             "retweets": int(eng.get("retweets", 0) or 0),
             "replied": e.get("replied", False),
-            "rag_sources": e.get("rag_sources", []),
+            "rag_sources": sources,
         })
 
     worker_state = db_service.get_state("worker") or {}
