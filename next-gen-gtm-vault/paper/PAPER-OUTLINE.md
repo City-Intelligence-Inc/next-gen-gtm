@@ -1,8 +1,8 @@
 # Environmental Engineering for Go-To-Market Systems: A Framework for Configuring, Orchestrating, and Self-Improving Multi-Environment AI Agents
 
-**Authors:** Arihant Choudhary (City Intelligence)
-**Target:** arXiv cs.AI (primary), cross-list cs.SE, cs.IR
-**Format:** LaTeX, 8-10 pages + appendices, ACL/NeurIPS style
+**Authors:** Arihant Choudhary (City Intelligence), Bo Mohazzabi (Coframe), Josh Payne (Coframe)
+**Target:** NeurIPS 2026 (main conference or workshop), arXiv cs.AI
+**Format:** LaTeX, 8-10 pages + appendices, NeurIPS style
 
 ---
 
@@ -328,19 +328,102 @@ Side-by-side baseline vs. Stardrop responses for all 6 intent categories + gener
 
 ---
 
-## Submission Strategy
+## Coframe + HaystacksAI Integration (NEW — March 2026)
 
-**Primary category:** cs.AI (Artificial Intelligence)
-**Cross-list:** cs.SE (Software Engineering), cs.IR (Information Retrieval)
+The Coframe acquisition of HaystacksAI provides a real-world validation of the environmental engineering framework. Three systems, three environments, one pipeline:
 
-**Why cs.AI:** The paper contributes a framework for AI agent systems, not just a software tool. The environmental engineering model, the self-improving loop formalization, and the RAG evaluation are AI contributions.
+```
+HaystacksAI (Signal Environment)  →  Stardrop (Intelligence Environment)  →  Coframe (Conversion Environment)
+LLM behavioral analysis on          RAG + GPT-4o generates                   Multi-agent system runs
+GitHub/LinkedIn to find intent       actionable GTM intelligence              autonomous A/B tests
+```
 
-**Cross-list cs.SE:** The integration architecture, environment taxonomy, and progressive maturity model are software engineering contributions.
+### What this adds to the paper
 
-**Cross-list cs.IR:** The RAG evaluation over curated domain knowledge contributes to information retrieval.
+1. **Multi-agent pipeline case study** — Three independently-built systems (HaystacksAI, Stardrop, Coframe) that map cleanly to the Environment Taxonomy: Signal → Intelligence → Conversion
+2. **Coframe's vision fine-tuning** — GPT-4o fine-tuned with images + code achieved 26% improvement in website generation. This is a concrete example of environment-specific model adaptation.
+3. **Bo Mohazzabi as co-author** — Bo built HaystacksAI (intent intelligence), was top AE at Optimizely (original experimentation company), scaled KarmaCheck 50x in 18 months. He adds practitioner credibility and the Optimizely→Coframe full-circle narrative.
+4. **Self-improving loop validated** — Coframe's experiment results feed back into Stardrop's learnings, which improve targeting, which improves Coframe's personalization. The flywheel from Section 3.5 is real, not theoretical.
 
-**Workshop targets (if not arXiv-only):**
-- AAAI 2026 Workshop on AI for Business Process Management
-- NeurIPS 2026 Workshop on Foundation Models for Decision Making
-- ICML 2026 Workshop on AI Agents
-- KDD 2026 (Applied Data Science track — enterprise AI systems)
+### Updates to existing sections
+
+- **Section 1 (Intro):** Add Coframe acquisition as motivating example of why multi-environment orchestration matters
+- **Section 3.5 (Self-Improving Loop):** Add Coframe experiment data as a concrete feedback source
+- **Section 4 (System Architecture):** Add HaystacksAI and Coframe as additional environments in the pipeline diagram
+- **Section 5 (Evaluation):** Add comparison: Stardrop-only vs. Stardrop+HaystacksAI signals vs. full pipeline with Coframe conversion data
+- **Section 6 (Discussion):** The acquisition validates that practitioners independently arrive at the environmental engineering pattern — Coframe didn't read our framework, they lived it
+
+---
+
+## ACTION PLAN: NeurIPS 2026 Submission
+
+### Key Dates
+- **NeurIPS 2026 main conference deadline:** ~May 2026 (TBD, check https://neurips.cc)
+- **NeurIPS 2026 workshop proposals:** ~June 2026
+- **NeurIPS 2026 workshop paper deadlines:** ~September 2026
+- **arXiv pre-print:** Upload ASAP after draft is ready (establishes priority)
+
+### Phase 1: Evaluation Data (April 1-15)
+- [ ] Collect 30 days of live Stardrop deployment data (mentions, responses, engagement)
+- [ ] Run baseline comparison: GPT-4o without RAG on same 50 test queries
+- [ ] Have 3 GTM practitioners score specificity (1-5) and actionability (1-5) for both
+- [ ] Measure intent detection accuracy on labeled test set
+- [ ] Log environment reliability metrics (uptime, latency, error rates per environment)
+- [ ] Get Bo to review and score 20 responses (practitioner ground truth)
+
+### Phase 2: Coframe Pipeline Integration (April 15-30)
+- [ ] Connect HaystacksAI signal data to Stardrop's signal scanner
+- [ ] Run Stardrop+HaystacksAI vs. Stardrop-only comparison on signal detection quality
+- [ ] Get conversion data from Coframe experiments on pages where Stardrop influenced copy
+- [ ] Document the full pipeline: signal → intelligence → conversion with real numbers
+
+### Phase 3: Write the Paper (May 1-15)
+- [ ] Set up NeurIPS LaTeX template (neurips_2026.sty)
+- [ ] Write Introduction + Related Work (Ari)
+- [ ] Write Environmental Engineering Framework — Section 3 (Ari)
+- [ ] Write System Architecture — Section 4 (Ari + Bo for Coframe/HaystacksAI parts)
+- [ ] Write Evaluation — Section 5 (Ari, with Bo reviewing practitioner scoring)
+- [ ] Write Discussion + Conclusion — Section 6-7 (Ari + Bo)
+- [ ] Create architecture diagrams (system overview, environment taxonomy, pipeline)
+- [ ] Create evaluation tables and figures
+
+### Phase 4: Review + Submit (May 15-25)
+- [ ] Internal review: Bo reads full draft for practitioner accuracy
+- [ ] Get 1-2 academic reviewers (Stanford CS contacts?) for feedback
+- [ ] Revise based on feedback
+- [ ] Upload to arXiv (cs.AI, cross-list cs.SE, cs.IR)
+- [ ] Submit to NeurIPS 2026 main conference (if deadline allows) or target workshop
+
+### Phase 5: Workshop Backup (September 2026)
+If main conference doesn't work out:
+- [ ] NeurIPS 2026 Workshop on Foundation Models for Decision Making
+- [ ] NeurIPS 2026 Workshop on AI Agents (if one exists)
+- [ ] AAAI 2027 Workshop on AI for Business Process Management
+
+### What Bo Needs To Do
+
+1. **Week 1:** Review paper outline, confirm co-authorship, provide HaystacksAI system description (2 paragraphs)
+2. **Week 2:** Score 20 Stardrop responses for practitioner ground truth evaluation
+3. **Week 3:** Provide Coframe experiment data (anonymized) showing conversion lift from AI-generated copy
+4. **Week 4:** Review full draft, write 1 paragraph for Discussion on "why practitioners build environmental engineering patterns without a framework"
+5. **Ongoing:** Connect Ari to Coframe's data pipeline for the integrated evaluation
+
+### Submission Strategy
+
+**Primary target:** NeurIPS 2026 main conference (cs.AI)
+- Strongest venue for AI agent systems
+- The environmental engineering framework is a novel contribution
+- Real deployment data + practitioner evaluation = strong empirical story
+- Coframe acquisition = timely industry validation
+
+**Backup:** NeurIPS 2026 workshop paper (shorter, less evaluation needed)
+
+**arXiv categories:** cs.AI (primary), cs.SE, cs.IR (cross-list)
+
+**Why this paper gets accepted:**
+1. Novel framing nobody has published (environmental engineering for agents)
+2. Real system, real deployment, real users (not a benchmark)
+3. Formal definitions (Environment, Configuration, GTM System) that are immediately useful
+4. Practitioner co-author who's done $36K→$2.4M and scaled 50x
+5. Industry validation via Coframe acquisition
+6. Open source, reproducible

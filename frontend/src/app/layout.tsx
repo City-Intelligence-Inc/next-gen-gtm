@@ -49,7 +49,6 @@ export default function RootLayout({
         className={`${inter.variable} ${newsreader.variable} font-sans bg-white text-neutral-900 antialiased`}
       >
         {children}
-        <script async src="https://platform.twitter.com/widgets.js" />
         <script
           dangerouslySetInnerHTML={{
             __html: `

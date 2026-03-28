@@ -143,22 +143,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Live Demo — Real Tweet Embed */}
+      {/* Live Demo */}
       <section className="mx-auto max-w-3xl px-6 pb-24">
-        <div className="animate-fade-in-scale flex justify-center">
-          <div className="w-full max-w-xl">
-            <blockquote className="twitter-tweet" data-theme="light" data-conversation="none">
-              <p lang="en" dir="ltr">
-                <a href="https://x.com/stardroplin">@stardroplin</a> build the next generation of how we do go to market and tie all of our systems together internally.
-              </p>
-              &mdash; Arihant Choudhary (@arichoudhary){" "}
-              <a href="https://x.com/arichoudhary/status/2037666630218739720">March 27, 2026</a>
-            </blockquote>
-          </div>
-        </div>
-
-        {/* Static fallback + example response */}
-        <div className="mt-10 overflow-hidden rounded-2xl border border-neutral-200 shadow-lg shadow-neutral-200/50" style={{ background: "linear-gradient(135deg, rgba(250,250,250,0.5) 0%, rgba(255,255,255,1) 50%, rgba(250,250,250,0.5) 100%)", boxShadow: "0 0 0 1px rgba(0,0,0,0.03), 0 4px 24px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)" }}>
+        <div className="animate-fade-in-scale overflow-hidden rounded-2xl border border-neutral-200 shadow-lg shadow-neutral-200/50" style={{ background: "linear-gradient(135deg, rgba(250,250,250,0.5) 0%, rgba(255,255,255,1) 50%, rgba(250,250,250,0.5) 100%)", boxShadow: "0 0 0 1px rgba(0,0,0,0.03), 0 4px 24px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)" }}>
           <div className="flex items-center gap-2 border-b border-neutral-200 bg-neutral-50 px-4 py-3">
             <div className="flex gap-1.5">
               <div className="h-3 w-3 rounded-full bg-red-300" />
@@ -166,7 +153,7 @@ export default function Home() {
               <div className="h-3 w-3 rounded-full bg-green-300" />
             </div>
             <div className="ml-3 flex-1 rounded-md bg-white px-3 py-1 text-xs text-neutral-400 border border-neutral-200">
-              Example: @stardroplin reply
+              @stardroplin reply
             </div>
           </div>
           <div className="bg-white p-6 sm:p-8 space-y-6">
@@ -175,7 +162,7 @@ export default function Home() {
               <div>
                 <p className="text-sm">
                   <span className="font-semibold">@founder</span>
-                  <span className="ml-2 text-neutral-400">· tweet</span>
+                  <span className="ml-2 text-neutral-400">· 2m</span>
                 </p>
                 <p className="mt-1 text-[15px] text-neutral-700 leading-relaxed">
                   @stardroplin who should I sell to? we built an AI code review tool
@@ -471,7 +458,7 @@ export default function Home() {
           <p className="scroll-reveal mx-auto mt-4 max-w-lg text-sm leading-relaxed text-neutral-500">
             Stardrop&apos;s knowledge base draws from 60+ curated research notes covering GTM motions, frameworks, tool landscapes, case studies, and data infrastructure — all indexed for retrieval-augmented generation.
           </p>
-          <div className="scroll-scale mt-10 grid gap-4 sm:grid-cols-3 text-left">
+          <div className="scroll-scale mt-10 grid gap-4 sm:grid-cols-3 text-left stagger-children">
             {[
               { num: "60+", label: "Research notes", desc: "Interconnected Obsidian vault with wikilinks" },
               { num: "441", label: "Indexed chunks", desc: "Embedded with all-MiniLM-L6-v2 in ChromaDB" },

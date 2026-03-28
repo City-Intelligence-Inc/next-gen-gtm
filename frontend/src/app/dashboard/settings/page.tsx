@@ -10,122 +10,152 @@ export default function SettingsPage() {
           Settings
         </h1>
         <p className="mt-2 text-sm text-neutral-500">
-          Configure API keys, ICP preferences, and response style for the Stardrop agent.
+          Read-only overview of the Stardrop agent configuration.
         </p>
       </div>
 
       <div className="space-y-8">
-        {/* API Keys */}
+        {/* Agent Status */}
         <section className="rounded-xl border border-neutral-200 bg-white p-6">
-          <h2 className="text-sm font-semibold text-neutral-900 mb-1">
-            API keys
+          <h2 className="text-sm font-semibold text-neutral-900 mb-5">
+            Agent status
           </h2>
-          <p className="text-xs text-neutral-400 mb-5">
-            Credentials for connected environments. Keys are encrypted at rest.
-          </p>
-          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-neutral-200 bg-neutral-50/50 px-6 py-12 text-center">
-            <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-neutral-100">
-              <div className="h-4 w-4 rounded-sm bg-neutral-300" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="rounded-lg border border-neutral-100 bg-neutral-50/50 px-4 py-3">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-neutral-400">
+                Agent
+              </p>
+              <p className="mt-1 text-sm font-medium text-neutral-900">
+                @stardroplin
+              </p>
             </div>
-            <h3 className="text-sm font-semibold text-neutral-700">
-              No API keys configured
-            </h3>
-            <p className="mt-1.5 max-w-sm text-xs text-neutral-400 leading-relaxed">
-              Connect the settings API to manage API keys for OpenAI, X/Twitter, GitHub, and other integrations.
-            </p>
-            <p className="mt-3 rounded-md bg-neutral-100 px-3 py-1.5 font-mono text-[10px] text-neutral-400">
-              GET /api/dashboard/settings
-            </p>
+            <div className="rounded-lg border border-neutral-100 bg-neutral-50/50 px-4 py-3">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-neutral-400">
+                Status
+              </p>
+              <p className="mt-1 flex items-center gap-1.5 text-sm font-medium text-neutral-900">
+                <span className="inline-block h-2 w-2 rounded-full bg-green-500" />
+                Active
+              </p>
+            </div>
+            <div className="rounded-lg border border-neutral-100 bg-neutral-50/50 px-4 py-3">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-neutral-400">
+                Poll interval
+              </p>
+              <p className="mt-1 text-sm font-medium text-neutral-900">
+                60s
+              </p>
+            </div>
+            <div className="rounded-lg border border-neutral-100 bg-neutral-50/50 px-4 py-3">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-neutral-400">
+                Model
+              </p>
+              <p className="mt-1 text-sm font-medium text-neutral-900">
+                GPT-4o
+              </p>
+            </div>
+            <div className="rounded-lg border border-neutral-100 bg-neutral-50/50 px-4 py-3 sm:col-span-2">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-neutral-400">
+                RAG
+              </p>
+              <p className="mt-1 text-sm font-medium text-neutral-900">
+                60+ notes, 441 chunks
+              </p>
+            </div>
           </div>
         </section>
 
-        {/* ICP Configuration */}
+        {/* How Stardrop Works */}
         <section className="rounded-xl border border-neutral-200 bg-white p-6">
-          <h2 className="text-sm font-semibold text-neutral-900 mb-1">
-            ICP configuration
+          <h2 className="text-sm font-semibold text-neutral-900 mb-3">
+            How Stardrop works
           </h2>
-          <p className="text-xs text-neutral-400 mb-5">
-            Define your Ideal Customer Profile so Stardrop tailors responses to your market.
-          </p>
-          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-neutral-200 bg-neutral-50/50 px-6 py-12 text-center">
-            <h3 className="text-sm font-semibold text-neutral-700">
-              No ICP defined
-            </h3>
-            <p className="mt-1.5 max-w-sm text-xs text-neutral-400 leading-relaxed">
-              ICP settings will be configurable once the settings API is connected.
+          <div className="space-y-3 text-sm leading-relaxed text-neutral-600">
+            <p>
+              Stardrop is configured via environment variables on AWS App Runner. There
+              is no UI-based configuration.
+            </p>
+            <p>
+              To modify behavior, update the system prompt in the codebase or add notes
+              to the Obsidian vault.
             </p>
           </div>
         </section>
 
-        {/* Response style */}
+        {/* Links */}
         <section className="rounded-xl border border-neutral-200 bg-white p-6">
-          <h2 className="text-sm font-semibold text-neutral-900 mb-1">
-            Response style
+          <h2 className="text-sm font-semibold text-neutral-900 mb-5">
+            Links
           </h2>
-          <p className="text-xs text-neutral-400 mb-5">
-            Control how Stardrop writes its replies on X.
-          </p>
-          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-neutral-200 bg-neutral-50/50 px-6 py-12 text-center">
-            <h3 className="text-sm font-semibold text-neutral-700">
-              No preferences set
-            </h3>
-            <p className="mt-1.5 max-w-sm text-xs text-neutral-400 leading-relaxed">
-              Response tone, length, and style preferences will be configurable once the settings API is connected.
-            </p>
-          </div>
-        </section>
-
-        {/* Danger zone */}
-        <section className="rounded-xl border border-red-200 bg-red-50/30 p-6">
-          <h2 className="text-sm font-semibold text-red-900 mb-1">
-            Danger zone
-          </h2>
-          <p className="text-xs text-red-400 mb-4">
-            Irreversible actions. Proceed with caution.
-          </p>
           <div className="space-y-3">
-            <div className="flex items-center justify-between rounded-lg border border-red-200 bg-white px-4 py-3">
+            <a
+              href="https://github.com/City-Intelligence-Inc/next-gen-gtm"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-between rounded-lg border border-neutral-100 bg-neutral-50/50 px-4 py-3 transition-colors hover:border-neutral-300 hover:bg-neutral-100/60"
+            >
               <div>
                 <p className="text-sm font-medium text-neutral-900">
-                  Pause agent
+                  GitHub repo
                 </p>
-                <p className="text-xs text-neutral-400">
-                  Stop the agent from polling X and replying to mentions.
+                <p className="mt-0.5 text-xs text-neutral-400">
+                  City-Intelligence-Inc/next-gen-gtm
                 </p>
               </div>
-              <button className="rounded-md border border-red-200 px-4 py-1.5 text-xs font-medium text-red-600 transition hover:bg-red-50">
-                Pause
-              </button>
-            </div>
-            <div className="flex items-center justify-between rounded-lg border border-red-200 bg-white px-4 py-3">
+              <ArrowUpRightIcon className="h-4 w-4 shrink-0 text-neutral-400" />
+            </a>
+            <a
+              href="https://xitwxb23yn.us-east-1.awsapprunner.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-between rounded-lg border border-neutral-100 bg-neutral-50/50 px-4 py-3 transition-colors hover:border-neutral-300 hover:bg-neutral-100/60"
+            >
               <div>
                 <p className="text-sm font-medium text-neutral-900">
-                  Clear all learnings
+                  API
                 </p>
-                <p className="text-xs text-neutral-400">
-                  Delete all extracted learnings and reset the knowledge graph.
+                <p className="mt-0.5 text-xs text-neutral-400">
+                  xitwxb23yn.us-east-1.awsapprunner.com
                 </p>
               </div>
-              <button className="rounded-md border border-red-200 px-4 py-1.5 text-xs font-medium text-red-600 transition hover:bg-red-50">
-                Clear
-              </button>
-            </div>
-            <div className="flex items-center justify-between rounded-lg border border-red-200 bg-white px-4 py-3">
+              <ArrowUpRightIcon className="h-4 w-4 shrink-0 text-neutral-400" />
+            </a>
+            <a
+              href="https://x.com/stardroplin"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-between rounded-lg border border-neutral-100 bg-neutral-50/50 px-4 py-3 transition-colors hover:border-neutral-300 hover:bg-neutral-100/60"
+            >
               <div>
                 <p className="text-sm font-medium text-neutral-900">
-                  Re-index vault
+                  Bot
                 </p>
-                <p className="text-xs text-neutral-400">
-                  Drop and rebuild all ChromaDB embeddings from scratch.
+                <p className="mt-0.5 text-xs text-neutral-400">
+                  x.com/stardroplin
                 </p>
               </div>
-              <button className="rounded-md border border-red-200 px-4 py-1.5 text-xs font-medium text-red-600 transition hover:bg-red-50">
-                Re-index
-              </button>
-            </div>
+              <ArrowUpRightIcon className="h-4 w-4 shrink-0 text-neutral-400" />
+            </a>
           </div>
         </section>
       </div>
     </div>
+  );
+}
+
+function ArrowUpRightIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <line x1="4" y1="12" x2="12" y2="4" />
+      <polyline points="6 4 12 4 12 10" />
+    </svg>
   );
 }

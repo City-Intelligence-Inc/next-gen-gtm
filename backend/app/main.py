@@ -18,19 +18,28 @@ logging.basicConfig(
 logger = logging.getLogger("gtm-api")
 
 
+def _background_init():
+    """Run slow init tasks in a background thread so the server starts fast."""
+    import time
+    time.sleep(2)  # let uvicorn bind first
+    try:
+        count = init_vector_store()
+        logger.info(f"RAG vector store ready: {count} chunks indexed")
+    except Exception as e:
+        logger.error(f"RAG init failed: {e}")
+
+    try:
+        if settings.twitter_access_token and settings.twitter_access_secret:
+            run_loop()
+    except Exception as e:
+        logger.error(f"Worker failed: {e}")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Index vault into vector store
-    count = init_vector_store()
-    logger.info(f"RAG vector store ready: {count} chunks indexed")
-
-    # Start the mention poll loop in a background thread
-    if settings.twitter_bearer_token:
-        worker_thread = threading.Thread(target=run_loop, daemon=True)
-        worker_thread.start()
-        logger.info("Worker thread started — polling @%s mentions", settings.stardrop_username)
-    else:
-        logger.warning("No TWITTER_BEARER_TOKEN — worker not started")
+    bg = threading.Thread(target=_background_init, daemon=True)
+    bg.start()
+    logger.info("Background init started (RAG + worker)")
     yield
 
 
