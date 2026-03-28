@@ -1,8 +1,7 @@
 # Signal-Activated Intelligence: A Technical Framework for Composable GTM Agent Pipelines with Self-Improving Feedback
 
-**Arihant Choudhary**$^{1,2}$, **Bo Mohazzabi**$^{3}$, **Josh Payne**$^{3}$
+**Arihant Choudhary**, **Bo Mohazzabi**, **Josh Payne**
 
-$^{1}$Stanford University, $^{2}$City Intelligence, $^{3}$Coframe
 
 ---
 
