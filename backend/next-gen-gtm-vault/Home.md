@@ -80,7 +80,6 @@ How companies bring products to market:
 | Tool | What It Does |
 |------|-------------|
 | [[AI SDR Agents]] | Autonomous outbound (11x, Artisan, Apollo Vibe GTM) |
-| [[Coframe]] | AI growth agent — autonomous A/B testing, personalization, website optimization |
 | [[AI Agents in GTM]] | Full landscape: SDR, inbound, research, scoring, deal intelligence |
 
 ### Reference
@@ -100,7 +99,6 @@ How companies bring products to market:
 | [[Case Study - Datadog]] | Multi-product land-expand | 75% growth from expansion (120% NRR) |
 | [[Case Study - Notion]] | Template-driven viral PLG | $10B without advertising |
 | [[Case Study - Clay]] | Category creation | Built the middleware, defined the role |
-| [[Case Study - Coframe]] | AI growth engineering | Multi-agent autonomous experimentation (10x volume) |
 
 ---
 

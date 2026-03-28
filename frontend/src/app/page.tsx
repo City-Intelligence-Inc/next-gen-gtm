@@ -1,4 +1,61 @@
+import {
+  XIcon,
+  OpenAIIcon,
+  ChromaDBIcon,
+  AWSIcon,
+  GitHubIcon,
+  LumaIcon,
+  HubSpotIcon,
+  SalesforceIcon,
+  SlackIcon,
+  ClayIcon,
+  ApolloIcon,
+  InstantlyIcon,
+  AttioIcon,
+  CommonRoomIcon,
+  UnifyIcon,
+  PocusIcon,
+  HightouchIcon,
+  SnowflakeIcon,
+  SegmentIcon,
+  StripeIcon,
+  LinkedInIcon,
+  GongIcon,
+  GoogleAdsIcon,
+  CoframeIcon,
+} from "./icons";
+
 export default function Home() {
+  const liveEnvironments = [
+    { name: "X / Twitter", desc: "Mention detection + auto-reply via OAuth 1.0a", detail: "Polls every 60s, dedupes, checks for existing replies", icon: XIcon },
+    { name: "OpenAI (GPT-4o)", desc: "GTM analysis + intelligence generation", detail: "RAG-augmented prompts with domain knowledge", icon: OpenAIIcon },
+    { name: "ChromaDB (RAG)", desc: "60+ vault notes indexed (441 chunks)", detail: "all-MiniLM-L6-v2 embeddings, cosine similarity, top-8 retrieval", icon: ChromaDBIcon },
+    { name: "AWS App Runner", desc: "Backend compute + worker polling", detail: "0.25 vCPU, auto-scales, health-checked", icon: AWSIcon },
+    { name: "GitHub", desc: "Repo creation from tweets, CI/CD via Actions", detail: "GitHub App integration with private key auth", icon: GitHubIcon },
+    { name: "Luma", desc: "Event creation, hackathon management", detail: "Attendee tracking, event scheduling", icon: LumaIcon },
+  ];
+
+  const comingSoonEnvironments = [
+    { name: "HubSpot", cat: "CRM", desc: "Bi-directional contact/deal sync, push lead scores", icon: HubSpotIcon },
+    { name: "Salesforce", cat: "CRM", desc: "Enterprise CRM sync, opportunity tracking", icon: SalesforceIcon },
+    { name: "Slack", cat: "Notifications", desc: "Signal alerts to sales channels, deal room updates", icon: SlackIcon },
+    { name: "Clay", cat: "Enrichment", desc: "Waterfall enrichment across 50+ data providers", icon: ClayIcon },
+    { name: "Apollo", cat: "Data + Outbound", desc: "275M+ contacts, email sequences, Vibe GTM agents", icon: ApolloIcon },
+    { name: "Instantly", cat: "Cold Email", desc: "Multi-mailbox outbound, deliverability optimization", icon: InstantlyIcon },
+    { name: "Attio", cat: "Modern CRM", desc: "Relational CRM for composable GTM stacks", icon: AttioIcon },
+    { name: "Common Room", cat: "Signals", desc: "50+ signal sources, Person360 identity resolution", icon: CommonRoomIcon },
+    { name: "Unify", cat: "Signal Outbound", desc: "25+ signal types, automated plays", icon: UnifyIcon },
+    { name: "Pocus", cat: "PLS", desc: "Product-qualified lead scoring from usage data", icon: PocusIcon },
+    { name: "Hightouch", cat: "Reverse ETL", desc: "Warehouse-to-CRM sync, composable CDP", icon: HightouchIcon },
+    { name: "Snowflake", cat: "Data Warehouse", desc: "Source of truth for all GTM data", icon: SnowflakeIcon },
+    { name: "Segment", cat: "Events", desc: "Product event collection and routing", icon: SegmentIcon },
+    { name: "Stripe", cat: "Billing", desc: "Revenue events, expansion/churn signals", icon: StripeIcon },
+    { name: "LinkedIn", cat: "Outbound", desc: "Connection requests, InMail, engagement tracking", icon: LinkedInIcon },
+    { name: "Gong", cat: "Conversation Intel", desc: "Call analysis, MEDDIC scoring, deal risk", icon: GongIcon },
+    { name: "Google Ads + Meta", cat: "Paid", desc: "Audience sync from warehouse segments", icon: GoogleAdsIcon },
+    { name: "Coframe", cat: "AI Growth", desc: "Autonomous A/B testing, personalization, and website optimization", icon: CoframeIcon },
+  ];
+
   return (
     <main className="min-h-screen">
       {/* Nav */}
@@ -44,43 +101,45 @@ export default function Home() {
       </nav>
 
       {/* Hero */}
-      <section className="mx-auto max-w-4xl px-6 pt-28 pb-20 text-center">
-        <div className="animate-fade-in mb-6 inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-neutral-50 px-4 py-1.5 text-sm text-neutral-500">
-          <span className="animate-pulse-dot inline-block h-2 w-2 rounded-full bg-green-500" />
-          Agent is live — responding on X
-        </div>
-        <h1 className="animate-fade-in-delay-1 font-serif text-5xl italic leading-[1.1] tracking-tight text-neutral-900 sm:text-7xl">
-          Your GTM team
-          <br />
-          just got smarter
-        </h1>
-        <p className="animate-fade-in-delay-2 mx-auto mt-8 max-w-xl text-lg leading-relaxed text-neutral-500" style={{ letterSpacing: "-0.005em" }}>
-          Tag{" "}
-          <a
-            href="https://x.com/stardroplin"
-            target="_blank"
-            className="font-semibold text-neutral-900 underline underline-offset-4 decoration-neutral-300 hover:decoration-neutral-900 transition"
-          >
-            @stardroplin
-          </a>{" "}
-          on X with any GTM question. Get competitive intel, ICP analysis,
-          signal detection, and outbound copy — powered by AI and 60+ pages of
-          deep GTM research.
-        </p>
-        <div className="animate-fade-in-delay-3 mt-10 flex items-center justify-center gap-4">
-          <a
-            href="https://x.com/intent/tweet?text=@stardroplin%20who%20should%20I%20sell%20to%3F%20we%20built%20"
-            target="_blank"
-            className="rounded-lg bg-neutral-900 px-6 py-3 text-sm font-medium text-white transition hover:bg-neutral-800 active:bg-black hover:shadow-lg"
-          >
-            Tag @stardroplin on X
-          </a>
-          <a
-            href="#how-it-works"
-            className="rounded-lg border border-neutral-200 px-6 py-3 text-sm font-medium text-neutral-600 transition hover:border-neutral-300 hover:text-neutral-900"
-          >
-            How it works
-          </a>
+      <section className="bg-gradient-to-b from-white via-white to-neutral-50/80">
+        <div className="mx-auto max-w-4xl px-6 pt-28 pb-20 text-center">
+          <div className="animate-fade-in mb-6 inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-neutral-50 px-4 py-1.5 text-sm text-neutral-500">
+            <span className="animate-pulse-dot inline-block h-2 w-2 rounded-full bg-green-500" />
+            Agent is live — responding on X
+          </div>
+          <h1 className="animate-fade-in-delay-1 font-serif text-5xl italic leading-[1.1] tracking-tight text-neutral-900 sm:text-7xl">
+            Your GTM team
+            <br />
+            just got smarter
+          </h1>
+          <p className="animate-fade-in-delay-2 mx-auto mt-8 max-w-xl text-lg leading-relaxed text-neutral-500" style={{ letterSpacing: "-0.005em" }}>
+            Tag{" "}
+            <a
+              href="https://x.com/stardroplin"
+              target="_blank"
+              className="font-semibold text-neutral-900 underline underline-offset-4 decoration-neutral-300 hover:decoration-neutral-900 transition"
+            >
+              @stardroplin
+            </a>{" "}
+            on X with any GTM question. Get competitive intel, ICP analysis,
+            signal detection, and outbound copy — powered by AI and 60+ pages of
+            deep GTM research.
+          </p>
+          <div className="animate-fade-in-delay-3 mt-10 flex items-center justify-center gap-4">
+            <a
+              href="https://x.com/intent/tweet?text=@stardroplin%20who%20should%20I%20sell%20to%3F%20we%20built%20"
+              target="_blank"
+              className="rounded-lg bg-neutral-900 px-6 py-3 text-sm font-medium text-white transition hover:bg-neutral-800 active:bg-black hover:shadow-lg"
+            >
+              Tag @stardroplin on X
+            </a>
+            <a
+              href="#how-it-works"
+              className="rounded-lg border border-neutral-200 px-6 py-3 text-sm font-medium text-neutral-600 transition hover:border-neutral-300 hover:text-neutral-900"
+            >
+              How it works
+            </a>
+          </div>
         </div>
       </section>
 
@@ -99,7 +158,7 @@ export default function Home() {
         </div>
 
         {/* Static fallback + example response */}
-        <div className="mt-10 overflow-hidden rounded-2xl border border-neutral-200 shadow-lg shadow-neutral-100">
+        <div className="mt-10 overflow-hidden rounded-2xl border border-neutral-200 shadow-lg shadow-neutral-200/50" style={{ background: "linear-gradient(135deg, rgba(250,250,250,0.5) 0%, rgba(255,255,255,1) 50%, rgba(250,250,250,0.5) 100%)", boxShadow: "0 0 0 1px rgba(0,0,0,0.03), 0 4px 24px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)" }}>
           <div className="flex items-center gap-2 border-b border-neutral-200 bg-neutral-50 px-4 py-3">
             <div className="flex gap-1.5">
               <div className="h-3 w-3 rounded-full bg-red-300" />
@@ -308,64 +367,49 @@ export default function Home() {
               Live
             </p>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 stagger-children">
-              {[
-                { name: "X / Twitter", desc: "Mention detection + auto-reply via OAuth 1.0a", detail: "Polls every 60s, dedupes, checks for existing replies" },
-                { name: "OpenAI (GPT-4o)", desc: "GTM analysis + intelligence generation", detail: "RAG-augmented prompts with domain knowledge" },
-                { name: "ChromaDB (RAG)", desc: "60+ vault notes indexed (441 chunks)", detail: "all-MiniLM-L6-v2 embeddings, cosine similarity, top-8 retrieval" },
-                { name: "AWS App Runner", desc: "Backend compute + worker polling", detail: "0.25 vCPU, auto-scales, health-checked" },
-                { name: "GitHub", desc: "Repo creation from tweets, CI/CD via Actions", detail: "GitHub App integration with private key auth" },
-                { name: "Luma", desc: "Event creation, hackathon management", detail: "Attendee tracking, event scheduling" },
-              ].map((item) => (
-                <div key={item.name} className="hover-lift flex items-start gap-3 rounded-xl border border-neutral-200 bg-white p-4">
-                  <div className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-green-500 shadow-sm shadow-green-500/50" />
-                  <div>
-                    <p className="text-sm font-semibold">{item.name}</p>
-                    <p className="mt-0.5 text-xs text-neutral-500">{item.desc}</p>
-                    <p className="mt-1 text-[10px] text-neutral-400">{item.detail}</p>
+              {liveEnvironments.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <div key={item.name} className="hover-lift flex items-start gap-3 rounded-xl border border-neutral-200 bg-white p-4">
+                    <div className="mt-0.5 shrink-0">
+                      <Icon className="drop-shadow-sm" size={22} />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold">{item.name}</p>
+                      <p className="mt-0.5 text-xs text-neutral-500">{item.desc}</p>
+                      <p className="mt-1 text-[10px] text-neutral-400">{item.detail}</p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
           {/* Coming Soon */}
           <div className="mt-12">
             <p className="mb-4 text-xs font-semibold uppercase tracking-[0.15em] text-neutral-400">
-              Coming soon — 17 environments
+              Coming soon — {comingSoonEnvironments.length} environments
             </p>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 stagger-children">
-              {[
-                { name: "HubSpot", cat: "CRM", desc: "Bi-directional contact/deal sync, push lead scores" },
-                { name: "Salesforce", cat: "CRM", desc: "Enterprise CRM sync, opportunity tracking" },
-                { name: "Slack", cat: "Notifications", desc: "Signal alerts to sales channels, deal room updates" },
-                { name: "Clay", cat: "Enrichment", desc: "Waterfall enrichment across 50+ data providers" },
-                { name: "Apollo", cat: "Data + Outbound", desc: "275M+ contacts, email sequences, Vibe GTM agents" },
-                { name: "Instantly", cat: "Cold Email", desc: "Multi-mailbox outbound, deliverability optimization" },
-                { name: "Attio", cat: "Modern CRM", desc: "Relational CRM for composable GTM stacks" },
-                { name: "Common Room", cat: "Signals", desc: "50+ signal sources, Person360 identity resolution" },
-                { name: "Unify", cat: "Signal Outbound", desc: "25+ signal types, automated plays" },
-                { name: "Pocus", cat: "PLS", desc: "Product-qualified lead scoring from usage data" },
-                { name: "Hightouch", cat: "Reverse ETL", desc: "Warehouse-to-CRM sync, composable CDP" },
-                { name: "Snowflake", cat: "Data Warehouse", desc: "Source of truth for all GTM data" },
-                { name: "Segment", cat: "Events", desc: "Product event collection and routing" },
-                { name: "Stripe", cat: "Billing", desc: "Revenue events, expansion/churn signals" },
-                { name: "LinkedIn", cat: "Outbound", desc: "Connection requests, InMail, engagement tracking" },
-                { name: "Gong", cat: "Conversation Intel", desc: "Call analysis, MEDDIC scoring, deal risk" },
-                { name: "Google Ads + Meta", cat: "Paid", desc: "Audience sync from warehouse segments" },
-              ].map((item) => (
-                <div key={item.name} className="flex items-start gap-3 rounded-xl border border-dashed border-neutral-200 bg-white/50 p-4 opacity-75">
-                  <div className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-neutral-300" />
-                  <div>
-                    <p className="text-sm font-semibold">
-                      {item.name}
-                      <span className="ml-2 rounded bg-neutral-100 px-1.5 py-0.5 text-[10px] font-medium text-neutral-400 uppercase">
-                        {item.cat}
-                      </span>
-                    </p>
-                    <p className="mt-0.5 text-xs text-neutral-400">{item.desc}</p>
+              {comingSoonEnvironments.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <div key={item.name} className="flex items-start gap-3 rounded-xl border border-dashed border-neutral-200 bg-white/50 p-4 opacity-75">
+                    <div className="mt-0.5 shrink-0 grayscale-[40%] opacity-80">
+                      <Icon size={22} />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold">
+                        {item.name}
+                        <span className="ml-2 rounded bg-neutral-100 px-1.5 py-0.5 text-[10px] font-medium text-neutral-400 uppercase">
+                          {item.cat}
+                        </span>
+                      </p>
+                      <p className="mt-0.5 text-xs text-neutral-400">{item.desc}</p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
@@ -385,7 +429,7 @@ export default function Home() {
           </p>
           <div className="mt-14 grid gap-px overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-200 sm:grid-cols-3 scroll-scale">
             {[
-              { stat: "12–20", label: "GTM tools per company", sub: "Each with its own data model and API" },
+              { stat: "12\u201320", label: "GTM tools per company", sub: "Each with its own data model and API" },
               { stat: "30%", label: "CRM data decays yearly", sub: "Job changes, bounces, stale records" },
               { stat: "$85K+", label: "Fully loaded SDR cost", sub: "vs $8-24K for an AI agent system" },
               { stat: "42hrs", label: "Median lead response time", sub: "Top quartile responds in under 5 min" },
@@ -396,7 +440,15 @@ export default function Home() {
                 key={item.label}
                 className="bg-white p-8 text-center"
               >
-                <p className="font-serif text-4xl italic text-neutral-900">
+                <p
+                  className="font-serif text-4xl italic"
+                  style={{
+                    background: "linear-gradient(180deg, #171717 0%, #525252 100%)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    backgroundClip: "text",
+                  }}
+                >
                   {item.stat}
                 </p>
                 <p className="mt-2 text-sm font-medium text-neutral-700">{item.label}</p>

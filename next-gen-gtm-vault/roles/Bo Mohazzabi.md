@@ -1,5 +1,5 @@
 ---
-tags: [role, leadership, GTM-practitioner, coframe]
+tags: [role, leadership, GTM-practitioner, coframe, haystacksai, acquisition]
 aliases: [Bo, Bo Mohazzabi]
 ---
 
@@ -13,9 +13,11 @@ aliases: [Bo, Bo Mohazzabi]
 
 ## Career Arc (GTM Practitioner DNA)
 
-### Optimizely (Early Team)
-- Part of the early sales team during Series C ($58M raise)
-- Product analytics / experimentation era
+### Optimizely (Original AE Team)
+- One of the original AEs on the founding sales team
+- **Top revenue producer** across the company
+- Closed Optimizely's **single largest customer**
+- Product analytics / experimentation era — learned the A/B testing and optimization DNA that later connected to Coframe
 - Learned: **optimization and testing are the foundation of good GTM**
 
 ### Amplitude (Enterprise AE, 2017-2019)
@@ -24,10 +26,12 @@ aliases: [Bo, Bo Mohazzabi]
 - Brought on first Fortune 500 customers
 - Led portfolio briefings at Sequoia Capital and Benchmark
 - Relocated from SF to NYC to build East Coast business from scratch
-- Learned: **enterprise sales at scale, relationship-driven growth**
+- **Expanded into new industry verticals** — proved the enterprise playbook could cross verticals
+- Learned: **enterprise sales at scale, relationship-driven growth, new industry expansion**
 
 ### KarmaCheck (Head of Sales & Growth, 2020-2022)
 - **First GTM hire** at an Eric Ly (LinkedIn co-founder) startup
+- GTM lead who drove **50x growth in 18 months**
 - Grew from **$36K → $2.4M ARR** through Series A ($90M valuation)
 - Closed 2 largest deals: $500K ARR and $240K ARR
 - Designed the industry's only subscription pricing model
@@ -37,19 +41,24 @@ aliases: [Bo, Bo Mohazzabi]
 - Learned: **first GTM hire playbook, PLG + sales hybrid, pricing innovation**
 
 ### HaystacksAI (Co-Founder & CEO, 2024-2026)
+- Founded **HaystacksAI** — AI intent intelligence platform using LLM-driven behavioral analysis
 - Built intent intelligence for developer behaviors on GitHub/open source
 - AI agent analyzes developer behaviors, finds people behind intent signals **460% better than existing methods**
 - Matches issues/comments to features → generates sales playbooks
 - **"Like having a cracked SDR that also happens to be a Solutions Engineer and can read code"**
 - Mission: redefine the "spray-and-pray" outbound playbook that AI SDRs are making worse
-- Acquired by Coframe in early 2026
-- Learned: **intent signals from code > traditional intent data, AI agents for GTM**
+- **Acquired by [[Case Study - Coframe|Coframe]] in early 2026** — HaystacksAI's intent intelligence merged into Coframe's AI growth platform
+- The acquisition combined Bo's GTM expertise and intent signal technology with Coframe's autonomous experimentation engine
+- Learned: **intent signals from code > traditional intent data, AI agents for GTM, building to acquisition**
 
 ### Coframe (VP of GTM, 2026-Present)
+- Joined via **HaystacksAI acquisition** — Coframe acquired HaystacksAI to bring Bo and intent intelligence in-house
 - Leading Sales, Growth, Customer Success
 - Company growing **190% quarter over quarter**
 - Building the team: hiring sales, CS, growth
-- Working with Josh Payne (CEO/Founder)
+- Working with Josh Payne (CEO/Founder — co-founded Autograph with Tom Brady, $2B+ valuation)
+- Full-circle career arc: started at Optimizely (A/B testing) → now leading GTM for the AI-native evolution of experimentation
+- Bringing HaystacksAI's intent signal approach to Coframe's customer acquisition strategy
 
 ## Bo's GTM Philosophy
 
@@ -95,6 +104,8 @@ Stardrop's responses should sound like Bo would approve:
 
 ## Related
 
+- [[Case Study - Coframe]] — Coframe's AI growth engineering platform (Bo's current company)
+- [[Coframe]] — Tool profile for Coframe's AI growth agent
 - [[GTM Engineer]] — Bo bridges sales leadership and technical GTM
 - [[Signal-Based Selling]] — HaystacksAI was built on this
 - [[Product-Led Sales]] — KarmaCheck hybrid model

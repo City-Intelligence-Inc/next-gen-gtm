@@ -66,10 +66,6 @@ Apollo's bet on full-stack AI agents (launched Oct 2025):
 
 Teams define ICP and messaging once; AI executes autonomously.
 
-## 6. AI Growth Agents (Experimentation)
-
-A new category emerging alongside SDR and deal agents: **autonomous growth engineering.** [[Coframe]] runs a multi-agent system where specialized agents handle each stage of website experimentation — ideation, design, engineering, QA, deployment, and analysis — in a continuous loop. The result: **10x experiment volume at a fraction of the cost** of a traditional CRO team. Coframe partnered with OpenAI to fine-tune GPT-4o with paired images and code, achieving a **26% improvement** in website generation quality. [[Bo Mohazzabi]] (ex-Optimizely, ex-Amplitude, founder of HaystacksAI) joined as VP of GTM via acquisition, bringing intent signal intelligence into the growth engineering stack. This is the pattern: multi-agent coordination > single general-purpose agent. Each agent is a specialist, and the orchestration layer is the real product.
-
 ## The Bigger Picture: [[Agent-Led Growth]]
 
 Beyond agents as sellers, agents are becoming **buyers**:
@@ -83,8 +79,6 @@ This is a structural shift. See [[Agent-Led Growth]] for the full thesis.
 
 - [[AI SDR Agents]] — Deep dive on SDR agents
 - [[Agent-Led Growth]] — The macro trend
-- [[Coframe]] — Multi-agent growth engineering (experimentation)
-- [[Case Study - Coframe]] — Full case study on Coframe's approach
 - [[Signal-Based Selling]] — What agents act on
 - [[GTM Engineer]] — Who configures and maintains agents
 - [[Architecture - Core Layers]] — AI Agent Layer
