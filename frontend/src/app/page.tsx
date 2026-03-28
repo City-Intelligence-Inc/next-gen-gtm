@@ -221,33 +221,33 @@ export default function Home() {
               {
                 num: "01",
                 title: "Tag on X",
-                desc: "Tweet your GTM question and tag @stardroplin. Ask about competitors, your ICP, buying signals, GTM stack, outbound copy, or get your strategy roasted.",
-                detail: "Works with any tweet format — mention @stardroplin anywhere in the text.",
+                desc: "Tweet your GTM question and tag @stardroplin. Competitors, ICP, signals, stack, outbound, or strategy roast.",
+                detail: "Works with any tweet format.",
               },
               {
                 num: "02",
                 title: "AI analyzes with deep context",
-                desc: "Stardrop retrieves relevant knowledge from 60+ curated research notes via RAG (Retrieval-Augmented Generation), then GPT-4o generates specific, actionable intelligence.",
-                detail: "Knowledge covers: 5 GTM motions, signal taxonomy, composable stacks, MEDDIC, Bow-Tie Funnel, case studies (Ramp, Figma, Datadog, Notion).",
+                desc: "RAG retrieves from 60+ curated notes, then GPT-4o generates specific, actionable intelligence grounded in real research.",
+                detail: "5 motions, signal taxonomy, MEDDIC, case studies.",
               },
               {
                 num: "03",
                 title: "Get actionable reply",
-                desc: "Within 60 seconds, Stardrop replies with a thread — real tools, real numbers, real frameworks, and a concrete this-week action you can execute immediately.",
-                detail: "Every response names specific tools (Clay, Apollo, Instantly) and includes quantified recommendations.",
+                desc: "Within 60 seconds — real tools, real numbers, real frameworks, and a concrete this-week action you can execute immediately.",
+                detail: "Names specific tools with pricing.",
               },
             ].map((item) => (
               <div key={item.num} className="group">
-                <span className="font-mono text-xs font-semibold text-neutral-300 group-hover:text-neutral-900 transition">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-900 text-white font-mono text-xs font-bold group-hover:scale-110 transition-transform">
                   {item.num}
-                </span>
-                <h3 className="mt-3 text-lg font-semibold tracking-tight" style={{ letterSpacing: "-0.01em" }}>
+                </div>
+                <h3 className="mt-4 text-lg font-semibold tracking-tight" style={{ letterSpacing: "-0.01em" }}>
                   {item.title}
                 </h3>
                 <p className="mt-2 text-sm leading-relaxed text-neutral-500">
                   {item.desc}
                 </p>
-                <p className="mt-3 text-xs leading-relaxed text-neutral-400 border-t border-neutral-200 pt-3">
+                <p className="mt-2 text-[11px] leading-relaxed text-neutral-400">
                   {item.detail}
                 </p>
               </div>
@@ -457,7 +457,7 @@ export default function Home() {
             {[
               { num: "60+", label: "Research notes", desc: "Interconnected Obsidian vault with wikilinks" },
               { num: "441", label: "Indexed chunks", desc: "Embedded with all-MiniLM-L6-v2 in ChromaDB" },
-              { num: "5", label: "Case studies", desc: "Ramp, Figma, Datadog, Notion, Clay" },
+              { num: "6", label: "Case studies", desc: "Ramp, Figma, Datadog, Notion, Clay, Coframe" },
             ].map((item) => (
               <div key={item.label} className="rounded-xl border border-neutral-200 bg-white p-5">
                 <p className="font-serif text-2xl italic text-neutral-900">{item.num}</p>

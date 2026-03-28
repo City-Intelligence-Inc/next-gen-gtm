@@ -144,8 +144,45 @@ export default function DashboardOverview() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20 bg-[#FAFAF9]">
-        <div className="h-4 w-4 animate-spin rounded-full border-2 border-neutral-300 border-t-[#0A0A0A]" />
+      <div className="min-h-full bg-[#FAFAF9]">
+        <div className="bg-[#0A0A0A] text-white px-4 py-2 md:px-6">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/70">Stardrop GTM Intelligence</span>
+            <span className="flex items-center gap-1.5 text-[10px] text-white/50">
+              <span className="inline-block h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
+              @stardroplin
+            </span>
+          </div>
+        </div>
+        <div className="border-b border-neutral-200 bg-white px-4 py-2.5 md:px-6">
+          <div className="flex items-center gap-6">
+            {[1,2,3,4].map(i => (
+              <div key={i}>
+                <div className="h-2 w-12 rounded bg-neutral-100 animate-pulse" />
+                <div className="mt-2 h-5 w-8 rounded bg-neutral-100 animate-pulse" />
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="px-4 py-3 md:px-6 space-y-2">
+          {[1,2,3,4].map(i => (
+            <div key={i} className="rounded-xl border border-neutral-200 bg-white p-4">
+              <div className="flex items-center gap-3">
+                <div className="h-8 w-8 rounded-full bg-neutral-100 animate-pulse" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-3 w-24 rounded bg-neutral-100 animate-pulse" />
+                  <div className="h-3 w-full rounded bg-neutral-50 animate-pulse" />
+                </div>
+              </div>
+              <div className="mt-3 ml-11 rounded-lg bg-neutral-50 p-3">
+                <div className="space-y-1.5">
+                  <div className="h-2.5 w-3/4 rounded bg-neutral-100 animate-pulse" />
+                  <div className="h-2.5 w-1/2 rounded bg-neutral-100 animate-pulse" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -212,9 +249,22 @@ export default function DashboardOverview() {
       </div>
 
       {error ? (
-        <div className="p-6 text-center">
-          <p className="text-xs text-neutral-500">{error}</p>
-          <button onClick={() => window.location.reload()} className="mt-2 bg-[#0A0A0A] px-3 py-1.5 text-[11px] text-white rounded">Retry</button>
+        <div className="px-4 py-12 md:px-6 text-center">
+          <div className="mx-auto max-w-sm rounded-xl border border-neutral-200 bg-white p-8">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-neutral-100">
+              <svg className="h-5 w-5 text-neutral-400" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                <circle cx="10" cy="10" r="8" />
+                <line x1="10" y1="6" x2="10" y2="10" />
+                <circle cx="10" cy="13" r="0.5" fill="currentColor" />
+              </svg>
+            </div>
+            <p className="text-sm font-semibold text-neutral-900">Backend warming up</p>
+            <p className="mt-1 text-xs text-neutral-500">App Runner is cold starting. Usually takes 10-30 seconds.</p>
+            <p className="mt-2 font-mono text-[10px] text-neutral-300">{error}</p>
+            <button onClick={() => window.location.reload()} className="mt-4 bg-[#0A0A0A] px-5 py-2 text-xs font-medium text-white rounded-lg hover:bg-neutral-800 transition">
+              Retry
+            </button>
+          </div>
         </div>
       ) : view === "rate" ? (
         /* ======= RATE MODE — Swipeable Twitter-style cards ======= */
