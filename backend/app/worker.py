@@ -16,6 +16,12 @@ logging.basicConfig(
 )
 logger = logging.getLogger("gtm-worker")
 
+# Accounts we never reply to (lowercase)
+BLOCKED_ACCOUNTS = {"grok", "xai"}
+
+# Max replies per conversation to prevent back-and-forth loops
+MAX_REPLIES_PER_CONVERSATION = 2
+
 
 def run_once():
     logger.info(f"Polling mentions for @{settings.stardrop_username}...")
@@ -46,6 +52,32 @@ def run_once():
 
         # Skip our own tweets
         if mention_data["author_username"].lower() == settings.stardrop_username.lower():
+            processed_ids.add(tweet_id)
+            continue
+
+        # Skip blocked accounts (e.g. @grok)
+        if mention_data["author_username"].lower() in BLOCKED_ACCOUNTS:
+            logger.info(f"Blocked account @{mention_data['author_username']}, skipping {tweet_id}")
+            processed_ids.add(tweet_id)
+            continue
+
+        # Rate-limit per conversation to prevent back-and-forth loops
+        convo_id = mention_data["conversation_id"]
+        convo_reply_count = sum(
+            1 for m in mentions
+            if m["conversation_id"] == convo_id and m["tweet_id"] in processed_ids
+        )
+        # Also check DynamoDB for previously replied tweets in this conversation
+        try:
+            all_saved = db_service.get_all_mentions(limit=200)
+            convo_reply_count += sum(
+                1 for m in all_saved
+                if m.get("conversation_id") == convo_id and m.get("replied")
+            )
+        except Exception:
+            pass
+        if convo_reply_count >= MAX_REPLIES_PER_CONVERSATION:
+            logger.info(f"Already replied {convo_reply_count}x in conversation {convo_id}, skipping {tweet_id}")
             processed_ids.add(tweet_id)
             continue
 
